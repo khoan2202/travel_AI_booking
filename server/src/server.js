@@ -1,13 +1,11 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import pg from "pg";
 
-const { Pool } = pg;
+import pool from "./db/pool.js";
+import tourRoutes from "./routes/tourRoutes.js";
 
 const app = express();
-const pool = new Pool();
-
 app.use(
   cors({
     origin: process.env.CLIENT_URL,
@@ -22,11 +20,23 @@ app.get("/api/health", async (req, res) => {
       database: "PostgreSQL đã kết nối",
     });
   } catch (error) {
-    console.error("Database connection error:", error.code);
+    console.error("Lỗi kiểm tra database:", error.code);
     res.status(503).json({
       message: "Chưa kết nối được PostgreSQL",
     });
   }
+});
+app.use("/api/tours", tourRoutes);
+app.use((req, res) => {
+  res.status(404).json({
+    message: "Đường dẫn API không tồn tại",
+  });
+});
+app.use((error, req, res, next) => {
+  console.error("Lỗi xử lý API:", error.code || error.name);
+  res.status(500).json({
+    message: "Có lỗi phía máy chủ. Vui lòng thử lại.",
+  });
 });
 
 const port = Number(process.env.PORT) || 5000;
