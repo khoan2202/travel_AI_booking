@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { useState } from "react";
 
 export default function Header() {
@@ -7,9 +8,9 @@ export default function Header() {
   return (
     <header className="site-header">
       <div className="container header-inner">
-        <a className="brand" href="#top" onClick={closeMenu} aria-label="Travel Mint - Trang chủ">
+        <Link className="brand" to="/" onClick={closeMenu} aria-label="Travel Mint - Trang chủ">
           TRAVEL <span>MINT.</span>
-        </a>
+        </Link>
         <button
           className="menu-toggle"
           type="button"
@@ -20,9 +21,9 @@ export default function Header() {
           {menuOpen ? "Đóng menu" : "Menu ☰"}
         </button>
         <nav id="main-menu" className={menuOpen ? "main-menu is-open" : "main-menu"} aria-label="Điều hướng chính">
-          <a href="#top" onClick={closeMenu}>Trang chủ</a>
-          <a href="#tours" onClick={closeMenu}>Khám phá tour</a>
-          <a href="#about" onClick={closeMenu}>Giới thiệu</a>
+          <Link to="/" onClick={closeMenu}>Trang chủ</Link>
+          <Link to="/#tours" onClick={closeMenu}>Khám phá tour</Link>
+          <Link to="/#about" onClick={closeMenu}>Giới thiệu</Link>
         </nav>
       </div>
     </header>
