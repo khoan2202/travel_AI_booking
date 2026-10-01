@@ -1,21 +1,28 @@
 :root {
-  font-family: Arial, sans-serif;
-  color: #1e1e1e;
-  background: #ffffff;
+  font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+  color: #232323;
+  background: #fff;
   font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --primary: #00ffc3;
+  --dark: #232323;
+  --muted: #5d6866;
+  --line: #e6ece9;
 }
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-}
-
-button,
-input,
-select,
-textarea {
-  font: inherit;
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 108px; }
+body { margin: 0; min-width: 320px; }
+button, input, select, textarea { font: inherit; }
+button, a, input, select, summary { -webkit-tap-highlight-color: transparent; }
+button, summary { cursor: pointer; }
+button:disabled { cursor: wait; }
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+h1, h2, h3, p { margin: 0; }
+button, input, select { min-height: 44px; }
+:focus-visible { outline: 3px solid #00765c; outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition: none !important; }
 }
