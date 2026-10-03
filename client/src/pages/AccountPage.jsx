@@ -13,7 +13,7 @@ export default function AccountPage() {
       <section className="account-card" aria-labelledby="profile-title">
         <div className="account-card-heading"><h2 id="profile-title">Thông tin cá nhân</h2><span className="role-badge">{user.role === "admin" ? "Quản trị viên" : "Thành viên"}</span></div>
         <dl className="profile-fields"><div><dt>Họ và tên</dt><dd>{user.name}</dd></div><div><dt>Email</dt><dd>{user.email}</dd></div></dl>
-        <div className="account-actions"><Link className="button button-primary" to="/#tours">Khám phá tour <span aria-hidden="true">↗</span></Link>{user.role === "admin" && <Link className="button button-secondary" to="/admin">Mở trang quản trị</Link>}</div>
+        <div className="account-actions"><Link className="button button-primary" to="/#tours">Khám phá tour <span aria-hidden="true">↗</span></Link><Link className="button button-secondary" to="/my-bookings">Xem đơn đã đặt</Link>{user.role === "admin" && <Link className="button button-secondary" to="/admin">Mở trang quản trị</Link>}</div>
       </section>
     </main><Footer /></>
   );

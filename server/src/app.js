@@ -6,6 +6,7 @@ import { createSessionMiddleware } from "./config/session.js";
 import tourRoutes from "./routes/tourRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import bookingRoutes from "./routes/bookingRoutes.js";
 
 export function createApp() {
   const app = express();
@@ -32,6 +33,7 @@ export function createApp() {
   app.use("/api/tours", tourRoutes);
   app.use("/api/auth", authRoutes);
   app.use("/api/admin", adminRoutes);
+  app.use("/api/bookings", bookingRoutes);
 
   app.use((req, res) => res.status(404).json({ message: "Đường dẫn API không tồn tại" }));
   app.use((error, req, res, next) => {

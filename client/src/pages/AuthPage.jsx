@@ -4,6 +4,7 @@ import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import { useAuth } from "../context/AuthContext.js";
 import { registerUser } from "../services/authApi.js";
+import { safeAuthRedirect } from "../utils/authRedirect.js";
 
 export default function AuthPage({ mode }) {
   const isRegister = mode === "register";
@@ -18,7 +19,7 @@ export default function AuthPage({ mode }) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   // Chỉ quay về các trang nội bộ đã biết, không nhận URL ngoài từ đầu vào.
-  const destination = ["/account", "/admin"].includes(location.state?.from) ? location.state.from : "/account";
+  const destination = safeAuthRedirect(location.state?.from);
 
   if (user) return <Navigate to={destination} replace />;
 

@@ -34,6 +34,7 @@ export default function Header() {
           {status === "loading" ? <span className="header-session-status">Đang kiểm tra…</span> : user ? <>
             {user.role === "admin" && <Link to="/admin" onClick={closeMenu}>Quản trị</Link>}
             <Link to="/account" onClick={closeMenu} className="account-nav-link">Tài khoản</Link>
+            <Link to="/my-bookings" onClick={closeMenu}>Đơn của tôi</Link>
             <button className="header-logout" type="button" disabled={pending} onClick={handleLogout}>{pending ? "Đang thoát…" : "Đăng xuất"}</button>
           </> : <Link className="login-nav-link" to="/login" onClick={closeMenu}>Đăng nhập</Link>}
         </nav>

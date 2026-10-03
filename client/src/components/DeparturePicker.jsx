@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router";
 import { getTourDepartures } from "../services/tourApi.js";
 import { formatPrice } from "../utils/format.js";
+import { checkoutPath } from "../utils/booking.js";
 
 // API trả ngày dạng YYYY-MM-DD: đảo thứ tự để không bị lệch múi giờ.
 function formatDepartureDate(value) {
@@ -21,7 +23,7 @@ export default function DeparturePicker({ tourId, initialDepartures }) {
 
   const selected = departures.find((item) => String(item.id) === selectedId);
   const guestCount = Number(guests);
-  const validGuests = Number.isInteger(guestCount) && guestCount >= 1;
+  const validGuests = Number.isInteger(guestCount) && guestCount >= 1 && guestCount <= 20;
   const enoughSeats = selected && guestCount <= selected.available_seats;
   const totalPrice = selected ? Number(selected.price_per_person) * guestCount : 0;
   const validTotal = Number.isSafeInteger(totalPrice) && totalPrice > 0;
@@ -93,7 +95,7 @@ export default function DeparturePicker({ tourId, initialDepartures }) {
           type="number"
           inputMode="numeric"
           min="1"
-          max={selected?.available_seats}
+          max={Math.min(selected?.available_seats || 20, 20)}
           step="1"
           value={guests}
           disabled={!selected || refreshing}
@@ -104,7 +106,7 @@ export default function DeparturePicker({ tourId, initialDepartures }) {
       </label>
       <p id="guest-hint" className="guest-hint">
         {!selected ? "Chọn một lịch khởi hành để nhập số người."
-          : !validGuests ? "Số người phải là số nguyên từ 1 trở lên."
+          : !validGuests ? "Mỗi đơn nhận từ 1 đến 20 người."
             : !enoughSeats ? `Lịch này chỉ còn ${selected.available_seats} chỗ.`
               : !validTotal ? "Số lượng vượt giới hạn tính toán. Vui lòng giảm số người."
                 : `Lịch đã chọn hiện còn ${selected.available_seats} chỗ.`}
@@ -115,11 +117,12 @@ export default function DeparturePicker({ tourId, initialDepartures }) {
         <strong>{refreshing ? "Đang kiểm tra…" : canQuote ? formatPrice(totalPrice) : "—"}</strong>
         {canQuote && !refreshing && <small>{guestCount} người × {formatPrice(selected.price_per_person)}</small>}
       </div>
-      <button className="button button-primary refresh-departures" type="button" onClick={refreshDepartures} disabled={refreshing}>
+      <button className="button button-secondary refresh-departures" type="button" onClick={refreshDepartures} disabled={refreshing}>
         {refreshing ? "Đang kiểm tra…" : "Kiểm tra lại giá và chỗ"}
       </button>
       {message && <p className={refreshFailed ? "refresh-message is-error" : "refresh-message"} role={refreshFailed ? "alert" : "status"}>{message}</p>}
-      <p className="quote-note">Đây là chi phí dự kiến theo giá tour. Lựa chọn này chưa giữ chỗ hoặc tạo đơn đặt tour.</p>
+      {canQuote && !refreshing ? <Link className="button button-primary booking-continue" to={checkoutPath(tourId, selected.id, guestCount)}>Tiếp tục đặt tour <span aria-hidden="true">→</span></Link> : <button className="button button-primary booking-continue" type="button" disabled>Tiếp tục đặt tour</button>}
+      <p className="quote-note">Chỗ được giữ khi bạn xác nhận và hệ thống tạo đơn thành công ở bước tiếp theo.</p>
     </aside>
   );
 }
