@@ -1,5 +1,9 @@
 import "dotenv/config";
 import express from "express";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { existsSync } from "node:fs";
+import { securityHeaders } from "./middleware/security.js";
 import cors from "cors";
 import pool from "./db/pool.js";
 import { createSessionMiddleware } from "./config/session.js";
@@ -12,6 +16,12 @@ import bookingRoutes from "./routes/bookingRoutes.js";
 export function createApp() {
   const app = express();
   app.disable("x-powered-by");
+  const production = process.env.NODE_ENV === "production";
+  if (production && (!process.env.CLIENT_URL || new URL(process.env.CLIENT_URL).protocol !== "https:")) {
+    throw new Error("Production requires an HTTPS CLIENT_URL.");
+  }
+  if (production && process.env.DATABASE_SSL !== "true") throw new Error("Production requires DATABASE_SSL=true.");
+  app.use(securityHeaders);
   app.locals.clientOrigin = new URL(process.env.CLIENT_URL || "http://localhost:5173").origin;
   if (process.env.NODE_ENV === "production") app.set("trust proxy", 1);
 
@@ -37,7 +47,17 @@ export function createApp() {
   app.use("/api/bookings", bookingRoutes);
   app.use("/api/recommendations", recommendationRoutes);
 
-  app.use((req, res) => res.status(404).json({ message: "Đường dẫn API không tồn tại" }));
+  app.use("/api", (req, res) => res.status(404).json({ message: "Đường dẫn API không tồn tại" }));
+  if (production || process.env.SERVE_CLIENT === "true") {
+    const clientDist = fileURLToPath(new URL("../../client/dist/", import.meta.url));
+    if (!existsSync(path.join(clientDist, "index.html"))) throw new Error("Run npm run build in client before serving the website.");
+    app.use(express.static(clientDist, { index: false }));
+    app.get(/.*/, (req, res, next) => {
+      if (path.extname(req.path) || !req.accepts("html")) return next();
+      res.set("Cache-Control", "no-cache").sendFile(path.join(clientDist, "index.html"));
+    });
+  }
+  app.use((req, res) => res.status(404).json({ message: "Đường dẫn không tồn tại" }));
   app.use((error, req, res, next) => {
     console.error("Lỗi xử lý API:", error.code || error.name);
     const status = [400, 413].includes(error.status) ? error.status : 500;

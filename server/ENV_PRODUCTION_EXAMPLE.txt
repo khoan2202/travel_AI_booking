@@ -1,0 +1,16 @@
+# Set these on the hosting provider, not in Git.
+NODE_ENV=production
+NODE_VERSION=24.21.0
+CLIENT_URL=https://TEN-DICH-VU.onrender.com
+SESSION_SECRET=THAY_BANG_CHUOI_NGAU_NHIEN_MOI_IT_NHAT_32_KY_TU
+PGHOST=HOST_TU_NEON
+PGPORT=5432
+PGDATABASE=neondb
+PGUSER=USER_TU_NEON
+PGPASSWORD=MAT_KHAU_TU_NEON
+DATABASE_SSL=true
+GEMINI_API_KEY=KEY_RIENG_CUA_BAN
+GEMINI_MODEL=gemini-3.5-flash-lite
+VITE_API_BASE_URL=/api
+# PORT: use provider value; do not hard-code.
+# One Node service serves both client/dist and /api.
