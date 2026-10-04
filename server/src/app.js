@@ -6,6 +6,7 @@ import { createSessionMiddleware } from "./config/session.js";
 import tourRoutes from "./routes/tourRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import recommendationRoutes from "./routes/recommendationRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 
 export function createApp() {
@@ -15,7 +16,7 @@ export function createApp() {
   if (process.env.NODE_ENV === "production") app.set("trust proxy", 1);
 
   app.use(cors({ origin: app.locals.clientOrigin, credentials: true }));
-  app.use(express.json({ limit: "16kb" }));
+  app.use(express.json({ limit: "32kb" }));
   const { middleware, store } = createSessionMiddleware();
   app.locals.sessionStore = store;
   app.use(middleware);
@@ -34,6 +35,7 @@ export function createApp() {
   app.use("/api/auth", authRoutes);
   app.use("/api/admin", adminRoutes);
   app.use("/api/bookings", bookingRoutes);
+  app.use("/api/recommendations", recommendationRoutes);
 
   app.use((req, res) => res.status(404).json({ message: "Đường dẫn API không tồn tại" }));
   app.use((error, req, res, next) => {

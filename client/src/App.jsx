@@ -1,4 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router";
+import RecommendationPage from "./pages/RecommendationPage.jsx";
+import "./styles/ai.css";
 import HomePage from "./pages/HomePage.jsx";
 import TourDetailPage from "./pages/TourDetailPage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
@@ -23,6 +25,7 @@ import "./styles/admin.css";
 export default function App() {
   return <BrowserRouter><AuthProvider><ScrollToSection /><Routes>
     <Route path="/" element={<HomePage />} />
+    <Route path="/recommendations" element={<RecommendationPage />} />
     <Route path="/tours/:id" element={<TourDetailPage />} />
     <Route path="/login" element={<AuthPage key="login" mode="login" />} />
     <Route path="/register" element={<AuthPage key="register" mode="register" />} />

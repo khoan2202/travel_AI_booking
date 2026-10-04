@@ -1,0 +1,4 @@
+# Thêm vào server/.env đang có. KHÔNG thay toàn bộ file .env.
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-3.5-flash-lite
+# Key trống: gợi ý từ database vẫn chạy; chưa có tư vấn AI thật.

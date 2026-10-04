@@ -30,7 +30,7 @@ export default function Header() {
         <nav id="main-menu" className={menuOpen ? "main-menu is-open" : "main-menu"} aria-label="Điều hướng chính">
           <Link to="/" onClick={closeMenu}>Trang chủ</Link>
           <Link to="/#tours" onClick={closeMenu}>Khám phá tour</Link>
-          <Link to="/#about" onClick={closeMenu}>Giới thiệu</Link>
+          <Link to="/recommendations" onClick={closeMenu}>Tư vấn AI</Link>
           {status === "loading" ? <span className="header-session-status">Đang kiểm tra…</span> : user ? <>
             {user.role === "admin" && <Link to="/admin" onClick={closeMenu}>Quản trị</Link>}
             <Link to="/account" onClick={closeMenu} className="account-nav-link">Tài khoản</Link>
