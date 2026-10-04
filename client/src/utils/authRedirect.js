@@ -3,7 +3,8 @@ export function safeAuthRedirect(value) {
   if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//')) return '/account';
   try {
     const url = new URL(value, 'http://travel.internal');
-    const allowed = ['/account', '/admin', '/admin/tours', '/booking', '/my-bookings'].includes(url.pathname)
+    const allowed = ['/account', '/admin', '/admin/tours', '/admin/bookings', '/booking', '/my-bookings'].includes(url.pathname)
+      || /^\/admin\/bookings\/[1-9]\d*$/.test(url.pathname)
       || /^\/my-bookings\/[1-9]\d*$/.test(url.pathname);
     return url.origin === 'http://travel.internal' && allowed ? url.pathname + url.search : '/account';
   } catch { return '/account'; }

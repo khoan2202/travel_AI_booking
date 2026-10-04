@@ -30,4 +30,8 @@
 .admin-card-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 28px 0; }
 .admin-page .admin-metrics { margin-bottom: 26px; }
 .admin-page .admin-metrics strong { font-size: clamp(22px,3vw,36px); overflow-wrap: anywhere; }
-@media(max-width:640px){ .admin-editor,.admin-destination { padding: 20px; } .admin-form-grid { grid-template-columns: minmax(0,1fr); } .admin-toolbar form { width:100%; } .admin-toolbar input { flex: 1; width: 150px; } }
+.admin-form .manual-confirm { display: flex; align-items: start; gap: 12px; line-height: 1.8; font-weight: 400; }
+.admin-form .manual-confirm input { width: 18px; height: 18px; min-height: 18px; flex: 0 0 18px; margin-top: 3px; accent-color: #00765c; }
+.audit-heading { margin: 25px 0 15px; font-size: 18px; }
+.audit-line { font-size: 12px; line-height: 1.9; color: var(--muted); padding-block: 10px; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+@media(max-width:640px){ .admin-editor,.admin-destination { padding: 20px; } .admin-form-grid { grid-template-columns: minmax(0,1fr); } .admin-toolbar form { width:100%; display:grid; grid-template-columns:minmax(0,1fr); } .admin-toolbar input,.admin-toolbar select { width:100%; } }

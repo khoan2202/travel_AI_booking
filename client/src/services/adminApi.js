@@ -5,3 +5,6 @@ export const getAdminTours = (page, q, signal) => request(`/admin/tours?page=${p
 export const saveTour = (id, body) => postAuth(id ? `/admin/tours/${id}/update` : '/admin/tours', body);
 export const getAdminDepartures = (tourId, signal) => request(`/admin/tours/${tourId}/departures`, { signal });
 export const saveDeparture = (tourId, id, body) => postAuth(id ? `/admin/departures/${id}/update` : `/admin/tours/${tourId}/departures`, body);
+export const getAdminBookings = (filters, signal) => request('/admin/bookings?' + new URLSearchParams(filters), { signal });
+export const getAdminBooking = (id, signal) => request(`/admin/bookings/${id}`, { signal });
+export const actOnBooking = (id, body) => postAuth(`/admin/bookings/${id}/action`, body);

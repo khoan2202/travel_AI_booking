@@ -1,0 +1,17 @@
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router';
+import Header from '../components/Header.jsx';
+import Footer from '../components/Footer.jsx';
+import AdminNav from '../components/AdminNav.jsx';
+import { getAdminBookings } from '../services/adminApi.js';
+import { bookingCode, bookingDate, bookingStatus, paymentStatus } from '../utils/booking.js';
+import { formatPrice } from '../utils/format.js';
+export default function AdminBookingsPage(){
+  const [filters,setFilters]=useState({page:1,q:'',status:'',payment:''}),[draft,setDraft]=useState({q:'',status:'',payment:''});
+  const [data,setData]=useState(null),[error,setError]=useState(''),[retry,setRetry]=useState(0);
+  useEffect(()=>{const c=new AbortController();setData(null);setError('');getAdminBookings(filters,c.signal).then(d=>{if(!c.signal.aborted)setData(d);}).catch(e=>{if(!c.signal.aborted)setError(e.message);});return()=>c.abort();},[filters,retry]);
+  return <><Header/><main className="container admin-page"><AdminNav/><p className="section-kicker">VẬN HÀNH TOUR</p><h1>Đơn đặt & thanh toán</h1><p className="account-intro">Theo dõi đơn, ghi nhận thanh toán và xử lý hủy/hoàn tiền thủ công.</p>
+    <div className="admin-toolbar"><form onSubmit={e=>{e.preventDefault();setFilters({...draft,page:1});}}><input aria-label="Tìm đơn" value={draft.q} maxLength="100" placeholder="Mã đơn, tên, email hoặc tour" onChange={e=>setDraft({...draft,q:e.target.value})}/><select aria-label="Trạng thái đơn" value={draft.status} onChange={e=>setDraft({...draft,status:e.target.value})}><option value="">Tất cả đơn</option><option value="confirmed">Còn hiệu lực</option><option value="cancelled">Đã hủy</option></select><select aria-label="Thanh toán" value={draft.payment} onChange={e=>setDraft({...draft,payment:e.target.value})}><option value="">Tất cả thanh toán</option><option value="unpaid">Chưa thanh toán</option><option value="paid">Đã thanh toán</option><option value="refunded">Đã hoàn tiền</option></select><button className="button button-primary">Lọc đơn</button></form></div>
+    {error?<div className="state-box"><p role="alert">{error}</p><button className="button button-secondary" onClick={()=>setRetry(n=>n+1)}>Thử lại</button></div>:!data?<p role="status">Đang tải đơn…</p>:<><div className="admin-table-wrap"><table className="admin-table"><caption>{data.total} đơn phù hợp</caption><thead><tr><th>Đơn / Khách</th><th>Hành trình</th><th>Tổng tiền</th><th>Trạng thái</th><th>Xử lý</th></tr></thead><tbody>{data.items.map(b=><tr key={b.id}><td>{bookingCode(b.id)}<small>{b.contact_name}<br/>{b.contact_email}</small></td><td>{b.tour_title}<small>{bookingDate(b.departure_date)} · {b.guest_count} người</small></td><td>{formatPrice(b.total_price)}</td><td>{bookingStatus(b.status)}<small>{paymentStatus(b.payment_status)}</small></td><td><Link className="button button-secondary" to={`/admin/bookings/${b.id}`}>Mở {bookingCode(b.id)}</Link></td></tr>)}</tbody></table></div><div className="booking-pagination"><button className="button button-secondary" disabled={filters.page<=1} onClick={()=>setFilters({...filters,page:filters.page-1})}>Trang trước</button><span>{data.page} / {data.total_pages}</span><button className="button button-secondary" disabled={filters.page>=data.total_pages} onClick={()=>setFilters({...filters,page:filters.page+1})}>Trang sau</button></div></>}
+  </main><Footer/></>;
+}
