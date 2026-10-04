@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import { getAdminOverview } from "../services/authApi.js";
+import AdminNav from "../components/AdminNav.jsx";
 
 export default function AdminPage() {
   const [data, setData] = useState(null);
@@ -17,7 +18,7 @@ export default function AdminPage() {
   }, [retryCount]);
   function retry() { setError(""); setData(null); setRetryCount((count) => count + 1); }
 
-  return <><Header /><main className="container account-page">
+  return <><Header /><main className="container admin-page"><AdminNav />
     <p className="section-kicker">QUẢN TRỊ VIÊN</p><h1>Tổng quan hệ thống</h1>
     <p className="account-intro">Số liệu hiện tại từ hệ thống Travel Mint.</p>
     {error ? <div className="state-box" role="alert"><p>{error}</p><button className="button button-primary" type="button" onClick={retry}>Thử lại</button></div> : data ? <div className="admin-metrics">

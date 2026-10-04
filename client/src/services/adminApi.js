@@ -1,0 +1,7 @@
+import { request, postAuth } from './authApi.js';
+export const getDestinations = (signal) => request('/admin/destinations', { signal });
+export const saveDestination = (body) => postAuth('/admin/destinations', body);
+export const getAdminTours = (page, q, signal) => request(`/admin/tours?page=${page}&q=${encodeURIComponent(q)}`, { signal });
+export const saveTour = (id, body) => postAuth(id ? `/admin/tours/${id}/update` : '/admin/tours', body);
+export const getAdminDepartures = (tourId, signal) => request(`/admin/tours/${tourId}/departures`, { signal });
+export const saveDeparture = (tourId, id, body) => postAuth(id ? `/admin/departures/${id}/update` : `/admin/tours/${tourId}/departures`, body);

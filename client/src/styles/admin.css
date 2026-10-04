@@ -1,0 +1,33 @@
+.admin-page { padding-top: 32px; min-height: 65vh; }
+.admin-page h1 { font-size: clamp(28px,4vw,40px); line-height: 1.4; }
+.admin-nav { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 30px; }
+.admin-nav a { padding: 12px 18px; border: 1px solid var(--line); font-size: 13px; border-radius: 3px; }
+.admin-nav a.active { background: var(--primary); border-color: var(--primary); color: #123d31; font-weight: 700; }
+.admin-toolbar { display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; margin-bottom: 22px; }
+.admin-toolbar form { display: flex; flex-wrap: wrap; gap: 10px; }
+.admin-toolbar input, .admin-toolbar select { max-width: 100%; min-width: 0; border: 1px solid #cedbd3; border-radius: 3px; padding: 12px; font-size: 13px; }
+.admin-table-wrap { max-width: 100%; overflow-x: auto; border: 1px solid var(--line); }
+.admin-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; line-height: 1.7; }
+.admin-table caption { text-align: left; font-size: 12px; padding: 14px 18px; color: var(--muted); }
+.admin-table th { background: #eff8f3; padding: 14px 18px; white-space: nowrap; font-size: 12px; }
+.admin-table td { padding: 16px 18px; border-top: 1px solid var(--line); min-width: 115px; }
+.admin-table td:first-child { min-width: 220px; }
+.admin-table small { display: block; color: var(--muted); font-size: 11px; }
+.admin-table .button { font-size: 11px; white-space: nowrap; padding-inline: 14px; }
+.admin-editor, .admin-destination { margin-top: 30px; border: 1px solid var(--line); padding: 28px; }
+.admin-editor { border-top: 4px solid var(--primary); }
+.admin-editor h2 { font-size: 24px; margin-bottom: 24px; }
+.admin-destination summary { font-size: 14px; font-weight: 650; }
+.admin-destination[open] summary { margin-bottom: 22px; }
+.admin-form fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.admin-form label { display: grid; gap: 9px; margin-bottom: 20px; font-size: 13px; font-weight: 600; }
+.admin-form input, .admin-form textarea, .admin-form select { width: 100%; min-width: 0; border: 1px solid #cedbd3; border-radius: 3px; padding: 12px; background: white; color: #232323; font-weight: 400; font-size: 14px; }
+.admin-form textarea { line-height: 1.8; resize: vertical; }
+.admin-form-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0 24px; }
+.admin-hint { color: var(--muted); font-size: 12px; line-height: 1.9; margin: 0 0 20px; }
+.admin-departures { border-top: 1px solid var(--line); margin-top: 32px; padding-top: 30px; }
+.admin-departures h3 { font-size: 19px; margin: 28px 0 22px; }
+.admin-card-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 28px 0; }
+.admin-page .admin-metrics { margin-bottom: 26px; }
+.admin-page .admin-metrics strong { font-size: clamp(22px,3vw,36px); overflow-wrap: anywhere; }
+@media(max-width:640px){ .admin-editor,.admin-destination { padding: 20px; } .admin-form-grid { grid-template-columns: minmax(0,1fr); } .admin-toolbar form { width:100%; } .admin-toolbar input { flex: 1; width: 150px; } }

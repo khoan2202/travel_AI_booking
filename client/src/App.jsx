@@ -11,10 +11,12 @@ import AuthProvider from "./context/AuthProvider.jsx";
 import BookingPage from "./pages/BookingPage.jsx";
 import MyBookingsPage from "./pages/MyBookingsPage.jsx";
 import BookingDetailPage from "./pages/BookingDetailPage.jsx";
+import AdminToursPage from "./pages/AdminToursPage.jsx";
 import "./App.css";
 import "./styles/tour-detail.css";
 import "./styles/auth.css";
 import "./styles/booking.css";
+import "./styles/admin.css";
 
 export default function App() {
   return <BrowserRouter><AuthProvider><ScrollToSection /><Routes>
@@ -24,6 +26,7 @@ export default function App() {
     <Route path="/register" element={<AuthPage key="register" mode="register" />} />
     <Route path="/account" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
     <Route path="/admin" element={<ProtectedRoute adminOnly><AdminPage /></ProtectedRoute>} />
+    <Route path="/admin/tours" element={<ProtectedRoute adminOnly><AdminToursPage /></ProtectedRoute>} />
     <Route path="/booking" element={<ProtectedRoute><BookingPage /></ProtectedRoute>} />
     <Route path="/my-bookings" element={<ProtectedRoute><MyBookingsPage /></ProtectedRoute>} />
     <Route path="/my-bookings/:id" element={<ProtectedRoute><BookingDetailPage /></ProtectedRoute>} />

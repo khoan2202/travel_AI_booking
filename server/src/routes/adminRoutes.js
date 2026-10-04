@@ -1,6 +1,7 @@
 import { Router } from "express";
 import pool from "../db/pool.js";
 import { requireAuth, requireAdmin } from "../middleware/auth.js";
+import catalogRoutes from "./adminCatalogRoutes.js";
 
 const router = Router();
 router.use((req, res, next) => {
@@ -8,6 +9,7 @@ router.use((req, res, next) => {
   next();
 });
 router.use(requireAuth, requireAdmin);
+router.use(catalogRoutes);
 
 router.get("/overview", async (req, res, next) => {
   try {
