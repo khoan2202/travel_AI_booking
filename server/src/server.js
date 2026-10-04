@@ -23,5 +23,10 @@ try {
   };
   process.on('SIGTERM', shutdown); process.on('SIGINT', shutdown);
 } catch (error) {
-  console.error('Startup failed:', error.code || error.message); await pool.end(); process.exit(1);
+    console.error('Startup failed:', {
+    code: error.code,
+    message: error.message,
+  }); 
+  await pool.end(); 
+  process.exit(1);
 }
