@@ -12,8 +12,10 @@ export function requireCsrf(req, res, next) {
     return res.status(403).json({ message: "Phiên biểu mẫu đã hết hạn. Vui lòng thử lại." });
   }
   const origin = req.get("Origin");
-  if (origin && origin !== req.app.locals.clientOrigin) {
-    return res.status(403).json({ message: "Nguồn gửi yêu cầu không được chấp nhận." });
+  if (origin && !req.app.locals.allowedOrigins?.has(origin)) {
+  return res.status(403).json({
+    message: "Nguồn gửi yêu cầu không được chấp nhận."
+  });
   }
   next();
 }
