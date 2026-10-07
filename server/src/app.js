@@ -38,6 +38,8 @@ export function createApp() {
     "http://127.0.0.1:5173",
   ]);
 
+  app.locals.allowedOrigins = allowedOrigins;
+
   app.use(
     cors({
       origin(origin, callback) {
