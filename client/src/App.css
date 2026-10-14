@@ -2,7 +2,8 @@
 .skip-link { position: fixed; top: -80px; left: 16px; z-index: 100; background: var(--primary); padding: 14px; }
 .skip-link:focus { top: 8px; }
 .site-header { position: sticky; top: 0; z-index: 20; background: var(--dark); color: #fff; }
-.header-inner { height: 80px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.header-inner { height: 80px;width: 100%; max-width: 1500px; margin: 0 auto; padding: 0 32px; display: flex;align-items: center; justify-content: space-between;gap: 20px;}
+.site-header .header-inner {width: 100%;max-width: none; padding: 0 32px;}
 .brand { font-size: 25px; font-weight: 800; letter-spacing: -.7px; white-space: nowrap; }
 .brand span { color: var(--primary); }
 .main-menu { display: flex; height: 100%; gap: 34px; }
