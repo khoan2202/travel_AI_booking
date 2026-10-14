@@ -58,7 +58,16 @@ export default function AuthPage({ mode }) {
           <p className="eyebrow">TRAVEL MINT</p>
           <h2>Những hành trình mới<br />đang chờ bạn.</h2>
           <p>Từ một điểm đến yêu thích đến một chuyến đi đáng nhớ. Bắt đầu cùng Travel Mint.</p>
-          <img src="/images/bay.svg" alt="Minh họa phong cảnh vịnh và núi xanh" width="800" height="500" />
+          <img
+          src={
+          isRegister
+          ? "/images/auth_login_register/register.jpg"
+          : "/images/auth_login_register/login.jpg"
+          }
+          alt={isRegister ? "Đăng ký tài khoản Travel Mint" : "Đăng nhập Travel Mint"}
+          width="800"
+          height="500"
+          />
           <Link to="/#tours">Khám phá tour <span aria-hidden="true">↗</span></Link>
         </div>
         <section className="auth-form-section" aria-labelledby="auth-title">
