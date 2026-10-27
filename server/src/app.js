@@ -12,6 +12,7 @@ import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import recommendationRoutes from "./routes/recommendationRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
+import supportRoutes from "./routes/supportRoutes.js";
 
 export function createApp() {
   const app = express();
@@ -76,6 +77,7 @@ export function createApp() {
   app.use("/api/admin", adminRoutes);
   app.use("/api/bookings", bookingRoutes);
   app.use("/api/recommendations", recommendationRoutes);
+  app.use("/api/support", supportRoutes);
 
   app.use("/api", (req, res) =>
     res.status(404).json({ message: "Đường dẫn API không tồn tại" }),
