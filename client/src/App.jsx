@@ -16,6 +16,7 @@ import BookingDetailPage from "./pages/BookingDetailPage.jsx";
 import AdminToursPage from "./pages/AdminToursPage.jsx";
 import AdminBookingsPage from "./pages/AdminBookingsPage.jsx";
 import AdminBookingDetailPage from "./pages/AdminBookingDetailPage.jsx";
+import ContactPage from "./pages/ContactPage.jsx";
 import "./App.css";
 import "./styles/tour-detail.css";
 import "./styles/auth.css";
@@ -34,6 +35,7 @@ export default function App() {
     <Route path="/admin/tours" element={<ProtectedRoute adminOnly><AdminToursPage /></ProtectedRoute>} />
     <Route path="/admin/bookings" element={<ProtectedRoute adminOnly><AdminBookingsPage /></ProtectedRoute>} />
     <Route path="/admin/bookings/:id" element={<ProtectedRoute adminOnly><AdminBookingDetailPage /></ProtectedRoute>} />
+    <Route path="/contact" element={<ContactPage />} />
     <Route path="/booking" element={<ProtectedRoute><BookingPage /></ProtectedRoute>} />
     <Route path="/my-bookings" element={<ProtectedRoute><MyBookingsPage /></ProtectedRoute>} />
     <Route path="/my-bookings/:id" element={<ProtectedRoute><BookingDetailPage /></ProtectedRoute>} />
