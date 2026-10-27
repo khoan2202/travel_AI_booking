@@ -78,3 +78,106 @@
   .booking-list-card { padding: 22px; }
   .booking-total strong { font-size: 24px; }
 }
+
+/* Fix bố cục form xác nhận đặt tour */
+.checkout-contact .booking-form {
+  width: 100%;
+  min-width: 0;
+}
+
+.checkout-contact .booking-form > fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.checkout-contact .booking-form > fieldset > label:not(.booking-agreement) {
+  display: block;
+  margin: 0;
+  color: #263b33;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.checkout-contact .booking-form input:not([type="checkbox"]),
+.checkout-contact .booking-form textarea {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  margin: 8px 0 0;
+  padding: 12px 14px;
+  border: 1px solid #cedbd3;
+  border-radius: 8px;
+  background: #fff;
+  color: #232323;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.checkout-contact .booking-form input:not([type="checkbox"]) {
+  min-height: 46px;
+}
+
+.checkout-contact .booking-form textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.checkout-contact .booking-form input[readonly] {
+  background: #f5f8f6;
+  color: #5d6866;
+}
+
+.checkout-contact .booking-form input:focus-visible,
+.checkout-contact .booking-form textarea:focus-visible {
+  border-color: #00765c;
+  outline: 2px solid #00765c;
+  outline-offset: 2px;
+}
+
+.checkout-contact .booking-form .booking-policy {
+  margin: 0;
+  border-radius: 8px;
+}
+
+.checkout-contact .booking-form .booking-agreement {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0;
+  color: #385348;
+}
+
+.checkout-contact .booking-form .booking-agreement input {
+  box-sizing: border-box;
+  width: 18px;
+  height: 18px;
+  min-height: 18px;
+  flex: 0 0 18px;
+  margin: 3px 0 0;
+  padding: 0;
+  accent-color: #00765c;
+}
+
+.checkout-contact .booking-form .booking-agreement span {
+  min-width: 0;
+}
+
+.checkout-contact .booking-form .booking-submit {
+  min-height: 48px;
+  margin: 0;
+  border-radius: 8px;
+  font-family: inherit;
+}
+
+.checkout-layout > * {
+  min-width: 0;
+}
