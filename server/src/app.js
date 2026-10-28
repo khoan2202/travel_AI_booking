@@ -13,6 +13,8 @@ import adminRoutes from "./routes/adminRoutes.js";
 import recommendationRoutes from "./routes/recommendationRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import supportRoutes from "./routes/supportRoutes.js";
+import swaggerUi from "swagger-ui-express";
+import openapi from "./docs/openapi.js";
 
 export function createApp() {
   const app = express();
@@ -78,6 +80,23 @@ export function createApp() {
   app.use("/api/bookings", bookingRoutes);
   app.use("/api/recommendations", recommendationRoutes);
   app.use("/api/support", supportRoutes);
+  app.get("/api-docs.json", (req, res) => {
+  res.json(openapi);
+});
+
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(openapi, {
+    customSiteTitle: "Travel Mint API Documentation",
+    swaggerOptions: {
+      validatorUrl: null,
+      // Chỉ cho thử API GET trực tiếp trong tài liệu.
+      // API ghi dữ liệu vẫn được hiển thị đầy đủ.
+      supportedSubmitMethods: ["get"],
+    },
+  }),
+);
 
   app.use("/api", (req, res) =>
     res.status(404).json({ message: "Đường dẫn API không tồn tại" }),
