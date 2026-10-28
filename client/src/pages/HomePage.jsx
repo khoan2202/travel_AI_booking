@@ -119,7 +119,7 @@ export default function HomePage() {
         </section>
 
         <section id="about" className="section container about-section">
-          <div className="about-art"><img src="/images/bay.svg" alt="Minh họa cảnh quan vịnh và những dãy núi xanh" loading="lazy" width="800" height="500" /><span>ĐI. KHÁM PHÁ. GHI NHỚ.</span></div>
+          <div className="about-art"><img src="/images/about/about.jpg" alt="Minh họa cảnh quan vịnh và những dãy núi xanh" loading="lazy" width="800" height="500" /><span>ĐI. KHÁM PHÁ. GHI NHỚ.</span></div>
           <div className="about-content"><p className="section-kicker">VỀ TRAVEL MINT</p><h2>Mỗi hành trình,<br />một câu chuyện mới.</h2><p>Một điểm đến yêu thích, một lịch trình vừa vặn và một khoảng thời gian dành cho bản thân. Chuyến đi của bạn có thể bắt đầu từ những điều đơn giản như thế.</p><p>Khám phá các tour theo điểm đến và ngân sách, rồi chọn hành trình khiến bạn muốn xách ba lô lên.</p><a href="#tours" className="button button-primary">Tìm chuyến đi của bạn <span aria-hidden="true">↗</span></a></div>
         </section>
         <div className="container"><aside className="travel-callout"><div><h2>Chuyến đi tiếp theo, bạn muốn đến đâu?</h2><p>Khám phá một miền đất mới từ những lựa chọn quen thuộc.</p></div><a className="button button-dark" href="#tours">Xem các tour</a></aside></div>

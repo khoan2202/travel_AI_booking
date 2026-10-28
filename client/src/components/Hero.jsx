@@ -4,20 +4,23 @@ const slides = [
   {
     label: "ĐI ĐỂ CÓ THÊM NHỮNG CÂU CHUYỆN",
     title: "Hẹn một chuyến đi.",
-    description: "Từ miền núi xanh đến những bờ biển đầy nắng. Tìm hành trình dành cho bạn.",
-    image: "/images/mountains.svg",
+    description:
+      "Từ miền núi xanh đến những bờ biển đầy nắng. Tìm hành trình dành cho bạn.",
+    image: "/images/hero/hero-1.jpg",
   },
   {
     label: "MỘT CHÚT NẮNG, MỘT CHÚT BIỂN",
     title: "Chạm vào mùa hè.",
-    description: "Đổi nhịp sống thường ngày bằng một hành trình về phía biển.",
-    image: "/images/coast.svg",
+    description:
+      "Đổi nhịp sống thường ngày bằng một hành trình về phía biển.",
+    image: "/images/hero/hero-2.jpg",
   },
   {
     label: "NHỮNG ĐIỀU ĐẸP ĐẼ ĐANG CHỜ",
     title: "Khám phá Việt Nam.",
-    description: "Chọn điểm đến, xem giá và tìm chuyến đi phù hợp với bạn.",
-    image: "/images/bay.svg",
+    description:
+      "Chọn điểm đến, xem giá và tìm chuyến đi phù hợp với bạn.",
+    image: "/images/hero/hero-3.jpg",
   },
 ];
 
@@ -26,14 +29,23 @@ export default function Hero() {
   const slide = slides[activeSlide];
 
   return (
-    <section className="hero" aria-label="Cảm hứng du lịch" style={{ backgroundImage: `url(${slide.image})` }}>
+    <section
+      className="hero"
+      aria-label="Cảm hứng du lịch"
+      style={{ backgroundImage: `url(${slide.image})` }}
+    >
       <div className="hero-shade" />
+
       <div className="container hero-content">
         <p className="eyebrow">{slide.label}</p>
         <h1>{slide.title}</h1>
         <p className="hero-description">{slide.description}</p>
-        <a href="#tours" className="button button-primary">Khám phá tour <span aria-hidden="true">↗</span></a>
+
+        <a href="#tours" className="button button-primary">
+          Khám phá tour <span aria-hidden="true">↗</span>
+        </a>
       </div>
+
       <div className="slide-controls" aria-label="Chọn banner">
         {slides.map((item, index) => (
           <button
