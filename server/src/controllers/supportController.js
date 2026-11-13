@@ -1,8 +1,11 @@
+// Xử lý form Liên hệ: kiểm tra dữ liệu rồi lưu vào bảng support_requests.
+// Khách chưa đăng nhập vẫn gửi được; muốn gắn với một đơn đặt tour thì phải đăng nhập.
 import pool from "../db/pool.js";
 
 export async function createSupportRequest(req, res, next) {
   const body = req.body ?? {};
 
+  // Lấy và làm sạch dữ liệu từ form.
   const fullName =
     typeof body.full_name === "string" ? body.full_name.trim() : "";
 
@@ -22,6 +25,7 @@ export async function createSupportRequest(req, res, next) {
       ? null
       : body.booking_id;
 
+  // [...chuỗi].length đếm đúng số ký tự kể cả chữ có dấu hoặc emoji.
   if ([...fullName].length < 2 || [...fullName].length > 100) {
     return res.status(400).json({
       message: "Họ tên cần có từ 2 đến 100 ký tự.",
@@ -76,6 +80,7 @@ export async function createSupportRequest(req, res, next) {
       }
     }
 
+    // Lưu yêu cầu hỗ trợ, trạng thái mặc định do database đặt.
     const result = await pool.query(
       `INSERT INTO support_requests
          (user_id, booking_id, full_name, phone, message)

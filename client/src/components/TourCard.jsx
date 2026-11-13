@@ -1,3 +1,5 @@
+// Thẻ hiển thị tóm tắt một tour (ảnh, điểm đến, tối đa 3 tag, giá từ, số lịch đi).
+// Dùng ở trang chủ và trang gợi ý.
 import { Link } from "react-router";
 import TourImage from "./TourImage.jsx";
 import { formatPrice } from "../utils/format.js";

@@ -1,3 +1,5 @@
+// Trang Liên hệ & Hỗ trợ (/contact): form gửi yêu cầu hỗ trợ.
+// Khách chưa đăng nhập vẫn gửi được. Đã đăng nhập thì chọn được một đơn đã đặt để hỏi về đơn đó.
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import Header from "../components/Header.jsx";
@@ -15,8 +17,10 @@ const CONTACT = {
   phone: "",
 };
 
+// Form liên hệ. user = null nếu chưa đăng nhập.
 function ContactForm({ user }) {
   const userId = user?.id ?? null;
+  // sendingRef chặn gửi hai lần khi bấm nhanh (cập nhật ngay, không chờ React vẽ lại như state).
   const sendingRef = useRef(false);
 
   const [form, setForm] = useState({
@@ -26,6 +30,7 @@ function ContactForm({ user }) {
     message: "",
   });
 
+  // bookings: danh sách đơn của tài khoản, dùng cho ô chọn "Tour đã đặt".
   const [bookings, setBookings] = useState([]);
   const [loadingBookings, setLoadingBookings] = useState(Boolean(userId));
   const [bookingError, setBookingError] = useState("");
@@ -33,6 +38,7 @@ function ContactForm({ user }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  // Đã đăng nhập thì tải danh sách đơn để khách chọn.
   useEffect(() => {
     if (!userId) return;
 
@@ -70,6 +76,7 @@ function ContactForm({ user }) {
     return () => controller.abort();
   }, [userId]);
 
+  // Dùng chung cho mọi ô nhập: thuộc tính name của ô quyết định trường nào trong form được cập nhật.
   function handleChange(event) {
     const { name, value } = event.target;
     setForm((current) => ({ ...current, [name]: value }));
@@ -77,6 +84,7 @@ function ContactForm({ user }) {
     setSuccess("");
   }
 
+  // Gửi form.
   async function handleSubmit(event) {
     event.preventDefault();
     if (sendingRef.current) return;
@@ -84,6 +92,7 @@ function ContactForm({ user }) {
     setError("");
     setSuccess("");
 
+    // Chuẩn hóa dữ liệu trước khi gửi: bỏ khoảng trắng, đổi mã đơn sang số.
     const payload = {
       full_name: form.full_name.trim(),
       phone: form.phone.trim().replace(/[\s.-]/g, ""),
@@ -91,6 +100,7 @@ function ContactForm({ user }) {
       message: form.message.trim(),
     };
 
+    // Kiểm tra ở trình duyệt cho nhanh (server vẫn kiểm tra lại lần nữa).
     if (
       [...payload.full_name].length < 2 ||
       [...payload.full_name].length > 100
@@ -118,6 +128,7 @@ function ContactForm({ user }) {
     try {
       await sendSupportRequest(payload);
 
+      // Gửi thành công: báo cho khách, xóa nội dung nhưng giữ họ tên và số điện thoại.
       setSuccess(
         "Đã gửi yêu cầu thành công. Chúng tôi sẽ liên hệ lại qua số điện thoại bạn cung cấp.",
       );
@@ -174,6 +185,7 @@ function ContactForm({ user }) {
           </div>
         </div>
 
+        {/* Ô chọn đơn: chỉ dùng được khi đã đăng nhập và tải xong danh sách đơn */}
         <div className="contact-field">
           <label htmlFor="contact-booking">Tour đã đặt</label>
           <select
@@ -247,8 +259,10 @@ function ContactForm({ user }) {
   );
 }
 
+// Component trang: bố cục, phần giới thiệu và form.
 export default function ContactPage() {
   const { user, status } = useAuth();
+  // Chỉ hiện phần "Kết nối với Travel Mint" khi đã điền ít nhất một kênh trong CONTACT.
   const hasContacts = CONTACT.facebook || CONTACT.email || CONTACT.phone;
 
   return (
@@ -284,6 +298,7 @@ export default function ContactPage() {
               </p>
             </aside>
 
+            {/* Chờ kiểm tra đăng nhập xong mới hiện form. key đổi theo tài khoản để form được tạo lại */}
             {status === "loading" ? (
               <div className="contact-form" role="status">
                 Đang tải biểu mẫu…

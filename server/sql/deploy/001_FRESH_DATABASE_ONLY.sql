@@ -1,5 +1,8 @@
+-- Bản gộp các file 001, 003, 004, 005, 006 để tạo database MỚI TINH trong một lần (dùng khi deploy).
+-- Chưa gồm bảng support_requests: chạy thêm file sql/007_create_support_requests.sql sau file này.
 -- ONLY for a NEW EMPTY database. Never run over your current project database.
 BEGIN;
+-- Kiểm tra an toàn: database đã có bảng thì báo lỗi và dừng, không ghi đè dữ liệu cũ.
 DO $$ BEGIN
 IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name IN ('destinations','tours','tour_departures','users','user_sessions','bookings','admin_audit_logs','booking_payment_events')) THEN
  RAISE EXCEPTION 'Database is not empty. Use migrations or restore into another empty database.';
@@ -115,5 +118,6 @@ CREATE TABLE booking_payment_events (
 );
 
 
+-- Index một phần: chỉ đánh index các lịch đang nhận đặt, giúp truy vấn tour công khai nhanh hơn.
 CREATE INDEX IF NOT EXISTS idx_departures_public ON tour_departures(tour_id,start_date) WHERE status='scheduled';
 COMMIT;

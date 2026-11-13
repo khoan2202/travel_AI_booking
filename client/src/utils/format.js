@@ -1,3 +1,4 @@
+// Hiển thị giá dạng tiền Việt, ví dụ 2500000 -> "2.500.000 ₫". Giá không hợp lệ thì hiện "Liên hệ".
 export function formatPrice(value) {
   const price = Number(value);
   if (!Number.isFinite(price) || price <= 0) return "Liên hệ";
