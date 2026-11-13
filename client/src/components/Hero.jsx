@@ -1,5 +1,7 @@
+// Banner lớn ở đầu trang chủ, có 3 slide; bấm các nút nhỏ phía dưới để đổi slide.
 import { useState } from "react";
 
+// Nội dung từng slide. Ảnh nằm trong client/public/images/hero/.
 const slides = [
   {
     label: "ĐI ĐỂ CÓ THÊM NHỮNG CÂU CHUYỆN",
@@ -25,6 +27,7 @@ const slides = [
 ];
 
 export default function Hero() {
+  // Thứ tự slide đang hiển thị (0, 1, 2).
   const [activeSlide, setActiveSlide] = useState(0);
   const slide = slides[activeSlide];
 
@@ -34,6 +37,7 @@ export default function Hero() {
       aria-label="Cảm hứng du lịch"
       style={{ backgroundImage: `url(${slide.image})` }}
     >
+      {/* Lớp phủ tối giúp chữ dễ đọc trên nền ảnh */}
       <div className="hero-shade" />
 
       <div className="container hero-content">
@@ -46,6 +50,7 @@ export default function Hero() {
         </a>
       </div>
 
+      {/* Mỗi slide có một nút chuyển */}
       <div className="slide-controls" aria-label="Chọn banner">
         {slides.map((item, index) => (
           <button

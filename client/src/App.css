@@ -1,3 +1,4 @@
+/* CSS chung: header, footer, nút bấm, trang chủ, thẻ tour, các khung trạng thái. */
 .container { width: min(1140px, calc(100% - 48px)); margin-inline: auto; }
 .skip-link { position: fixed; top: -80px; left: 16px; z-index: 100; background: var(--primary); padding: 14px; }
 .skip-link:focus { top: 8px; }

@@ -1,3 +1,4 @@
+// Khung chọn lịch khởi hành và số người ở trang chi tiết tour, tính tổng tiền tạm tính.
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { getTourDepartures } from "../services/tourApi.js";
@@ -10,25 +11,32 @@ function formatDepartureDate(value) {
   return `${day}/${month}/${year}`;
 }
 
+// Props: tourId (id tour), initialDepartures (danh sách lịch đi đã tải sẵn).
 export default function DeparturePicker({ tourId, initialDepartures }) {
+  // selectedId và guests giữ dạng chuỗi vì lấy trực tiếp từ ô input.
   const [departures, setDepartures] = useState(initialDepartures);
   const [selectedId, setSelectedId] = useState("");
   const [guests, setGuests] = useState("1");
   const [refreshing, setRefreshing] = useState(false);
   const [message, setMessage] = useState("");
   const [refreshFailed, setRefreshFailed] = useState(false);
+  // Request "kiểm tra lại" đang chạy, để hủy khi bấm lại hoặc khi rời trang.
   const pendingRequest = useRef(null);
 
+  // Rời trang thì hủy request còn dang dở.
   useEffect(() => () => pendingRequest.current?.abort(), []);
 
+  // Các giá trị tính từ state: lịch đang chọn, số khách hợp lệ không, đủ chỗ không, tổng tiền.
   const selected = departures.find((item) => String(item.id) === selectedId);
   const guestCount = Number(guests);
   const validGuests = Number.isInteger(guestCount) && guestCount >= 1 && guestCount <= 20;
   const enoughSeats = selected && guestCount <= selected.available_seats;
   const totalPrice = selected ? Number(selected.price_per_person) * guestCount : 0;
   const validTotal = Number.isSafeInteger(totalPrice) && totalPrice > 0;
+  // Chỉ hiện tổng tiền và cho đi tiếp khi mọi điều kiện đều đúng.
   const canQuote = selected && validGuests && enoughSeats && validTotal && !refreshFailed;
 
+  // Tải lại giá và số chỗ mới nhất từ server (người khác có thể vừa đặt hết chỗ).
   async function refreshDepartures() {
     pendingRequest.current?.abort();
     const controller = new AbortController();
@@ -41,6 +49,7 @@ export default function DeparturePicker({ tourId, initialDepartures }) {
       setDepartures(latest);
       setRefreshFailed(false);
 
+      // Lịch đang chọn không còn trong danh sách mới (hết chỗ hoặc đã đóng) thì bỏ chọn.
       if (selectedId && !latest.some((item) => String(item.id) === selectedId)) {
         setSelectedId("");
         setMessage("Lịch vừa chọn hiện không còn đặt được. Vui lòng chọn lịch khác.");
@@ -57,6 +66,7 @@ export default function DeparturePicker({ tourId, initialDepartures }) {
     }
   }
 
+  // Phần giao diện.
   return (
     <aside className="departure-panel" aria-labelledby="departure-heading">
       <div className="departure-panel-heading">
@@ -65,6 +75,7 @@ export default function DeparturePicker({ tourId, initialDepartures }) {
         <p>Giá tính theo từng người, cho lịch bạn chọn.</p>
       </div>
 
+      {/* Không có lịch nào thì hiện thông báo, có thì hiện danh sách lựa chọn */}
       {departures.length === 0 ? (
         <p className="no-departures" role="status">Tour hiện chưa có lịch khởi hành còn chỗ. Bạn có thể kiểm tra lại sau.</p>
       ) : (
@@ -89,6 +100,7 @@ export default function DeparturePicker({ tourId, initialDepartures }) {
         </fieldset>
       )}
 
+      {/* Ô nhập số người: tối đa bằng số chỗ còn lại và không quá 20 */}
       <label className="guests-field" htmlFor="guest-count">Số người
         <input
           id="guest-count"
@@ -104,6 +116,7 @@ export default function DeparturePicker({ tourId, initialDepartures }) {
           aria-invalid={Boolean(selected && (!validGuests || !enoughSeats || !validTotal))}
         />
       </label>
+      {/* Dòng gợi ý thay đổi theo tình huống: chưa chọn lịch, số người sai, thiếu chỗ... */}
       <p id="guest-hint" className="guest-hint">
         {!selected ? "Chọn một lịch khởi hành để nhập số người."
           : !validGuests ? "Mỗi đơn nhận từ 1 đến 20 người."
@@ -121,6 +134,7 @@ export default function DeparturePicker({ tourId, initialDepartures }) {
         {refreshing ? "Đang kiểm tra…" : "Kiểm tra lại giá và chỗ"}
       </button>
       {message && <p className={refreshFailed ? "refresh-message is-error" : "refresh-message"} role={refreshFailed ? "alert" : "status"}>{message}</p>}
+      {/* Đủ điều kiện thì hiện link sang trang đặt tour, chưa đủ thì hiện nút bị khóa */}
       {canQuote && !refreshing ? <Link className="button button-primary booking-continue" to={checkoutPath(tourId, selected.id, guestCount)}>Tiếp tục đặt tour <span aria-hidden="true">→</span></Link> : <button className="button button-primary booking-continue" type="button" disabled>Tiếp tục đặt tour</button>}
       <p className="quote-note">Chỗ được giữ khi bạn xác nhận và hệ thống tạo đơn thành công ở bước tiếp theo.</p>
     </aside>

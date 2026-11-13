@@ -1,12 +1,18 @@
+// Hàm gọi API dùng chung cho cả frontend, cùng các API đăng nhập/đăng ký.
+// Địa chỉ backend: lấy từ biến VITE_API_BASE_URL, không có thì dùng localhost:5000.
 const API_BASE_URL = (
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api"
 ).replace(/\/+$/, "");
 
+// request(): gọi API, tự xử lý timeout, cookie, CSRF token và đổi lỗi thành thông báo tiếng Việt.
+// Trả về phần "data" trong JSON server gửi về.
 export async function request(path, { method = "GET", body, token, signal } = {}) {
+  // Gộp hai cách hủy: component tự hủy (signal) và hủy do quá thời gian.
   const controller = new AbortController();
   const cancel = () => controller.abort();
   if (signal?.aborted) cancel();
   else signal?.addEventListener("abort", cancel, { once: true });
+  // Quá 15 giây không có phản hồi thì hủy.
   let timedOut = false;
   const timeout = setTimeout(() => { timedOut = true; controller.abort(); }, 15000);
   try {
@@ -22,6 +28,7 @@ export async function request(path, { method = "GET", body, token, signal } = {}
       signal: controller.signal,
     });
     const result = await response.json();
+    // Server trả mã lỗi (4xx, 5xx): ném lỗi kèm thông báo, mã HTTP (status) và mã lỗi (code).
     if (!response.ok) {
       const error = new Error(result.message || "Yêu cầu chưa thực hiện được.");
       error.status = response.status;
@@ -30,6 +37,7 @@ export async function request(path, { method = "GET", body, token, signal } = {}
     }
     return result.data;
   } catch (error) {
+    // Đổi lỗi kỹ thuật thành câu dễ hiểu: quá giờ, mất mạng, server trả dữ liệu không phải JSON.
     if (timedOut) throw new Error("Máy chủ phản hồi quá lâu. Vui lòng thử lại.");
     if (error instanceof TypeError) throw new Error("Chưa kết nối được máy chủ. Vui lòng thử lại.");
     if (error instanceof SyntaxError) throw new Error("Phản hồi của máy chủ chưa đúng định dạng.");
@@ -40,6 +48,7 @@ export async function request(path, { method = "GET", body, token, signal } = {}
   }
 }
 
+// postAuth(): gửi POST có kèm CSRF token (dùng cho mọi thao tác ghi dữ liệu).
 export async function postAuth(path, body) {
   // Lấy token theo phiên hiện tại trước mỗi yêu cầu thay đổi trạng thái.
   const { csrfToken } = await request("/auth/csrf");
