@@ -1,3 +1,4 @@
+// Chân trang, dùng chung cho mọi trang.
 import { Link } from "react-router";
 export default function Footer() {
   return (

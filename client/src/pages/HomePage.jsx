@@ -1,3 +1,4 @@
+// Trang chủ (/): banner, danh sách tour có bộ lọc nhanh, phần giới thiệu.
 import { useEffect, useState } from "react";
 import Header from "../components/Header.jsx";
 import Hero from "../components/Hero.jsx";
@@ -6,18 +7,22 @@ import Footer from "../components/Footer.jsx";
 import { getTours } from "../services/tourApi.js";
 import { normalizeText } from "../utils/format.js";
 
+// status: "loading" | "success" | "error".
 export default function HomePage() {
   const [tours, setTours] = useState([]);
   const [status, setStatus] = useState("loading");
   const [error, setError] = useState("");
   const [retryCount, setRetryCount] = useState(0);
+  // Giá trị của bộ lọc: từ khóa, khu vực, giá tối đa.
   const [keyword, setKeyword] = useState("");
   const [region, setRegion] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
 
+  // Tải danh sách tour khi mở trang (và khi bấm "Thử lại").
   useEffect(() => {
     const controller = new AbortController();
     let active = true;
+    // Quá 15 giây chưa tải xong thì báo lỗi.
     const timeout = setTimeout(() => {
       if (active) {
         controller.abort();
@@ -59,6 +64,7 @@ export default function HomePage() {
     setRetryCount((count) => count + 1);
   }
 
+  // Xóa toàn bộ bộ lọc.
   function resetFilters() {
     setKeyword("");
     setRegion("");
@@ -66,7 +72,9 @@ export default function HomePage() {
   }
 
   // Lọc danh sách đã lấy từ API. Chặng sau sẽ mở rộng lọc phía server.
+  // Danh sách khu vực (không trùng) để hiện trong ô chọn.
   const regions = [...new Set(tours.map((tour) => tour.region))];
+  // Lọc tour theo từ khóa (không phân biệt dấu), khu vực và giá.
   const filteredTours = tours.filter((tour) => {
     const searchText = normalizeText(
       `${tour.title} ${tour.destination} ${tour.departure_location} ${(tour.tags || []).join(" ")}`
@@ -81,12 +89,15 @@ export default function HomePage() {
       <a href="#main-content" className="skip-link">Đến nội dung chính</a>
       <Header />
       <main id="main-content">
+        {/* Banner đầu trang */}
         <Hero />
+        {/* Danh sách tour, id="tours" để link /#tours cuộn tới đây */}
         <section id="tours" className="section container">
           <div className="section-heading">
             <div><p className="section-kicker">CHỌN MỘT ĐIỂM ĐẾN</p><h2>Hành trình dành cho bạn</h2></div>
             <span className="section-note">Đi gần hay đi xa, bắt đầu từ đây.</span>
           </div>
+          {/* Bộ lọc nhanh */}
           <div className="tour-filters" role="search" aria-label="Lọc danh sách tour">
             <label className="search-field">Bạn muốn đi đâu?
               <input type="search" placeholder="Thử Đà Lạt, biển, thiên nhiên..." value={keyword} onChange={(event) => setKeyword(event.target.value)} />
@@ -108,6 +119,7 @@ export default function HomePage() {
             <button className="button button-secondary" type="button" onClick={resetFilters}>Xóa lọc</button>
           </div>
 
+          {/* Hiện theo trạng thái: đang tải / lỗi / danh sách tour */}
           {status === "loading" && <div className="state-box" role="status">Đang tải các chuyến đi...</div>}
           {status === "error" && <div className="state-box error-box" role="alert"><p>{error}</p><button type="button" className="button button-primary" onClick={retry}>Thử lại</button></div>}
           {status === "success" && <>
@@ -118,6 +130,7 @@ export default function HomePage() {
           </>}
         </section>
 
+        {/* Phần giới thiệu */}
         <section id="about" className="section container about-section">
           <div className="about-art"><img src="/images/about/about.jpg" alt="Minh họa cảnh quan vịnh và những dãy núi xanh" loading="lazy" width="800" height="500" /><span>ĐI. KHÁM PHÁ. GHI NHỚ.</span></div>
           <div className="about-content"><p className="section-kicker">VỀ TRAVEL MINT</p><h2>Mỗi hành trình,<br />một câu chuyện mới.</h2><p>Một điểm đến yêu thích, một lịch trình vừa vặn và một khoảng thời gian dành cho bản thân. Chuyến đi của bạn có thể bắt đầu từ những điều đơn giản như thế.</p><p>Khám phá các tour theo điểm đến và ngân sách, rồi chọn hành trình khiến bạn muốn xách ba lô lên.</p><a href="#tours" className="button button-primary">Tìm chuyến đi của bạn <span aria-hidden="true">↗</span></a></div>

@@ -1,12 +1,17 @@
+// Thanh điều hướng trên cùng, dùng chung cho mọi trang.
+// Menu thay đổi theo trạng thái: chưa đăng nhập, đã đăng nhập, là admin.
 import { Link } from "react-router";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext.js";
 
 export default function Header() {
+  // menuOpen: menu đang mở trên điện thoại hay không.
   const [menuOpen, setMenuOpen] = useState(false);
+  // pending: đang đăng xuất (khóa nút để không bấm hai lần).
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const { user, status, logout } = useAuth();
+  // Đóng menu sau khi bấm một link (trên điện thoại).
   const closeMenu = () => setMenuOpen(false);
 
   async function handleLogout() {
@@ -33,6 +38,7 @@ export default function Header() {
         >
           TRAVEL <span>MINT.</span>
         </Link>
+        {/* Nút mở/đóng menu, chỉ hiện trên màn hình nhỏ (xem CSS) */}
         <button
           className="menu-toggle"
           type="button"
@@ -59,10 +65,12 @@ export default function Header() {
           <Link to="/contact" onClick={closeMenu}>
             Liên hệ &amp; Hỗ trợ
           </Link>
+          {/* Đang kiểm tra phiên: hiện chữ chờ. Đã đăng nhập: hiện menu tài khoản. Chưa đăng nhập: hiện nút Đăng nhập */}
           {status === "loading" ? (
             <span className="header-session-status">Đang kiểm tra…</span>
           ) : user ? (
             <>
+              {/* Mục Quản trị chỉ hiện với admin */}
               {user.role === "admin" && (
                 <Link to="/admin" onClick={closeMenu}>
                   Quản trị

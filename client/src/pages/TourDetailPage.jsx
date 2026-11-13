@@ -1,3 +1,4 @@
+// Trang chi tiết tour (/tours/:id): thông tin tour và khung chọn lịch khởi hành.
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import Header from "../components/Header.jsx";
@@ -6,15 +7,19 @@ import TourImage from "../components/TourImage.jsx";
 import DeparturePicker from "../components/DeparturePicker.jsx";
 import { getTourById, getTourDepartures } from "../services/tourApi.js";
 
+// Nội dung chính của trang.
 function TourDetailContent({ id }) {
   const [tour, setTour] = useState(null);
   const [departures, setDepartures] = useState([]);
+  // status: "loading" | "success" | "not-found" | "error".
   const [status, setStatus] = useState("loading");
   const [error, setError] = useState("");
   const [retryCount, setRetryCount] = useState(0);
 
+  // Tải song song thông tin tour và các lịch khởi hành.
   useEffect(() => {
     const controller = new AbortController();
+    // active = false khi rời trang, để không cập nhật state của trang đã đóng.
     let active = true;
 
     async function loadDetail() {
@@ -49,6 +54,7 @@ function TourDetailContent({ id }) {
     setRetryCount((count) => count + 1);
   }
 
+  // Chưa tải xong hoặc có lỗi: hiện trạng thái tương ứng.
   if (status !== "success") {
     return (
       <main className="container detail-state" id="main-content">
@@ -64,8 +70,10 @@ function TourDetailContent({ id }) {
     );
   }
 
+  // Tải xong: hiện chi tiết tour.
   return (
     <main className="container tour-detail-page" id="main-content">
+      {/* Đường dẫn: Trang chủ / Tour du lịch / Tên điểm đến */}
       <nav className="breadcrumbs" aria-label="Đường dẫn trang">
         <Link to="/">Trang chủ</Link><span aria-hidden="true">/</span>
         <Link to="/#tours">Tour du lịch</Link><span aria-hidden="true">/</span>
@@ -76,6 +84,7 @@ function TourDetailContent({ id }) {
         <h1>{tour.title}</h1>
         <p>{tour.duration_days} ngày <span aria-hidden="true">·</span> Khởi hành từ {tour.departure_location}</p>
       </div>
+      {/* Bố cục 2 cột: trái là ảnh và mô tả, phải là khung chọn lịch đi */}
       <div className="tour-detail-layout">
         <div className="tour-main-column">
           <TourImage key={tour.image_url || "illustration"} tour={tour} />
@@ -92,6 +101,7 @@ function TourDetailContent({ id }) {
           </section>
           <div className="detail-help"><h3>Lên kế hoạch cho chuyến đi</h3><p>Chọn lịch khởi hành còn chỗ và số người để xem chi phí dự kiến. Mỗi đợt khởi hành có thể có mức giá khác nhau.</p><Link to="/#tours">Khám phá các tour khác <span aria-hidden="true">→</span></Link></div>
         </div>
+        {/* Khung chọn lịch đi và số người (xem components/DeparturePicker.jsx) */}
         <DeparturePicker key={tour.id} tourId={tour.id} initialDepartures={departures} />
       </div>
     </main>

@@ -1,3 +1,4 @@
+-- Bước 2: dữ liệu mẫu cho môi trường dev: các điểm đến, tour và lịch khởi hành.
 BEGIN;
 
 INSERT INTO destinations (name, slug, region)

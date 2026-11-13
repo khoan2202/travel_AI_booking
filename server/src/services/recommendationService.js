@@ -1,6 +1,9 @@
+// Gợi ý tour bằng truy vấn SQL theo bộ lọc của khách (không dùng AI).
 import pool from '../db/pool.js';
 import { check, integer } from './adminCommon.js';
 
+// Đọc và kiểm tra bộ lọc: ngân sách (VND/người), số ngày tối đa, số khách, khu vực, sở thích (tag).
+// Bỏ trống thì không lọc theo tiêu chí đó; số khách mặc định là 1.
 export function readFilters(raw = {}) {
   check(raw && typeof raw === 'object' && !Array.isArray(raw), 'Bộ lọc chưa hợp lệ.');
   const budget = raw.budget === '' || raw.budget == null ? null : raw.budget;
@@ -14,6 +17,8 @@ export function readFilters(raw = {}) {
   return { budget: budget === null ? null : Number(budget), days: days === null ? null : Number(days), guests: Number(guests), region: region.trim(), interest: interest.trim() };
 }
 
+// Lấy tối đa 12 tour, mỗi tour kèm lịch đi rẻ nhất còn đủ chỗ cho số khách.
+// JOIN LATERAL: với mỗi tour, chạy một truy vấn con để chọn đúng 1 lịch phù hợp nhất.
 export async function recommend(filters) {
   // Hard filters in SQL. The model cannot add unpublished/sold-out tours to this list.
   const { rows } = await pool.query(`
@@ -31,9 +36,11 @@ export async function recommend(filters) {
       AND ($4='' OR d.region=$4) AND ($5='' OR $5=ANY(t.tags))
     ORDER BY td.price_per_person,td.start_date,t.id LIMIT 12`,
     [filters.guests, filters.budget, filters.days, filters.region, filters.interest]);
+  // Thay mô tả đầy đủ bằng bản tóm tắt 650 ký tự (gửi cho AI ngắn gọn hơn).
   return rows.map(({ description, ...tour }) => ({ ...tour, summary: description.slice(0, 650) }));
 }
 
+// Các lựa chọn cho bộ lọc: danh sách khu vực và tag của các tour đang bán.
 export async function recommendationOptions() {
   const [regions, interests] = await Promise.all([
     pool.query("SELECT DISTINCT d.region FROM destinations d JOIN tours t ON t.destination_id=d.id WHERE t.status='active' ORDER BY d.region"),
