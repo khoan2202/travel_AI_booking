@@ -53,12 +53,20 @@ export function createApp() {
 
   app.locals.allowedOrigins = allowedOrigins;
 
-  // CORS: chỉ cho phép trình duyệt từ các origin trong danh sách gọi API.
+  // Khi chạy local (không phải production): chấp nhận frontend ở MỌI cổng của localhost,
+  // vì Vite tự nhảy sang 5174, 5175... khi cổng 5173 đang bận.
+  // Production chỉ chấp nhận đúng các origin trong danh sách ở trên.
+  const localDevOrigin = /^http:\/\/(localhost|127\.0\.0\.1):\d{2,5}$/;
+  const isAllowedOrigin = (origin) =>
+    allowedOrigins.has(origin) || (!production && localDevOrigin.test(origin));
+  app.locals.isAllowedOrigin = isAllowedOrigin;
+
+  // CORS: chỉ cho phép trình duyệt từ các origin hợp lệ gọi API.
   app.use(
     cors({
       origin(origin, callback) {
         // Không có origin (gọi cùng domain, Postman, curl...) hoặc origin hợp lệ thì cho qua.
-        if (!origin || allowedOrigins.has(origin)) {
+        if (!origin || isAllowedOrigin(origin)) {
           return callback(null, true);
         }
 
