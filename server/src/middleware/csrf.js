@@ -18,7 +18,8 @@ export function requireCsrf(req, res, next) {
   }
   // Kiểm tra thêm request phải đến từ origin được phép.
   const origin = req.get("Origin");
-  if (origin && !req.app.locals.allowedOrigins?.has(origin)) {
+  // Dùng chung quy tắc với CORS (xem isAllowedOrigin trong app.js).
+  if (origin && !req.app.locals.isAllowedOrigin?.(origin)) {
   return res.status(403).json({
     message: "Nguồn gửi yêu cầu không được chấp nhận."
   });
