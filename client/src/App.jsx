@@ -23,11 +23,17 @@ import "./styles/tour-detail.css";
 import "./styles/auth.css";
 import "./styles/booking.css";
 import "./styles/admin.css";
+// Lưới điểm đến, bộ sưu tập ảnh và lightbox.
+import "./styles/gallery.css";
+// Hiệu ứng chuyển động: import sau cùng để ghi đè style ở trên khi cần.
+import "./styles/motion.css";
+import MotionLayer from "./components/MotionLayer.jsx";
 
 // BrowserRouter: quản lý URL. AuthProvider: chia sẻ trạng thái đăng nhập cho mọi trang.
 // ScrollToSection: tự cuộn tới mục khi URL có #id.
+// MotionLayer: hiệu ứng cuộn, header kính mờ, nút lên đầu trang.
 export default function App() {
-  return <BrowserRouter><AuthProvider><ScrollToSection /><Routes>
+  return <BrowserRouter><AuthProvider><ScrollToSection /><MotionLayer /><Routes>
     {/* Trang công khai: trang chủ, gợi ý tour, chi tiết tour */}
     <Route path="/" element={<HomePage />} />
     <Route path="/recommendations" element={<RecommendationPage />} />

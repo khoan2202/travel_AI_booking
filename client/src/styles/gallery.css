@@ -1,0 +1,236 @@
+/* CSS cho: lưới "Điểm đến nổi bật" ở trang chủ, nút "Xem thêm tour",
+   bộ sưu tập ảnh và lightbox ở trang chi tiết tour. */
+
+/* ========== Điểm đến nổi bật (lưới kiểu bento: ô đầu lớn, ô thứ 6 kéo dài) ========== */
+.destination-section { padding-bottom: 6px; }
+.destination-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: 190px;
+  gap: 14px;
+}
+.destination-tile:nth-child(1) { grid-column: span 2; grid-row: span 2; }
+.destination-tile:nth-child(6) { grid-column: span 2; }
+.destination-tile {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border: 0;
+  padding: 0;
+  border-radius: 6px;
+  background: #0e2a23;
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 18px 36px -28px rgb(10 40 30 / 55%);
+}
+.destination-tile img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1.4s var(--ease-out, ease), filter .6s;
+}
+/* Lớp tối phía dưới giúp chữ dễ đọc; lan rộng lên khi rê chuột */
+.destination-tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, transparent 35%, rgb(5 25 20 / 78%));
+  transition: opacity .5s;
+}
+.destination-info {
+  position: absolute;
+  left: 18px; right: 18px; bottom: 16px;
+  z-index: 2;
+  display: grid;
+  gap: 2px;
+  transition: translate .6s var(--ease-out, ease);
+}
+.destination-info small { font-size: 10px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--primary); font-weight: 700; }
+.destination-info strong { font-size: 20px; letter-spacing: -.4px; line-height: 1.25; }
+.destination-tile:nth-child(1) .destination-info strong { font-size: clamp(26px, 3vw, 38px); }
+.destination-info em {
+  font-style: normal;
+  font-size: 12px;
+  color: rgb(255 255 255 / 85%);
+  opacity: 0;
+  translate: 0 8px;
+  transition: opacity .4s, translate .5s var(--ease-out, ease);
+}
+.destination-info em span { display: inline-block; transition: translate .4s var(--ease-out, ease); }
+@media (hover: hover) {
+  .destination-tile:hover img { transform: scale(1.08); filter: saturate(1.15); }
+  .destination-tile:hover .destination-info { translate: 0 -6px; }
+  .destination-tile:hover .destination-info em { opacity: 1; translate: none; }
+  .destination-tile:hover .destination-info em span { translate: 4px 0; }
+}
+/* Màn hình cảm ứng: luôn hiện số tour */
+@media (hover: none) { .destination-info em { opacity: 1; translate: none; } }
+.destination-tile:focus-visible { outline-offset: 3px; }
+
+/* Nút xem thêm tour */
+.load-more { display: flex; justify-content: center; padding-top: 34px; }
+.load-more .button { min-width: 220px; }
+
+/* ========== Bộ sưu tập ảnh ở trang chi tiết tour ========== */
+.tour-gallery { min-width: 0; }
+.gallery-main { aspect-ratio: 1.65; border-radius: 4px; }
+.gallery-open {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+/* Ảnh xếp chồng: chỉ ảnh đang chọn hiện rõ, đổi ảnh thì mờ dần và zoom nhẹ */
+.gallery-main img {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  scale: 1.04;
+  transition: opacity .7s var(--ease-soft, ease), scale 1.2s var(--ease-out, ease);
+}
+.gallery-main img.is-active { opacity: 1; scale: 1; }
+.gallery-main .duration-badge { z-index: 2; }
+.gallery-nav {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  margin-top: -22px;
+  border: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  line-height: 1;
+  color: #fff;
+  background: rgb(10 30 25 / 45%);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity .3s, background-color .3s, translate .4s var(--ease-out, ease);
+}
+.gallery-nav.is-prev { left: 14px; translate: -6px 0; }
+.gallery-nav.is-next { right: 14px; translate: 6px 0; }
+.gallery-main:hover .gallery-nav, .gallery-nav:focus-visible { opacity: 1; translate: none; }
+.gallery-nav:hover { background: rgb(0 120 90 / 75%); }
+@media (hover: none) { .gallery-nav { opacity: 1; translate: none; } }
+.gallery-count {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  z-index: 2;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  background: rgb(10 30 25 / 55%);
+}
+.gallery-credit {
+  display: block;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--muted);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: color .2s, text-decoration-color .2s;
+}
+.gallery-credit:hover { color: #00664c; text-decoration-color: currentColor; }
+.gallery-thumbs {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+.gallery-thumb {
+  flex: 0 0 auto;
+  width: 112px;
+  height: 70px;
+  min-height: 0;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #dae8e1;
+  opacity: .6;
+  transition: opacity .3s, border-color .3s, transform .35s var(--ease-out, ease);
+}
+.gallery-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.gallery-thumb:hover { opacity: 1; transform: translateY(-2px); }
+.gallery-thumb.is-active { opacity: 1; border-color: var(--primary); }
+
+/* ========== Lightbox: xem ảnh toàn màn hình ========== */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 56px 72px;
+  background: rgb(6 18 15 / 92%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: lightbox-in .35s var(--ease-out, ease) both;
+}
+@keyframes lightbox-in { from { opacity: 0; } to { opacity: 1; } }
+.lightbox-figure { margin: 0; display: grid; gap: 12px; justify-items: center; max-width: 100%; }
+.lightbox-figure img {
+  max-width: min(1200px, 100%);
+  max-height: calc(100vh - 150px);
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 0 30px 80px -30px rgb(0 0 0 / 80%);
+  animation: lightbox-photo .55s var(--ease-out, ease) both;
+}
+@keyframes lightbox-photo { from { opacity: 0; scale: .96; } to { opacity: 1; scale: 1; } }
+.lightbox-figure figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 16px;
+  font-size: 12px;
+  color: rgb(255 255 255 / 75%);
+}
+.lightbox .gallery-credit { margin: 0; color: rgb(255 255 255 / 65%); }
+.lightbox .gallery-credit:hover { color: var(--primary); }
+.lightbox-close, .lightbox-nav {
+  position: absolute;
+  border: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: rgb(255 255 255 / 10%);
+  transition: background-color .25s, scale .3s var(--ease-out, ease);
+}
+.lightbox-close:hover, .lightbox-nav:hover { background: rgb(0 255 195 / 25%); scale: 1.06; }
+.lightbox-close { top: 16px; right: 16px; width: 46px; height: 46px; font-size: 28px; line-height: 1; }
+.lightbox-nav { top: 50%; width: 52px; height: 52px; margin-top: -26px; font-size: 34px; line-height: 1; }
+.lightbox-nav.is-prev { left: 14px; }
+.lightbox-nav.is-next { right: 14px; }
+
+/* ========== Màn hình nhỏ ========== */
+@media (max-width: 960px) {
+  .destination-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 170px; }
+  .destination-tile:nth-child(1) { grid-row: span 2; }
+  .destination-tile:nth-child(6) { grid-column: span 1; }
+}
+@media (max-width: 640px) {
+  .destination-grid { grid-auto-rows: 140px; gap: 10px; }
+  .destination-info { left: 12px; right: 12px; bottom: 10px; }
+  .destination-info strong { font-size: 16px; }
+  .gallery-thumb { width: 84px; height: 54px; }
+  .lightbox { padding: 64px 12px 24px; }
+  .lightbox-nav { top: auto; bottom: 18px; margin-top: 0; }
+}
