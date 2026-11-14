@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
-import TourImage from "../components/TourImage.jsx";
+import TourGallery from "../components/TourGallery.jsx";
 import DeparturePicker from "../components/DeparturePicker.jsx";
 import { getTourById, getTourDepartures } from "../services/tourApi.js";
 
@@ -87,7 +87,8 @@ function TourDetailContent({ id }) {
       {/* Bố cục 2 cột: trái là ảnh và mô tả, phải là khung chọn lịch đi */}
       <div className="tour-detail-layout">
         <div className="tour-main-column">
-          <TourImage key={tour.image_url || "illustration"} tour={tour} />
+          {/* Bộ sưu tập ảnh: ảnh lớn, hàng ảnh nhỏ và xem toàn màn hình */}
+          <TourGallery key={tour.id} tour={tour} />
           <div className="tour-facts">
             <div><span>Điểm đến</span><strong>{tour.destination}</strong></div>
             <div><span>Thời gian</span><strong>{tour.duration_days} ngày</strong></div>
