@@ -1,8 +1,8 @@
 // Hàm gọi API dùng chung cho cả frontend, cùng các API đăng nhập/đăng ký.
-// Địa chỉ backend: lấy từ biến VITE_API_BASE_URL, không có thì dùng localhost:5000.
-const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api"
-).replace(/\/+$/, "");
+// Production is same-origin on Cloudflare; VITE_API_BASE_URL is local-dev only.
+const API_BASE_URL = import.meta.env.PROD
+  ? "/api"
+  : (import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api").replace(/\/+$/, "");
 
 // request(): gọi API, tự xử lý timeout, cookie, CSRF token và đổi lỗi thành thông báo tiếng Việt.
 // Trả về phần "data" trong JSON server gửi về.

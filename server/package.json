@@ -6,7 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node --watch src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "cf:dev": "wrangler dev --config wrangler.jsonc",
+    "cf:deploy": "wrangler deploy --config wrangler.jsonc",
+    "cf:release": "npm --prefix ../client run build && wrangler deploy --config wrangler.jsonc"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +25,9 @@
     "express-session": "^1.19.0",
     "pg": "^8.23.0",
     "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "wrangler": "^4.44.0"
   },
   "engines": {
     "node": "24.x"

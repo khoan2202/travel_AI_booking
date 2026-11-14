@@ -1,6 +1,7 @@
 // API gửi yêu cầu hỗ trợ từ trang Liên hệ. Gắn tại /api/support.
 import { Router } from "express";
 import { rateLimit } from "express-rate-limit";
+import { rateLimitKey } from "../middleware/rateLimitKey.js";
 import { requireAuth } from "../middleware/auth.js";
 import { requireCsrf } from "../middleware/csrf.js";
 import { createSupportRequest } from "../controllers/supportController.js";
@@ -9,6 +10,7 @@ const router = Router();
 
 // Tối đa 10 yêu cầu mỗi 15 phút để chống spam.
 const supportLimiter = rateLimit({
+  keyGenerator: rateLimitKey,
   windowMs: 15 * 60 * 1000,
   limit: 10,
   standardHeaders: "draft-8",

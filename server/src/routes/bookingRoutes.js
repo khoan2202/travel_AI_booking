@@ -1,6 +1,7 @@
 // API đặt tour của khách. Gắn tại /api/bookings. Mọi route ở đây đều cần đăng nhập.
 import { Router } from 'express';
 import { rateLimit } from 'express-rate-limit';
+import { rateLimitKey } from '../middleware/rateLimitKey.js';
 import { requireAuth } from '../middleware/auth.js';
 import { requireCsrf } from '../middleware/csrf.js';
 import { create, listMine, detail, cancel } from '../controllers/bookingController.js';
@@ -11,6 +12,7 @@ router.use((req, res, next) => { res.set('Cache-Control', 'no-store'); next(); }
 router.use(requireAuth);
 // Tối đa 60 lần đặt/hủy trong 15 phút.
 const writeLimiter = rateLimit({
+  keyGenerator: rateLimitKey,
   windowMs: 15 * 60 * 1000, limit: 60, standardHeaders: 'draft-8', legacyHeaders: false,
   message: { message: 'Bạn gửi yêu cầu quá nhanh. Vui lòng thử lại sau.' },
 });

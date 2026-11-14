@@ -4,12 +4,14 @@ import { rateLimit } from "express-rate-limit";
 import { getCsrfToken, register, login, me, logout } from "../controllers/authController.js";
 import { requireAuth } from "../middleware/auth.js";
 import { requireCsrf } from "../middleware/csrf.js";
+import { rateLimitKey } from "../middleware/rateLimitKey.js";
 
 const router = Router();
 
 // Giới hạn đăng nhập: tối đa 10 lần sai trong 15 phút (lần đúng không bị tính).
 // Mục đích: chống dò mật khẩu.
 const loginLimiter = rateLimit({
+  keyGenerator: rateLimitKey,
   windowMs: 15 * 60 * 1000,
   limit: 10,
   standardHeaders: "draft-8",
@@ -20,6 +22,7 @@ const loginLimiter = rateLimit({
 
 // Giới hạn đăng ký: tối đa 10 tài khoản mỗi giờ trên một IP.
 const registerLimiter = rateLimit({
+  keyGenerator: rateLimitKey,
   windowMs: 60 * 60 * 1000,
   limit: 10,
   standardHeaders: "draft-8",

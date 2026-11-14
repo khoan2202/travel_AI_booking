@@ -1,6 +1,7 @@
 // API gợi ý tour và tư vấn AI. Gắn tại /api/recommendations.
 import { Router } from 'express';
 import { rateLimit } from 'express-rate-limit';
+import { rateLimitKey } from '../middleware/rateLimitKey.js';
 import { requireAuth } from '../middleware/auth.js';
 import { requireCsrf } from '../middleware/csrf.js';
 import { check, handle, text } from '../services/adminCommon.js';
@@ -11,7 +12,7 @@ router.use((req, res, next) => { res.set('Cache-Control', 'no-store'); next(); }
 // Hai lớp giới hạn cho chat AI (mỗi 10 phút): 30 câu mỗi IP và 10 câu mỗi tài khoản.
 // Mục đích: tránh tốn quota Gemini.
 const limitMessage = { message: 'Bạn đã gửi nhiều câu hỏi. Vui lòng chờ vài phút rồi thử lại.' };
-const ipLimit = rateLimit({ windowMs: 600000, limit: 30, standardHeaders: 'draft-8', legacyHeaders: false, message: limitMessage });
+const ipLimit = rateLimit({ windowMs: 600000, limit: 30, keyGenerator: rateLimitKey, standardHeaders: 'draft-8', legacyHeaders: false, message: limitMessage });
 const userLimit = rateLimit({ windowMs: 600000, limit: 10, keyGenerator: req => String(req.user.id), standardHeaders: 'draft-8', legacyHeaders: false, message: limitMessage });
 // GET /options: các lựa chọn cho bộ lọc (khu vực, tag, ...).
 router.get('/options', handle(async (req, res) => res.json({ data: await recommendationOptions() })));

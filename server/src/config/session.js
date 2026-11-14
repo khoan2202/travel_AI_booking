@@ -1,6 +1,5 @@
 // Cấu hình phiên đăng nhập (session). Phiên được lưu trong bảng user_sessions
 // của PostgreSQL; trình duyệt chỉ giữ cookie chứa mã phiên.
-import "dotenv/config";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
 import pool from "../db/pool.js";
@@ -32,7 +31,8 @@ export function createSessionMiddleware() {
     // Không tự tạo bảng; bảng phải có sẵn từ file SQL.
     createTableIfMissing: false,
     // Cứ 900 giây (15 phút) xóa các phiên đã hết hạn.
-    pruneSessionInterval: 900,
+    // Workers không giữ timer nền giữa các request; để cron/dọn dẹp riêng khi cần.
+    pruneSessionInterval: process.env.CLOUDFLARE_WORKER === "true" ? false : 900,
     errorLog: (error) => console.error("Lỗi lưu phiên:", error.code || error.name),
   });
 

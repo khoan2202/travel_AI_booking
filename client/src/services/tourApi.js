@@ -1,8 +1,8 @@
 // Các hàm gọi API tour công khai (không cần đăng nhập).
 // Đây là địa chỉ công khai của backend, không phải nơi lưu API key AI.
-const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api"
-).replace(/\/+$/, "");
+const API_BASE_URL = import.meta.env.PROD
+  ? "/api"
+  : (import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api").replace(/\/+$/, "");
 
 // apiGet(): gọi GET, có timeout 15 giây và đổi lỗi thành thông báo tiếng Việt.
 async function apiGet(path, signal) {

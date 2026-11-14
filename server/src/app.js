@@ -1,6 +1,5 @@
 // Tạo và cấu hình ứng dụng Express: bảo mật, CORS, session, các nhóm API, Swagger,
 // và (trên production) phục vụ luôn giao diện React đã build trong client/dist.
-import "dotenv/config";
 import express from "express";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -15,11 +14,16 @@ import adminRoutes from "./routes/adminRoutes.js";
 import recommendationRoutes from "./routes/recommendationRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import supportRoutes from "./routes/supportRoutes.js";
-import swaggerUi from "swagger-ui-express";
 import openapi from "./docs/openapi.js";
 
+// swagger-ui-express relies on Node's __dirname and is not needed in the Worker.
+let swaggerUi;
+if (process.env.CLOUDFLARE_WORKER !== "true") {
+  ({ default: swaggerUi } = await import("swagger-ui-express"));
+}
+
 // Hàm tạo app. Tách riêng khỏi server.js để dễ kiểm thử và khởi động.
-export function createApp() {
+export function createApp({ serveClient, sameOriginWorker = false } = {}) {
   const app = express();
   // Ẩn header "X-Powered-By: Express" để không lộ công nghệ đang dùng.
   app.disable("x-powered-by");
@@ -27,26 +31,27 @@ export function createApp() {
   // Production bắt buộc CLIENT_URL là https, nếu không thì dừng luôn.
   if (
     production &&
+    !sameOriginWorker &&
     (!process.env.CLIENT_URL ||
       new URL(process.env.CLIENT_URL).protocol !== "https:")
   ) {
     throw new Error("Production requires an HTTPS CLIENT_URL.");
   }
   // Production bắt buộc bật SSL khi kết nối database (Neon yêu cầu).
-  if (production && process.env.DATABASE_SSL !== "true")
+  if (production && !sameOriginWorker && process.env.DATABASE_SSL !== "true")
     throw new Error("Production requires DATABASE_SSL=true.");
   // Thêm các header bảo mật cho mọi response (xem middleware/security.js).
   app.use(securityHeaders);
   // Địa chỉ gốc của frontend, ví dụ http://localhost:5173.
-  app.locals.clientOrigin = new URL(
-    process.env.CLIENT_URL || "http://localhost:5173",
-  ).origin;
+  app.locals.clientOrigin = sameOriginWorker
+    ? null
+    : new URL(process.env.CLIENT_URL || "http://localhost:5173").origin;
   // Trên Render, request đi qua proxy; dòng này giúp Express nhận đúng HTTPS và IP thật.
   if (process.env.NODE_ENV === "production") app.set("trust proxy", 1);
 
   // Danh sách các địa chỉ frontend được phép gọi API.
   const allowedOrigins = new Set([
-    app.locals.clientOrigin,
+    ...(app.locals.clientOrigin ? [app.locals.clientOrigin] : []),
     "http://localhost:5173",
     "http://127.0.0.1:5173",
   ]);
@@ -57,25 +62,39 @@ export function createApp() {
   // vì Vite tự nhảy sang 5174, 5175... khi cổng 5173 đang bận.
   // Production chỉ chấp nhận đúng các origin trong danh sách ở trên.
   const localDevOrigin = /^http:\/\/(localhost|127\.0\.0\.1):\d{2,5}$/;
-  const isAllowedOrigin = (origin) =>
-    allowedOrigins.has(origin) || (!production && localDevOrigin.test(origin));
+  const isAllowedOrigin = (origin, req) => {
+    if (allowedOrigins.has(origin) || (!production && localDevOrigin.test(origin)))
+      return true;
+    if (!sameOriginWorker || !req) return false;
+    try {
+      const parsedOrigin = new URL(origin);
+      return (
+        parsedOrigin.host === req.get("host") &&
+        parsedOrigin.protocol === req.protocol + ":"
+      );
+    } catch {
+      return false;
+    }
+  };
   app.locals.isAllowedOrigin = isAllowedOrigin;
 
   // CORS: chỉ cho phép trình duyệt từ các origin hợp lệ gọi API.
-  app.use(
-    cors({
-      origin(origin, callback) {
-        // Không có origin (gọi cùng domain, Postman, curl...) hoặc origin hợp lệ thì cho qua.
-        if (!origin || isAllowedOrigin(origin)) {
-          return callback(null, true);
-        }
+  if (!sameOriginWorker) {
+    app.use(
+      cors({
+        origin(origin, callback) {
+          // Không có origin (Postman, curl...) hoặc origin hợp lệ thì cho qua.
+          if (!origin || allowedOrigins.has(origin) || (!production && localDevOrigin.test(origin))) {
+            return callback(null, true);
+          }
 
-        return callback(new Error(`Origin not allowed by CORS: ${origin}`));
-      },
-      // Cho phép gửi kèm cookie phiên đăng nhập.
-      credentials: true,
-    }),
-  );
+          return callback(new Error(`Origin not allowed by CORS: ${origin}`));
+        },
+        // Cho phép gửi kèm cookie phiên đăng nhập.
+        credentials: true,
+      }),
+    );
+  }
 
   // Đọc body JSON của request, giới hạn 32KB để chống gửi dữ liệu quá lớn.
   app.use(express.json({ limit: "32kb" }));
@@ -110,26 +129,28 @@ export function createApp() {
   res.json(openapi);
 });
 
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(openapi, {
-    customSiteTitle: "Travel Mint API Documentation",
-    swaggerOptions: {
-      validatorUrl: null,
-      // Chỉ cho thử API GET trực tiếp trong tài liệu.
-      // API ghi dữ liệu vẫn được hiển thị đầy đủ.
-      supportedSubmitMethods: ["get"],
-    },
-  }),
-);
+if (swaggerUi) {
+  app.use(
+    "/api-docs",
+    swaggerUi.serve,
+    swaggerUi.setup(openapi, {
+      customSiteTitle: "Travel Mint API Documentation",
+      swaggerOptions: {
+        validatorUrl: null,
+        // Chỉ cho thử API GET trực tiếp trong tài liệu.
+        // API ghi dữ liệu vẫn được hiển thị đầy đủ.
+        supportedSubmitMethods: ["get"],
+      },
+    }),
+  );
+}
 
   // Mọi đường dẫn /api/... không khớp route nào ở trên thì trả 404.
   app.use("/api", (req, res) =>
     res.status(404).json({ message: "Đường dẫn API không tồn tại" }),
   );
   // Production: server phục vụ luôn file giao diện React đã build (cùng một domain).
-  if (production || process.env.SERVE_CLIENT === "true") {
+  if (serveClient ?? (production || process.env.SERVE_CLIENT === "true")) {
     const clientDist = fileURLToPath(
       new URL("../../client/dist/", import.meta.url),
     );
