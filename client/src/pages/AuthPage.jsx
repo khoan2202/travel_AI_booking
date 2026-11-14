@@ -1,3 +1,5 @@
+// Trang Đăng nhập (/login) và Đăng ký (/register), dùng chung một component.
+// Prop mode = "login" hoặc "register" (khai báo trong App.jsx).
 import { useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router";
 import Header from "../components/Header.jsx";
@@ -10,8 +12,10 @@ export default function AuthPage({ mode }) {
   const isRegister = mode === "register";
   const location = useLocation();
   const navigate = useNavigate();
+  // status: trạng thái phiên đăng nhập; login(): hàm đăng nhập từ AuthProvider.
   const { user, status, login } = useAuth();
   const [name, setName] = useState("");
+  // Vừa đăng ký xong thì điền sẵn email (trang đăng ký gửi sang qua location.state).
   const [email, setEmail] = useState(
     typeof location.state?.email === "string"
       ? location.state.email
@@ -32,12 +36,15 @@ export default function AuthPage({ mode }) {
   const backgroundImage = isRegister
     ? "/images/auth_login_register/register.jpg"
     : "/images/auth_login_register/login.jpg";
+  // Đã đăng nhập rồi thì không ở lại trang này, chuyển luôn tới trang đích.
   if (user) {
     return <Navigate to={destination} replace />;
   }
+  // Xử lý khi bấm nút gửi form.
   async function submit(event) {
     event.preventDefault();
     setError("");
+    // Kiểm tra nhanh ở trình duyệt trước khi gửi: mật khẩu nhập lại phải khớp và không quá 72 byte.
     if (isRegister && password !== confirmation) {
       setError("Hai mật khẩu chưa khớp nhau.");
       return;
@@ -48,6 +55,7 @@ export default function AuthPage({ mode }) {
     }
     setPending(true);
     try {
+      // Đăng ký xong: chuyển sang trang đăng nhập, kèm email và trang đích ban đầu.
       if (isRegister) {
         await registerUser({
           name,
@@ -62,6 +70,7 @@ export default function AuthPage({ mode }) {
             from: destination,
           },
         });
+      // Đăng nhập xong: về trang người dùng đang xem dở (hoặc /account).
       } else {
         await login(email, password);
         navigate(destination, {
@@ -147,6 +156,7 @@ export default function AuthPage({ mode }) {
                 ? "Điền thông tin bên dưới để bắt đầu hành trình của bạn."
                 : "Đăng nhập để tiếp tục với tài khoản Travel Mint."}
             </p>
+            {/* Đang kiểm tra phiên thì hiện chữ chờ, xong thì hiện form */}
             {status === "loading" ? (
               <p role="status">Đang kiểm tra phiên đăng nhập…</p>
             ) : (
@@ -171,7 +181,9 @@ export default function AuthPage({ mode }) {
                   className="auth-form auth-modern-form"
                   onSubmit={submit}
                 >
+                  {/* Khóa toàn bộ ô nhập khi đang gửi */}
                   <fieldset disabled={pending}>
+                    {/* Ô họ tên chỉ có ở trang đăng ký */}
                     {isRegister && (
                       <label htmlFor="full-name">
                         Họ và tên
@@ -240,6 +252,7 @@ export default function AuthPage({ mode }) {
                         Dùng ít nhất 10 ký tự.
                       </p>
                     )}
+                    {/* Ô nhập lại mật khẩu chỉ có ở trang đăng ký */}
                     {isRegister && (
                       <label htmlFor="confirm-password">
                         Nhập lại mật khẩu
@@ -286,6 +299,7 @@ export default function AuthPage({ mode }) {
                 </form>
               </>
             )}
+            {/* Link chuyển qua lại giữa đăng nhập và đăng ký, giữ nguyên trang đích */}
             <p className="auth-switch auth-modern-switch">
               {isRegister
                 ? "Đã có tài khoản? ": "Chưa có tài khoản? "}

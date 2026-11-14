@@ -1,3 +1,4 @@
+// Trả chi tiết một tour và các lịch khởi hành của tour đó (trang chi tiết tour).
 import pool from "../db/pool.js";
 
 // Cột id hiện dùng INTEGER của PostgreSQL: 1 đến 2147483647.
@@ -7,6 +8,7 @@ function parseTourId(value) {
   return Number.isInteger(id) && id > 0 && id <= 2147483647 ? id : null;
 }
 
+// GET /api/tours/:id: thông tin tour đang mở bán, kèm giá thấp nhất còn đặt được.
 export async function getTourById(req, res, next) {
   const id = parseTourId(req.params.id);
   if (id === null) {
@@ -43,6 +45,7 @@ export async function getTourById(req, res, next) {
   }
 }
 
+// GET /api/tours/:id/departures: các lịch đi còn nhận đặt, kèm số chỗ còn trống.
 export async function getTourDepartures(req, res, next) {
   const id = parseTourId(req.params.id);
   if (id === null) {

@@ -1,3 +1,4 @@
+// Trang "Đơn của tôi" (/my-bookings?page=1): danh sách đơn của người đang đăng nhập.
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import Header from '../components/Header.jsx';
@@ -8,6 +9,7 @@ import { bookingCode, bookingDate, bookingStatus } from '../utils/booking.js';
 import { formatPrice } from '../utils/format.js';
 
 export default function MyBookingsPage() {
+  // Số trang lấy từ URL (?page=2); giá trị lạ thì về trang 1.
   const [params, setParams] = useSearchParams();
   const parsedPage = Number(params.get('page') || 1);
   const page = Number.isInteger(parsedPage) && parsedPage > 0 && parsedPage <= 1000000 ? parsedPage : 1;
@@ -15,6 +17,7 @@ export default function MyBookingsPage() {
   const [error, setError] = useState('');
   const [retry, setRetry] = useState(0);
   const { reload } = useAuth();
+  // Tải danh sách đơn. Lỗi 401 (phiên hết hạn) thì kiểm tra lại đăng nhập.
   useEffect(() => {
     const controller = new AbortController();
     setData(null); setError('');
@@ -28,6 +31,7 @@ export default function MyBookingsPage() {
   return <><Header /><main className="container booking-page">
     <p className="section-kicker">NHỮNG HÀNH TRÌNH CỦA BẠN</p><h1>Đơn của tôi</h1>
     <p className="booking-intro">Xem thông tin và trạng thái các tour bạn đã đặt.</p>
+    {/* Ba trạng thái: lỗi / đang tải / có dữ liệu (danh sách hoặc thông báo chưa có đơn) */}
     {error ? <div className="state-box"><p role="alert">{error}</p><button className="button button-primary" onClick={() => setRetry((n) => n + 1)}>Thử lại</button></div>
       : !data ? <p role="status">Đang tải đơn đặt tour…</p>
         : <>{data.items.length ? <div className="booking-list">{data.items.map((booking) => <article className="booking-list-card" key={booking.id}>
@@ -36,6 +40,7 @@ export default function MyBookingsPage() {
           <p>Khởi hành {bookingDate(booking.departure_date)} <span aria-hidden="true">·</span> {booking.guest_count} người</p>
           <div className="booking-list-bottom"><strong>{formatPrice(booking.total_price)}</strong><Link className="button button-secondary" to={`/my-bookings/${booking.id}`}>Xem đơn</Link></div>
         </article>)}</div> : <div className="state-box"><h2>{page === 1 ? 'Bạn chưa có đơn đặt tour' : 'Không có đơn ở trang này'}</h2><p>Chọn một hành trình yêu thích để bắt đầu chuyến đi.</p><Link className="button button-primary" to="/#tours">Khám phá tour</Link></div>}
+        {/* Phân trang: chỉ hiện khi có nhiều hơn 1 trang */}
         {(data.total_pages > 1 || page > 1) && <nav className="booking-pagination" aria-label="Phân trang đơn đặt tour"><button className="button button-secondary" disabled={page <= 1} onClick={() => setParams({ page: String(page - 1) })}>Trang trước</button><span>Trang {page} / {data.total_pages}</span><button className="button button-secondary" disabled={page >= data.total_pages} onClick={() => setParams({ page: String(page + 1) })}>Trang sau</button></nav>}</>}
   </main><Footer /></>;
 }

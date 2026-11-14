@@ -1,3 +1,4 @@
+// Trang Dashboard quản trị (/admin): hiện các con số tổng quan của hệ thống.
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import Header from "../components/Header.jsx";
@@ -7,9 +8,11 @@ import AdminNav from "../components/AdminNav.jsx";
 import { formatPrice } from "../utils/format.js";
 
 export default function AdminPage() {
+  // data: số liệu tổng quan; retryCount: tăng lên để tải lại khi bấm "Thử lại".
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const [retryCount, setRetryCount] = useState(0);
+  // Tải số liệu khi mở trang và mỗi lần bấm thử lại.
   useEffect(() => {
     const controller = new AbortController();
     getAdminOverview(controller.signal)
@@ -22,6 +25,7 @@ export default function AdminPage() {
   return <><Header /><main className="container admin-page"><AdminNav />
     <p className="section-kicker">QUẢN TRỊ VIÊN</p><h1>Tổng quan hệ thống</h1>
     <p className="account-intro">Số liệu hiện tại từ hệ thống Travel Mint.</p>
+    {/* Có lỗi: hiện lỗi + nút thử lại. Có dữ liệu: hiện các ô số liệu. Chưa có: hiện "Đang tải" */}
     {error ? <div className="state-box" role="alert"><p>{error}</p><button className="button button-primary" type="button" onClick={retry}>Thử lại</button></div> : data ? <div className="admin-metrics">
       <article><p>Tài khoản</p><strong>{data.users_count}</strong></article>
       <article><p>Tour đang mở bán</p><strong>{data.active_tours_count}</strong></article>
