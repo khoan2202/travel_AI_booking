@@ -1,3 +1,5 @@
+// Các hàm gọi API quản trị (cần tài khoản admin).
+// Lưu: có id thì gọi API cập nhật, không có id thì gọi API tạo mới.
 import { request, postAuth } from './authApi.js';
 export const getDestinations = (signal) => request('/admin/destinations', { signal });
 export const saveDestination = (body) => postAuth('/admin/destinations', body);

@@ -1,19 +1,14 @@
+// Ảnh của tour, kèm nhãn số ngày.
+// Ưu tiên ảnh image_url trong DB; không có hoặc tải lỗi thì dùng ảnh bìa theo điểm đến
+// (khai báo trong src/data/destinationImages.js).
 import { useState } from "react";
+import { imagesFor } from "../data/destinationImages.js";
 
 export default function TourImage({ tour }) {
+  // failed = true khi ảnh từ image_url tải lỗi.
   const [failed, setFailed] = useState(false);
 
-  const localTourImages = {
-    "Hạ Long": "/images/tours/halong.jpg",
-    "Sa Pa": "/images/tours/sapa.jpg",
-    "Nha Trang": "/images/tours/nhatrang.jpg",
-    "Phú Quốc": "/images/tours/phuquoc.jpg",
-    "Đà Nẵng": "/images/tours/danang.jpg",
-    "Đà Lạt": "/images/tours/dalat.jpg",
-  };
-
-  const fallback =
-    localTourImages[tour.destination] || "/images/coast.svg";
+  const fallback = imagesFor(tour.destination).cover.src;
 
   const imageSrc =
     tour.image_url && !failed
@@ -26,6 +21,7 @@ export default function TourImage({ tour }) {
         src={imageSrc}
         alt={tour.title}
         loading="lazy"
+        decoding="async"
         width="800"
         height="500"
         onError={() => setFailed(true)}

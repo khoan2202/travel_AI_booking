@@ -1,8 +1,10 @@
+// Các hàm gọi API tour công khai (không cần đăng nhập).
 // Đây là địa chỉ công khai của backend, không phải nơi lưu API key AI.
 const API_BASE_URL = (
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api"
 ).replace(/\/+$/, "");
 
+// apiGet(): gọi GET, có timeout 15 giây và đổi lỗi thành thông báo tiếng Việt.
 async function apiGet(path, signal) {
   const controller = new AbortController();
   const cancel = () => controller.abort();
@@ -44,6 +46,7 @@ async function apiGet(path, signal) {
   }
 }
 
+// Mỗi hàm kiểm tra dữ liệu trả về đúng dạng trước khi đưa cho giao diện.
 export async function getTours(signal) {
   const data = await apiGet("/tours", signal);
   if (!Array.isArray(data)) throw new Error("Danh sách tour chưa đúng định dạng.");

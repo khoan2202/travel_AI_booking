@@ -1,3 +1,4 @@
+// Cấu hình ESLint: kiểm tra lỗi và quy tắc viết code React. Chạy: npm run lint.
 import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'

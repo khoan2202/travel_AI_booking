@@ -1,3 +1,4 @@
+/* CSS cho trang Tư vấn AI (/recommendations). */
 .ai-page { padding-top: 50px; padding-bottom: 72px; }
 .ai-heading { display:flex; justify-content:space-between; align-items:center; gap:30px; margin-bottom:32px; }
 .ai-heading h1 { font-size:clamp(28px,4vw,42px); margin:12px 0 18px; }

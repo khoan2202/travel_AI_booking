@@ -1,6 +1,8 @@
+-- Dữ liệu demo (không bắt buộc): 6 điểm đến, mỗi điểm 1 tour và 2 lịch đi sau 30 và 45 ngày.
 -- OPTIONAL DEMO DATA. Only after 001_FRESH_DATABASE_ONLY.sql on an empty catalog.
 -- These tours/prices are fictional study data; not actual commercial offers.
 BEGIN;
+-- Đã có dữ liệu tour thì dừng, tránh tạo trùng.
 DO $$ BEGIN
 IF EXISTS(SELECT 1 FROM tours) OR EXISTS(SELECT 1 FROM destinations) THEN
  RAISE EXCEPTION 'Catalog already contains data. Do not reseed it.';

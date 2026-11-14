@@ -1,12 +1,18 @@
-import { Link } from "react-router";
+// Thanh điều hướng trên cùng, dùng chung cho mọi trang.
+// Menu thay đổi theo trạng thái: chưa đăng nhập, đã đăng nhập, là admin.
+// NavLink tự thêm class "active" cho mục ứng với trang đang mở (để gạch chân và tô màu).
+import { Link, NavLink } from "react-router";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext.js";
 
 export default function Header() {
+  // menuOpen: menu đang mở trên điện thoại hay không.
   const [menuOpen, setMenuOpen] = useState(false);
+  // pending: đang đăng xuất (khóa nút để không bấm hai lần).
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const { user, status, logout } = useAuth();
+  // Đóng menu sau khi bấm một link (trên điện thoại).
   const closeMenu = () => setMenuOpen(false);
 
   async function handleLogout() {
@@ -33,6 +39,7 @@ export default function Header() {
         >
           TRAVEL <span>MINT.</span>
         </Link>
+        {/* Nút mở/đóng menu, chỉ hiện trên màn hình nhỏ (xem CSS) */}
         <button
           className="menu-toggle"
           type="button"
@@ -47,37 +54,39 @@ export default function Header() {
           className={menuOpen ? "main-menu is-open" : "main-menu"}
           aria-label="Điều hướng chính"
         >
-          <Link to="/" onClick={closeMenu}>
+          <NavLink to="/" end onClick={closeMenu}>
             Trang chủ
-          </Link>
+          </NavLink>
           <Link to="/#tours" onClick={closeMenu}>
             Khám phá tour
           </Link>
-          <Link to="/recommendations" onClick={closeMenu}>
+          <NavLink to="/recommendations" onClick={closeMenu}>
             Tư vấn AI
-          </Link>
-          <Link to="/contact" onClick={closeMenu}>
+          </NavLink>
+          <NavLink to="/contact" onClick={closeMenu}>
             Liên hệ &amp; Hỗ trợ
-          </Link>
+          </NavLink>
+          {/* Đang kiểm tra phiên: hiện chữ chờ. Đã đăng nhập: hiện menu tài khoản. Chưa đăng nhập: hiện nút Đăng nhập */}
           {status === "loading" ? (
             <span className="header-session-status">Đang kiểm tra…</span>
           ) : user ? (
             <>
+              {/* Mục Quản trị chỉ hiện với admin */}
               {user.role === "admin" && (
-                <Link to="/admin" onClick={closeMenu}>
+                <NavLink to="/admin" onClick={closeMenu}>
                   Quản trị
-                </Link>
+                </NavLink>
               )}
-              <Link
+              <NavLink
                 to="/account"
                 onClick={closeMenu}
                 className="account-nav-link"
               >
                 Tài khoản
-              </Link>
-              <Link to="/my-bookings" onClick={closeMenu}>
+              </NavLink>
+              <NavLink to="/my-bookings" onClick={closeMenu}>
                 Đơn của tôi
-              </Link>
+              </NavLink>
               <button
                 className="header-logout"
                 type="button"
