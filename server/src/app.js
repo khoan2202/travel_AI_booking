@@ -15,6 +15,7 @@ import recommendationRoutes from "./routes/recommendationRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import supportRoutes from "./routes/supportRoutes.js";
 import openapi from "./docs/openapi.js";
+import { swaggerUiHtml } from "./docs/swaggerUiHtml.js";
 
 // swagger-ui-express relies on Node's __dirname and is not needed in the Worker.
 let swaggerUi;
@@ -126,8 +127,14 @@ export function createApp({ serveClient, sameOriginWorker = false } = {}) {
   app.use("/api/support", supportRoutes);
   // Tài liệu API: /api-docs.json (dạng JSON) và /api-docs (giao diện Swagger).
   app.get("/api-docs.json", (req, res) => {
-  res.json(openapi);
-});
+    res.json(openapi);
+  });
+
+  if (!swaggerUi) {
+    app.get("/api-docs", (req, res) => {
+      res.set("Cache-Control", "no-cache").type("html").send(swaggerUiHtml);
+    });
+  }
 
 if (swaggerUi) {
   app.use(

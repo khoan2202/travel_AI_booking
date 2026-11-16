@@ -9,7 +9,7 @@
     "start": "node src/server.js",
     "cf:dev": "wrangler dev --config wrangler.jsonc",
     "cf:deploy": "wrangler deploy --config wrangler.jsonc",
-    "cf:release": "npm --prefix ../client run build && wrangler deploy --config wrangler.jsonc"
+    "cf:release": "node scripts/copySwaggerAssets.js && npm --prefix ../client run build && wrangler deploy --config wrangler.jsonc"
   },
   "keywords": [],
   "author": "",

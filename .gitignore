@@ -8,3 +8,7 @@ dist/
 .dev.vars*
 server/.wrangler-config/
 server/wrangler.jsonc
+client/public/swagger-ui/swagger-ui-*.js
+client/public/swagger-ui/swagger-ui.css
+client/public/swagger-ui/favicon-*.png
+client/public/swagger-ui/LICENSE
