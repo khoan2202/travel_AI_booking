@@ -117,7 +117,7 @@ export default function HomePage() {
       <Header />
       <main id="main-content">
         {/* Banner đầu trang */}
-        <Hero />
+        <Hero onPickDestination={pickDestination} />
         {/* Điểm đến nổi bật: lưới ảnh, ô đầu tiên lớn nhất. Bấm vào để lọc tour theo điểm đến */}
         {destinations.length > 0 && (
           <section className="section container destination-section" aria-labelledby="destination-heading">

@@ -1,0 +1,191 @@
+/* CSS cho: nút "So sánh" trên thẻ tour, khay so sánh nổi, trang So sánh tour (/compare),
+   trang Nguồn ảnh (/credits) và các link ở chân trang. */
+
+/* ========== Nút So sánh ========== */
+.compare-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 6px 12px 6px 7px;
+  border: 1px solid rgb(0 0 0 / 8%);
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1f4a3d;
+  background: rgb(255 255 255 / 92%);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 8px 18px -10px rgb(0 0 0 / 45%);
+  transition: background-color .25s, color .25s, transform .3s var(--ease-out, ease), box-shadow .3s;
+}
+.compare-toggle:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 12px 22px -10px rgb(0 0 0 / 50%); }
+.compare-toggle:disabled { opacity: .55; cursor: not-allowed; }
+.compare-box {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 13px;
+  line-height: 1;
+  color: #fff;
+  background: #1f4a3d;
+  transition: background-color .25s, rotate .35s var(--ease-out, ease);
+}
+.compare-toggle.is-selected { color: #0f2f26; background: var(--primary); border-color: transparent; }
+.compare-toggle.is-selected .compare-box { background: #0f2f26; color: var(--primary); rotate: 360deg; }
+/* Trên thẻ tour: nằm góc phải trên ảnh */
+.compare-toggle.on-card { position: absolute; top: 12px; right: 12px; z-index: 3; }
+/* Trên trang chi tiết: nằm dưới tiêu đề */
+.compare-toggle.on-detail { margin-top: 16px; }
+
+/* ========== Khay so sánh nổi ========== */
+.compare-tray {
+  position: fixed;
+  left: 50%;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index: 40;
+  width: min(980px, calc(100% - 24px));
+  translate: -50% 0;
+  animation: tray-in .5s var(--ease-out, ease) both;
+}
+@keyframes tray-in { from { opacity: 0; translate: -50% 30px; } to { opacity: 1; translate: -50% 0; } }
+.compare-tray-inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 14px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 14px;
+  color: #fff;
+  background: rgb(20 32 28 / 88%);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  box-shadow: 0 24px 50px -20px rgb(0 0 0 / 70%);
+}
+.compare-tray-title { display: grid; gap: 2px; flex: none; font-size: 14px; }
+.compare-tray-title span { font-size: 11px; color: #9fbcb1; }
+.compare-slots { display: flex; flex: 1; gap: 10px; min-width: 0; margin: 0; padding: 0; list-style: none; }
+.compare-slot {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  height: 54px;
+  padding: 6px 30px 6px 6px;
+  border-radius: 10px;
+  font-size: 12px;
+  background: rgb(255 255 255 / 8%);
+  animation: rise-in .4s var(--ease-out, ease) both;
+}
+.compare-slot img { flex: none; width: 56px; height: 42px; object-fit: cover; border-radius: 6px; }
+.compare-slot span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.compare-slot button {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  min-height: 0;
+  margin-top: -11px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: #fff;
+  background: rgb(255 255 255 / 14%);
+  line-height: 1;
+}
+.compare-slot button:hover { background: #c0453a; }
+.compare-slot.is-empty { justify-content: center; padding: 6px; border: 1px dashed rgb(255 255 255 / 22%); color: #8faa9f; background: none; }
+.compare-tray-actions { display: flex; flex: none; align-items: center; gap: 12px; }
+.compare-tray-hint { font-size: 12px; color: #9fbcb1; }
+.compare-clear { min-height: 36px; border: 0; background: none; color: #b9d2c8; font-size: 12px; text-decoration: underline; }
+.compare-clear:hover { color: #fff; }
+/* Khay đang hiện: nhích nút "lên đầu trang" lên, và chừa khoảng trống cuối trang
+   để nội dung cuối (thẻ tour, chân trang) cuộn lên được, không bị khay che mất */
+.has-compare-tray .to-top { bottom: 104px; }
+.has-compare-tray body { padding-bottom: 110px; }
+
+/* ========== Trang So sánh tour ========== */
+.compare-page, .credits-page { padding-block: 48px 30px; }
+.compare-page h1, .credits-page h1 { font-size: clamp(32px, 4vw, 44px); letter-spacing: -1px; }
+.compare-intro { max-width: 680px; margin-top: 12px; color: var(--muted); font-size: 14px; line-height: 1.8; }
+.compare-state, .compare-note { margin-top: 24px; color: var(--muted); font-size: 13px; }
+.compare-empty h2 { color: var(--dark); font-size: 21px; margin-bottom: 10px; }
+.compare-empty .account-actions { justify-content: center; margin-top: 18px; }
+/* Bảng cuộn ngang khi màn hình hẹp, cột nhãn luôn dính bên trái */
+.compare-scroll { margin-top: 30px; overflow-x: auto; padding-bottom: 6px; }
+.compare-table { min-width: calc(150px + var(--cols) * 230px); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.compare-row { display: grid; grid-template-columns: 150px repeat(var(--cols), minmax(230px, 1fr)); }
+.compare-row + .compare-row { border-top: 1px solid var(--line); }
+.compare-label {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #44725e;
+  background: #f6f9f7;
+}
+.compare-cell { position: relative; display: grid; align-content: center; gap: 4px; padding: 16px 18px; font-size: 14px; border-left: 1px solid var(--line); transition: background-color .3s; }
+.compare-cell small { font-size: 12px; color: var(--muted); }
+.compare-head .compare-cell { align-content: start; gap: 12px; }
+.compare-head .tour-picture { border-radius: 6px; }
+.compare-head h2 { font-size: 17px; line-height: 1.4; letter-spacing: -.2px; }
+.compare-head h2 a:hover { color: #00664c; }
+.compare-remove { justify-self: start; min-height: 30px; padding: 0; border: 0; background: none; color: #a0473f; font-size: 12px; text-decoration: underline; }
+.compare-price { font-size: 20px; color: #006d51; letter-spacing: -.4px; }
+/* Ô "tốt nhất" (rẻ nhất, đi sớm nhất, dài nhất): tô nền mint và gắn nhãn */
+.compare-cell.is-best { background: #ecfbf5; }
+.compare-badge {
+  justify-self: start;
+  margin-bottom: 2px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .3px;
+  color: #0f2f26;
+  background: var(--primary);
+  animation: notice-in .5s var(--ease-out, ease) both;
+}
+.compare-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.compare-tags span { padding: 4px 8px; border-radius: 3px; font-size: 11px; color: #486757; background: #f0f5f2; }
+.compare-foot .compare-cell { align-content: center; }
+.compare-foot .button { justify-self: start; }
+@media (hover: hover) {
+  .compare-row:not(.compare-head):hover .compare-cell:not(.is-best) { background: #fafcfb; }
+}
+
+/* ========== Trang Nguồn ảnh ========== */
+.credits-group { margin-top: 34px; }
+.credits-group h2 { font-size: 20px; margin-bottom: 14px; }
+.credits-group ul { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+.credits-group a { display: flex; align-items: center; gap: 12px; padding: 8px; border: 1px solid var(--line); border-radius: 8px; transition: border-color .25s, transform .3s var(--ease-out, ease); }
+.credits-group a:hover { border-color: #9fd8c4; transform: translateY(-2px); }
+.credits-group img { width: 80px; height: 54px; object-fit: cover; border-radius: 5px; flex: none; }
+.credits-group span { display: grid; gap: 3px; min-width: 0; font-size: 12px; }
+.credits-group strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--dark); }
+.credits-group small { color: var(--muted); }
+
+/* ========== Link ở chân trang ========== */
+.footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 20px; margin: 4px 0 16px; font-size: 13px; }
+.footer-links a { color: #2f5e4f; transition: color .2s; }
+.footer-links a:hover { color: #00a07a; }
+
+@media (max-width: 760px) {
+  .compare-tray-inner { flex-wrap: wrap; gap: 10px; }
+  .compare-tray-title { flex: 1; }
+  .compare-slots { order: 3; flex-basis: 100%; }
+  .compare-slot { height: 48px; padding-right: 26px; }
+  .compare-slot span { display: none; }
+  .compare-slot img { width: 100%; }
+  .has-compare-tray .to-top { bottom: 150px; }
+  .has-compare-tray body { padding-bottom: 160px; }
+}
