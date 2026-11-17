@@ -1,0 +1,151 @@
+/* Banner 3D: bưu thiếp lơ lửng, cả cảnh nghiêng theo chuột, ảnh nền trôi ngược chiều.
+   --tx, --ty (từ -1 đến 1) do Hero.jsx ghi lên thẻ .hero khi rê chuột. */
+
+/* clip thay cho hidden: ảnh nền và bưu thiếp tràn mép không làm banner bị cuộn ngầm khi focus vào thiệp */
+.hero { overflow: clip; }
+
+/* Thứ tự lớp: ảnh nền < lớp tối < bưu thiếp < chữ < nút chấm */
+.hero-content { z-index: 2; transform: translate3d(calc(var(--tx, 0) * 6px), calc(var(--ty, 0) * 4px), 0); }
+/* Khung chữ rộng phủ lên bưu thiếp hai bên: cho chuột "xuyên qua" khung, chỉ các nút còn bấm được */
+.hero-content { pointer-events: none; }
+.hero-content a, .hero-content button { pointer-events: auto; }
+.slide-controls { z-index: 3; }
+
+/* Ảnh nền rộng hơn khung một chút để khi trôi không lộ mép */
+.hero-slides {
+  inset: -28px;
+  transform: translate3d(calc(var(--tx, 0) * -18px), calc(var(--ty, 0) * -12px), 0);
+}
+
+/* Không gian 3D: perspective tạo cảm giác xa gần */
+.hero-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  perspective: 1100px;
+  perspective-origin: 50% 45%;
+  pointer-events: none;
+}
+.hero-stage {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: rotateX(calc(var(--ty, 0) * -7deg)) rotateY(calc(var(--tx, 0) * 10deg));
+  will-change: transform;
+}
+
+/* Một tấm bưu thiếp: đặt theo --x, --y, đẩy sâu theo --z, xoay theo --r */
+.postcard {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--w);
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  pointer-events: auto;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transform: translate3d(-50%, -50%, var(--z)) rotate(var(--r));
+  transition: transform .7s var(--ease-out, ease);
+  animation: postcard-in 1.3s var(--ease-out, ease) .4s both;
+}
+/* Các tấm xuất hiện lần lượt */
+.postcard:nth-child(2) { animation-delay: .55s; }
+.postcard:nth-child(3) { animation-delay: .7s; }
+.postcard:nth-child(4) { animation-delay: .85s; }
+.postcard:nth-child(5) { animation-delay: 1s; }
+@keyframes postcard-in {
+  from { opacity: 0; scale: .7; }
+  to { opacity: 1; scale: 1; }
+}
+/* Rê chuột: tấm thiệp bay lại gần và đứng thẳng */
+.postcard:hover, .postcard:focus-visible {
+  transform: translate3d(-50%, -50%, calc(var(--z) + 90px)) rotate(0deg);
+  outline: none;
+}
+
+/* Lớp trôi lên xuống, mỗi tấm một nhịp riêng */
+.postcard-float {
+  position: relative;
+  display: block;
+  padding: 8px 8px 30px;
+  border-radius: 4px;
+  background: #fbf8f1;
+  box-shadow: 0 34px 50px -26px rgb(0 0 0 / 75%), 0 2px 8px rgb(0 0 0 / 22%);
+  animation: postcard-float var(--dur, 8s) ease-in-out var(--delay, 0s) infinite alternate;
+  transition: box-shadow .5s;
+}
+@keyframes postcard-float {
+  from { translate: 0 -9px; rotate: -1.6deg; }
+  to { translate: 0 11px; rotate: 1.6deg; }
+}
+.postcard:hover .postcard-float, .postcard:focus-visible .postcard-float {
+  box-shadow: 0 40px 60px -24px rgb(0 0 0 / 80%), 0 0 0 3px var(--primary), 0 0 40px rgb(0 255 195 / 35%);
+}
+.postcard-photo {
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 2px;
+  background: #cfe3dc;
+}
+.postcard-photo img { width: 100%; height: 100%; object-fit: cover; transition: scale 1.2s var(--ease-out, ease); }
+.postcard:hover .postcard-photo img { scale: 1.1; }
+/* Chữ viết tay và con tem cho đúng chất bưu thiếp */
+.postcard-caption {
+  position: absolute;
+  left: 11px;
+  bottom: 8px;
+  /* Times New Roman có đủ dấu tiếng Việt (Georgia trên Windows làm vỡ dấu, ví dụ "Quố c") */
+  font: italic 600 13px/1 "Times New Roman", "Noto Serif", serif;
+  color: #26372f;
+}
+.postcard-stamp {
+  position: absolute;
+  right: 9px;
+  bottom: 6px;
+  padding: 2px 4px;
+  border: 1.5px dashed #00b48a;
+  border-radius: 2px;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #00795c;
+  rotate: 8deg;
+}
+
+/* Hai nút trong banner */
+.hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.button-ghost {
+  color: #fff;
+  border-color: rgb(255 255 255 / 45%);
+  background: rgb(255 255 255 / 8%);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.button-ghost:hover { border-color: var(--primary); color: var(--primary); background: rgb(0 0 0 / 20%); }
+
+/* Màn hình cảm ứng (không rê chuột được): cả cảnh tự đung đưa nhẹ */
+@media (hover: none) {
+  .hero-stage { animation: stage-sway 14s ease-in-out infinite alternate; }
+}
+@keyframes stage-sway {
+  from { transform: rotateX(3deg) rotateY(-7deg); }
+  to { transform: rotateX(-2deg) rotateY(7deg); }
+}
+
+/* Màn hình vừa: thu nhỏ thiệp, ẩn bớt 2 tấm phụ. Màn hình nhỏ: ẩn hết để chữ dễ đọc */
+@media (max-width: 1100px) {
+  .postcard { width: calc(var(--w) * .78); }
+  .postcard.is-optional { display: none; }
+}
+@media (max-width: 760px) {
+  .hero-scene { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-stage { animation: none; transform: none; }
+  .hero-slides, .hero-content { transform: none; }
+}

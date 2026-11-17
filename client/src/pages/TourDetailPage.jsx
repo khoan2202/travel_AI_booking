@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import TourGallery from "../components/TourGallery.jsx";
+import CompareToggle from "../components/CompareToggle.jsx";
 import DeparturePicker from "../components/DeparturePicker.jsx";
 import { getTourById, getTourDepartures } from "../services/tourApi.js";
 
@@ -83,6 +84,8 @@ function TourDetailContent({ id }) {
         <p className="section-kicker">{tour.region} · {tour.destination}</p>
         <h1>{tour.title}</h1>
         <p>{tour.duration_days} ngày <span aria-hidden="true">·</span> Khởi hành từ {tour.departure_location}</p>
+        {/* Thêm tour này vào danh sách so sánh */}
+        <CompareToggle tour={tour} className="on-detail" />
       </div>
       {/* Bố cục 2 cột: trái là ảnh và mô tả, phải là khung chọn lịch đi */}
       <div className="tour-detail-layout">

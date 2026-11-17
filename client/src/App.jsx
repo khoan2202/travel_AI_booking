@@ -25,15 +25,30 @@ import "./styles/booking.css";
 import "./styles/admin.css";
 // Lưới điểm đến, bộ sưu tập ảnh và lightbox.
 import "./styles/gallery.css";
+// Quiz, so sánh tour, trang nguồn ảnh.
+import "./styles/quiz.css";
+import "./styles/compare.css";
 // Hiệu ứng chuyển động: import sau cùng để ghi đè style ở trên khi cần.
 import "./styles/motion.css";
+// Banner 3D: sau motion.css vì có ghi đè vài thuộc tính của banner.
+import "./styles/hero3d.css";
 import MotionLayer from "./components/MotionLayer.jsx";
+import CompareProvider from "./context/CompareProvider.jsx";
+import CompareTray from "./components/CompareTray.jsx";
+import QuizPage from "./pages/QuizPage.jsx";
+import ComparePage from "./pages/ComparePage.jsx";
+import CreditsPage from "./pages/CreditsPage.jsx";
 
 // BrowserRouter: quản lý URL. AuthProvider: chia sẻ trạng thái đăng nhập cho mọi trang.
+// CompareProvider: danh sách tour đang chọn để so sánh; CompareTray: khay so sánh nổi ở cuối màn hình.
 // ScrollToSection: tự cuộn tới mục khi URL có #id.
 // MotionLayer: hiệu ứng cuộn, header kính mờ, nút lên đầu trang.
 export default function App() {
-  return <BrowserRouter><AuthProvider><ScrollToSection /><MotionLayer /><Routes>
+  return <BrowserRouter><AuthProvider><CompareProvider><ScrollToSection /><MotionLayer /><CompareTray /><Routes>
+    {/* Quiz tìm chuyến đi, so sánh tour, nguồn ảnh: ai cũng dùng được */}
+    <Route path="/quiz" element={<QuizPage />} />
+    <Route path="/compare" element={<ComparePage />} />
+    <Route path="/credits" element={<CreditsPage />} />
     {/* Trang công khai: trang chủ, gợi ý tour, chi tiết tour */}
     <Route path="/" element={<HomePage />} />
     <Route path="/recommendations" element={<RecommendationPage />} />
@@ -55,5 +70,5 @@ export default function App() {
     <Route path="/my-bookings/:id" element={<ProtectedRoute><BookingDetailPage /></ProtectedRoute>} />
     {/* Đường dẫn không khớp trang nào: hiện trang 404 */}
     <Route path="*" element={<NotFoundPage />} />
-  </Routes></AuthProvider></BrowserRouter>;
+  </Routes></CompareProvider></AuthProvider></BrowserRouter>;
 }
