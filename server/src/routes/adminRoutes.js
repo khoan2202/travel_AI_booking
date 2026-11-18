@@ -1,4 +1,4 @@
-// Cổng vào mọi API quản trị: /api/admin/... Chỉ admin mới gọi được.
+// Cổng chung của /api/admin/...: ai không phải admin thì dừng ở đây.
 import { Router } from "express";
 import pool from "../db/pool.js";
 import { requireAuth, requireAdmin } from "../middleware/auth.js";
@@ -9,21 +9,19 @@ import adminPeopleRoutes from "./adminPeopleRoutes.js";
 import { handle } from "../services/adminCommon.js";
 
 const router = Router();
-// Không cho cache dữ liệu quản trị.
+// dữ liệu quản trị không cho cache
 router.use((req, res, next) => {
   res.set("Cache-Control", "no-store");
   next();
 });
-// Áp dụng cho toàn bộ route admin: phải đăng nhập VÀ có role = 'admin'.
+// từ đây trở xuống: phải đăng nhập và là admin
 router.use(requireAuth, requireAdmin);
-// Gộp thêm route quản lý tour/điểm đến và route quản lý đơn.
 router.use(catalogRoutes);
 router.use(adminBookingRoutes);
-// Bài viết blog; khách hàng, hỗ trợ và nhật ký.
 router.use(adminBlogRoutes);
 router.use(adminPeopleRoutes);
 
-// GET /api/admin/overview: các con số tổng quan cho trang Dashboard.
+// GET /api/admin/overview: mấy con số đầu trang Dashboard
 router.get("/overview", async (req, res, next) => {
   try {
     const result = await pool.query(`
@@ -45,14 +43,14 @@ router.get("/overview", async (req, res, next) => {
   }
 });
 
-// GET /api/admin/insights: số liệu phân tích cho Dashboard (doanh thu, việc cần làm, tour bán chạy).
-// Tính theo giờ Việt Nam để khoản thu cuối tháng không bị nhảy sang tháng khác.
+// GET /api/admin/insights: biểu đồ, việc cần làm, tour bán chạy.
+// tháng tính theo giờ Việt Nam để khoản thu cuối tháng không nhảy sang tháng khác
 router.get("/insights", handle(async (req, res) => {
   const vnMonth = (column) => `date_trunc('month', ${column} AT TIME ZONE 'Asia/Ho_Chi_Minh')`;
-  // Bảng hỗ trợ và blog có thể chưa có trên database cũ, nên kiểm tra trước khi đọc.
+  // DB cũ có thể chưa có bảng support/blog, kiểm tra trước kẻo sập cả trang
   const tables = (await pool.query("SELECT to_regclass('public.support_requests') AS support, to_regclass('public.blog_posts') AS blog")).rows[0];
   const [months, todo, lowTours, topTours, recent, support, blog] = await Promise.all([
-    // 6 tháng gần nhất, tháng chưa có giao dịch vẫn hiện với số 0.
+    // 6 tháng gần nhất, tháng trống vẫn hiện số 0
     pool.query(`WITH months AS (
         SELECT generate_series(${vnMonth("NOW()")} - INTERVAL '5 months', ${vnMonth("NOW()")}, INTERVAL '1 month') AS m
       )
@@ -68,7 +66,7 @@ router.get("/insights", handle(async (req, res) => {
         (SELECT COUNT(*)::int FROM tour_departures td JOIN tours t ON t.id = td.tour_id
           WHERE t.status = 'active' AND td.status = 'scheduled' AND td.start_date > CURRENT_DATE
             AND td.seats_booked < td.capacity AND td.seats_booked >= td.capacity * 0.8) AS almost_full_departures`),
-    // Tour đang bán nhưng còn dưới 2 lịch tương lai: sắp biến mất khỏi trang chủ.
+    // tour đang bán mà còn dưới 2 lịch tương lai, sắp biến khỏi trang chủ
     pool.query(`SELECT t.id, t.title, COUNT(td.id)::int AS upcoming, to_char(MAX(td.start_date), 'YYYY-MM-DD') AS last_date
       FROM tours t LEFT JOIN tour_departures td ON td.tour_id = t.id AND td.status = 'scheduled' AND td.start_date > CURRENT_DATE
       WHERE t.status = 'active' GROUP BY t.id HAVING COUNT(td.id) < 2 ORDER BY COUNT(td.id), t.id DESC LIMIT 5`),

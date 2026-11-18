@@ -1,4 +1,4 @@
-// Hộp thư hỗ trợ (/admin/support): đọc yêu cầu gửi từ trang Liên hệ và đánh dấu đã xử lý.
+// Hộp thư hỗ trợ: đọc tin khách gửi từ trang Liên hệ, xong thì đánh dấu đã xử lý.
 import { useCallback, useState } from "react";
 import { Link } from "react-router";
 import Header from "../components/Header.jsx";

@@ -1,4 +1,4 @@
-// Trang đọc bài viết (/blog/:slug): thanh tiến độ đọc, mục lục, nội dung, tour gợi ý, bài liên quan.
+// Đọc một bài blog: thanh tiến độ, mục lục, nội dung, tour gợi ý, bài liên quan.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router";
 import Header from "../components/Header.jsx";
@@ -23,7 +23,7 @@ export default function BlogPostPage() {
   const barRef = useRef(null);
   const [copied, setCopied] = useState(false);
 
-  // Hiện tên bài trên tab trình duyệt.
+  // tên bài lên tab trình duyệt
   useEffect(() => {
     if (!post) return undefined;
     const previous = document.title;
@@ -31,7 +31,7 @@ export default function BlogPostPage() {
     return () => { document.title = previous; };
   }, [post]);
 
-  // Thanh tiến độ đọc: ghi thẳng vào style để không phải vẽ lại React mỗi lần cuộn.
+  // thanh tiến độ ghi thẳng vào style, khỏi bắt React vẽ lại mỗi lần cuộn
   useEffect(() => {
     if (!post) return undefined;
     let frame = 0;
@@ -55,7 +55,6 @@ export default function BlogPostPage() {
     };
   }, [post]);
 
-  // Sao chép đường dẫn bài viết để chia sẻ.
   async function copyLink() {
     try {
       await navigator.clipboard.writeText(window.location.href);
@@ -104,7 +103,7 @@ export default function BlogPostPage() {
         </header>
 
         <div className="container post-layout">
-          {/* Mục lục: chỉ hiện khi bài có từ 2 mục trở lên */}
+          {/* mục lục chỉ có khi bài từ 2 mục trở lên */}
           {headings.length > 1 && (
             <aside className="post-toc">
               <p>Trong bài này</p>
@@ -124,7 +123,7 @@ export default function BlogPostPage() {
           </article>
         </div>
 
-        {/* Tour gợi ý: chuyển người đọc thành khách đặt tour */}
+        {/* đọc xong thì dẫn sang tour */}
         {data.tours.length > 0 && (
           <section className="post-tours">
             <div className="container">

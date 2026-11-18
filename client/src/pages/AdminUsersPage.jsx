@@ -1,4 +1,4 @@
-// Trang khách hàng (/admin/users): tìm tài khoản, xem số đơn, tiền đã trả và đổi quyền.
+// Khách hàng: tìm tài khoản, xem số đơn và tiền đã trả, đổi quyền.
 import { useCallback, useState } from "react";
 import { Link } from "react-router";
 import Header from "../components/Header.jsx";
@@ -13,7 +13,7 @@ import { formatPrice } from "../utils/format.js";
 export default function AdminUsersPage() {
   const [filters, setFilters] = useState({ page: 1, role: "", q: "" });
   const [draft, setDraft] = useState({ q: "", role: "" });
-  // confirmId: tài khoản đang chờ bấm xác nhận đổi quyền.
+  // tài khoản đang chờ bấm xác nhận đổi quyền
   const [confirmId, setConfirmId] = useState(null);
   const [busy, setBusy] = useState(false), [actionError, setActionError] = useState(""), [notice, setNotice] = useState("");
   const load = useCallback((signal) => getAdminUsers(filters, signal), [filters]);

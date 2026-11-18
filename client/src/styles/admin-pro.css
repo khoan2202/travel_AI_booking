@@ -24,7 +24,7 @@
 .admin-tabs button[aria-pressed="true"] { background: var(--dark); border-color: var(--dark); color: #fff; font-weight: 600; }
 .admin-tabs small { opacity: .7; }
 
-/* ========== Dashboard ========== */
+/* Dashboard */
 .admin-board { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
 .admin-panel { min-width: 0; padding: 24px; border: 1px solid var(--line); }
 .admin-panel-wide { grid-column: 1 / -1; }
@@ -78,11 +78,11 @@
 .rev-table { margin-top: 12px; font-size: 12px; }
 .rev-table summary { min-height: 32px; color: #215b47; font-weight: 600; }
 
-/* ========== Danh sách bài viết ========== */
+/* Danh sách bài viết */
 .admin-post-cell { display: flex; align-items: center; gap: 12px; }
 .admin-post-cell img { flex: none; width: 72px; height: 48px; object-fit: cover; border-radius: 3px; background: #dae8e1; }
 
-/* ========== Trình soạn bài viết ========== */
+/* Trình soạn bài viết */
 .post-editor { margin-top: 24px; }
 .post-editor-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 28px; align-items: start; }
 .post-editor-main { min-width: 0; }
@@ -112,7 +112,7 @@
 .post-preview .post-body h2 { font-size: 20px; margin-top: 26px; }
 .post-preview .post-body h3 { font-size: 16px; }
 
-/* ========== Hộp thư hỗ trợ ========== */
+/* Hộp thư hỗ trợ */
 .support-list { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
 .support-list li { padding: 20px 22px; border: 1px solid var(--line); border-left: 4px solid #d5dedb; }
 .support-list li.is-pending { border-left-color: #e2a11b; }
@@ -122,7 +122,7 @@
 .support-message { margin-block: 12px 16px; font-size: 14px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
 .support-list .button { min-height: 38px; padding: 6px 14px; font-size: 12px; }
 
-/* ========== Nhật ký thao tác ========== */
+/* Nhật ký thao tác */
 .activity-list { margin: 0; padding: 0 0 0 18px; list-style: none; border-left: 2px solid var(--line); }
 .activity-list li { position: relative; padding-block: 12px; }
 .activity-list li::before { content: ""; position: absolute; left: -24px; top: 18px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid #fff; background: #00795c; }

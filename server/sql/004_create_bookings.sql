@@ -6,13 +6,13 @@ CREATE TABLE bookings (
     -- Ai đặt và đặt lịch nào.
     user_id INTEGER NOT NULL REFERENCES users(id),
     departure_id INTEGER NOT NULL REFERENCES tour_departures(id),
-    -- Mã ngẫu nhiên do trình duyệt tạo cho mỗi lần đặt, dùng để chống tạo đơn trùng.
+    -- mã ngẫu nhiên trình duyệt tạo cho mỗi lần đặt, để bấm hai lần không ra hai đơn
     request_key UUID NOT NULL,
     guest_count INTEGER NOT NULL CHECK (guest_count BETWEEN 1 AND 20),
-    -- Giá được "chụp" lại lúc đặt. Admin đổi giá sau đó thì đơn cũ không bị ảnh hưởng.
+    -- giá chốt lúc đặt, admin đổi giá sau này không ảnh hưởng đơn cũ
     unit_price NUMERIC(12,0) NOT NULL CHECK (unit_price > 0),
     total_price NUMERIC(14,0) NOT NULL CHECK (total_price = unit_price * guest_count),
-    -- Tên tour và ngày đi cũng được lưu lại, phòng khi tour bị sửa sau này.
+    -- tên tour và ngày đi cũng chép lại, phòng tour bị sửa sau này
     tour_title VARCHAR(200) NOT NULL,
     departure_date DATE NOT NULL,
     contact_name VARCHAR(100) NOT NULL CHECK (char_length(contact_name) BETWEEN 2 AND 100),

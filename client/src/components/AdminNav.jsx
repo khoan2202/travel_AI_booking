@@ -1,5 +1,4 @@
-// Thanh menu con trong khu quản trị.
-// NavLink tự thêm class "active" cho mục ứng với trang đang mở.
+// Menu con của khu quản trị (NavLink tự gắn class "active" cho mục đang mở).
 import { NavLink } from 'react-router';
 
 const ITEMS = [

@@ -2,7 +2,7 @@
    Giao diện sáng giữ nguyên ở các file khác; file này chỉ đổi màu khi <html data-theme="dark">.
    Thêm trang mới có màu nền hoặc màu chữ cố định thì nhớ bổ sung màu tối tương ứng ở đây. */
 
-/* ========== Nút sáng/tối trên header ========== */
+/* Nút sáng/tối trên header */
 .theme-toggle {
   position: relative;
   flex: none;
@@ -43,7 +43,7 @@
 /* Tắt hiệu ứng mờ mặc định để vòng tròn lan ra thật sắc nét (xem ThemeToggle.jsx) */
 ::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 
-/* ========== Bảng màu giao diện tối ========== */
+/* Bảng màu giao diện tối */
 :root[data-theme="dark"] {
   color-scheme: dark;
   /* Nền từ tối đến sáng dần theo độ nổi của khối */
@@ -65,7 +65,7 @@
   body { background: var(--bg); }
   :focus-visible { outline-color: var(--accent); }
 
-  /* ----- Ô nhập liệu dùng chung (trừ form kính mờ ở trang đăng nhập) ----- */
+  /* Ô nhập liệu dùng chung (trừ form kính mờ ở trang đăng nhập) */
   :is(input:not([type="checkbox"], [type="radio"]), select, textarea):not(.auth-modern-form *) {
     border-color: var(--line-strong);
     background-color: var(--surface-2);
@@ -75,7 +75,7 @@
   :is(input, select, textarea):disabled:not(.auth-modern-form *),
   input[readonly]:not(.auth-modern-form *) { background-color: var(--surface); color: var(--muted); }
 
-  /* ----- Header, chân trang, nút bấm ----- */
+  /* Header, chân trang, nút bấm */
   .site-header, .main-menu { background: var(--header); }
   @media (min-width: 901px) { .main-menu { background: transparent; } }
   &.is-scrolled .site-header { background: rgb(11 17 15 / 84%); }
@@ -91,7 +91,7 @@
   .to-top { background: var(--surface-3); color: #fff; }
   .to-top:hover { background: #2f4a41; }
 
-  /* ----- Trang chủ và thẻ tour ----- */
+  /* Trang chủ và thẻ tour */
   .section-kicker, .tour-card h3 a:hover { color: var(--accent); }
   .quiz-page .section-kicker, .blog-hero .section-kicker, .post-tours .section-kicker { color: var(--primary); }
   .tour-filters { border-color: var(--line); background: var(--surface); }
@@ -111,7 +111,7 @@
   }
   .tour-card:hover .tour-tags span { background: #1f3a32; color: #c7ece0; }
 
-  /* ----- Chi tiết tour và chọn lịch ----- */
+  /* Chi tiết tour và chọn lịch */
   .detail-help, .departure-panel { background: var(--surface); }
   .detail-help a, .departure-option-content > strong, .quote-summary strong, .gallery-credit:hover { color: var(--accent); }
   .lightbox .gallery-credit:hover { color: var(--primary); }
@@ -123,7 +123,7 @@
   .refresh-message { background: #14302a; color: #c7ece0; }
   .refresh-message.is-error { background: #3a1d18; color: #ffc9bd; }
 
-  /* ----- Đặt tour và đơn của tôi ----- */
+  /* Đặt tour và đơn của tôi */
   .booking-policy, .booking-receipt-contact { background: var(--surface-2); color: #c5d4ce; }
   .booking-refresh, .booking-total strong, .checkout-summary-body > a, .pending-history-link, .booking-list-bottom > strong { color: var(--accent); }
   .booking-pending { border-color: #2f5c4e; border-left-color: var(--accent); background: #14302a; }
@@ -135,7 +135,7 @@
   .checkout-contact .booking-form textarea { border-color: var(--line-strong); background: var(--surface-2); color: var(--dark); }
   .checkout-contact .booking-form input[readonly] { background: var(--surface); color: var(--muted); }
 
-  /* ----- Liên hệ ----- */
+  /* Liên hệ */
   .contact-page { background: linear-gradient(180deg, #12251f 0%, var(--bg) 60%); color: var(--dark); }
   .contact-kicker, .contact-muted a { color: var(--accent); }
   .contact-heading > p:last-child, .contact-muted { color: var(--muted); }
@@ -144,13 +144,13 @@
   .contact-feedback--error { background: #3a1d18; color: #ffc9bd; }
   .contact-feedback--success { background: #14302a; color: #a9efd8; }
 
-  /* ----- Tư vấn AI ----- */
+  /* Tư vấn AI */
   .ai-filter, .ai-chat { background: var(--surface); }
   .ai-note { color: var(--muted); }
   .suggestion-body > strong, .suggestion-detail, .ai-signin a { color: var(--accent); }
   .suggestion-reason, .ai-message:not(.user), .ai-empty, .ai-signin { background: var(--surface-2); }
 
-  /* ----- Quiz và so sánh tour ----- */
+  /* Quiz và so sánh tour */
   .quiz-pick { background: var(--surface); }
   .quiz-reasons { color: #c5d4ce; }
   .quiz-pick-foot strong, .compare-price, .compare-head h2 a:hover { color: var(--accent); }
@@ -167,7 +167,7 @@
   }
   .credits-group a:hover { border-color: #2f5c4e; }
 
-  /* ----- Blog ----- */
+  /* Blog */
   .home-blog-all, .home-blog-item:hover h3, .blog-meta span, .post-toc p,
   .post-toc a:hover, .blog-featured-text h2 a:hover, .post-body a, .post-body li::marker { color: var(--accent); }
   .home-blog-item img, .blog-card-photo, .blog-featured-photo { background: var(--surface-2); }
@@ -188,7 +188,7 @@
   .post-tour-text em { color: var(--accent); }
   @media (max-width: 960px) { .post-toc { background: var(--surface); } }
 
-  /* ----- Quản trị ----- */
+  /* Quản trị */
   .admin-table th { background: var(--surface-2); }
   .admin-metrics strong { color: var(--accent); }
   .admin-form :is(input, select, textarea) { border-color: var(--line-strong); }

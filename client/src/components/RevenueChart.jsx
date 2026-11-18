@@ -1,15 +1,14 @@
-// Biểu đồ cột: tiền đã thu trong 6 tháng gần nhất.
-// Rê chuột hoặc Tab vào từng cột để xem chi tiết; bảng số liệu nằm trong mục "Xem dạng bảng".
+// Biểu đồ cột tiền đã thu 6 tháng gần nhất. Rê chuột hoặc Tab vào cột để xem chi tiết, bảng số liệu nằm ở "Xem dạng bảng".
 import { formatPrice } from "../utils/format.js";
 
-// Làm tròn đỉnh trục lên số đẹp: 3,2 triệu -> 5 triệu.
+// làm tròn đỉnh trục lên số đẹp: 3,2 triệu thành 5 triệu
 function niceMax(value) {
   if (value <= 0) return 1000000;
   const power = 10 ** Math.floor(Math.log10(value));
   return [1, 2, 2.5, 5, 10].find((step) => step * power >= value) * power;
 }
 
-// Viết gọn số tiền trên trục: 2500000 -> "2,5 tr".
+// 2500000 thành "2,5 tr"
 function compact(value) {
   const short = (number) => new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 1 }).format(number);
   if (value >= 1e9) return `${short(value / 1e9)} tỷ`;
@@ -31,7 +30,6 @@ export default function RevenueChart({ months }) {
   return (
     <figure className="rev-chart">
       <div className="rev-plot">
-        {/* Đường kẻ ngang và nhãn trục */}
         {[1, 0.5, 0].map((ratio) => (
           <div className="rev-grid" key={ratio} style={{ "--r": ratio }}><span>{compact(top * ratio)}</span></div>
         ))}
@@ -44,7 +42,7 @@ export default function RevenueChart({ months }) {
                 <span className="rev-track">
                   {value > 0 && (
                     <span className="rev-bar" style={{ height: `${(value / top) * 100}%` }}>
-                      {/* Chỉ ghi số trên cột cao nhất cho đỡ rối */}
+                      {/* chỉ ghi số trên cột cao nhất cho đỡ rối */}
                       {isPeak && <b>{compact(value)}</b>}
                     </span>
                   )}

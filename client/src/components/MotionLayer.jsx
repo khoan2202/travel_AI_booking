@@ -1,14 +1,10 @@
-// Lớp hiệu ứng dùng chung cho toàn website (đặt một lần trong App.jsx):
-// 1. Hiện dần các khối nội dung khi cuộn tới (scroll reveal).
-// 2. Đổi kiểu header khi đã cuộn xuống (nền mờ kính).
-// 3. Nút "lên đầu trang" có vòng tròn thể hiện tiến độ cuộn.
-// 4. Vệt sáng chạy theo con trỏ trên thẻ tour.
-// Người dùng bật "giảm chuyển động" trong hệ điều hành thì tắt hiệu ứng 1.
+// Các hiệu ứng chung của cả web, đặt một lần trong App.jsx: (1) khối nội dung hiện dần khi cuộn tới,
+// (2) header thành nền kính mờ khi cuộn xuống, (3) nút "lên đầu trang" có vòng tiến độ cuộn,
+// (4) vệt sáng chạy theo con trỏ trên thẻ tour. Bật "giảm chuyển động" thì tắt hiệu ứng (1).
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useLocation } from "react-router";
 
-// Các khối sẽ được hiện dần khi cuộn tới. Chỉ chọn phần tử có className cố định,
-// vì React ghi đè className khi nó thay đổi, làm mất class hiệu ứng.
+// các khối sẽ hiện dần. Chỉ chọn phần tử có className cố định, vì React ghi đè className mỗi khi nó đổi và làm mất class hiệu ứng
 const REVEAL_SELECTOR = [
   ".section-heading", ".tour-filters", ".tour-card:not(.skeleton-card)", ".about-art", ".about-content",
   ".travel-callout", ".detail-title", ".tour-facts > div", ".tour-overview", ".detail-help",
@@ -17,7 +13,7 @@ const REVEAL_SELECTOR = [
   ".contact-intro", ".contact-form", ".destination-tile", ".blog-card", ".blog-featured", ".admin-panel", ".home-blog-lead", ".home-blog-item",
 ].join(",");
 
-// Chu vi vòng tròn tiến độ (bán kính 20).
+// chu vi vòng tiến độ (bán kính 20)
 const RING = 2 * Math.PI * 20;
 
 const prefersReducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
@@ -27,8 +23,7 @@ export default function MotionLayer() {
   const ringRef = useRef(null);
   const [showTop, setShowTop] = useState(false);
 
-  // Hiệu ứng 1: scroll reveal.
-  // Chạy trước khi trình duyệt vẽ (layout effect) để không bị nháy: hiện -> ẩn -> hiện dần.
+  // (1) hiện dần khi cuộn. Dùng layout effect để chạy trước lúc vẽ, kẻo bị nháy: hiện, ẩn, rồi mới hiện dần
   useLayoutEffect(() => {
     if (prefersReducedMotion() || !("IntersectionObserver" in window)) return;
     const seen = new WeakSet();
@@ -40,7 +35,7 @@ export default function MotionLayer() {
         const el = entry.target;
         observer.unobserve(el);
         el.classList.add("is-visible");
-        // Hiện xong thì gỡ class, để hiệu ứng hover của phần tử không bị trễ theo.
+        // hiện xong thì gỡ class, kẻo hiệu ứng hover của chính phần tử đó bị trễ theo
         const finish = () => {
           el.classList.remove("reveal", "is-visible");
           el.style.removeProperty("--reveal-delay");
@@ -51,11 +46,11 @@ export default function MotionLayer() {
           finish();
         };
         el.addEventListener("transitionend", onEnd);
-        timers.add(setTimeout(finish, 2000)); // Dự phòng nếu transitionend không chạy.
+        timers.add(setTimeout(finish, 2000)); // phòng khi transitionend không chạy
       }
     }, { rootMargin: "0px 0px -6% 0px", threshold: 0.08 });
 
-    // Tìm các khối mới xuất hiện và gắn hiệu ứng. Các khối cùng cha xuất hiện lệch nhau một chút.
+    // tìm khối mới để gắn hiệu ứng, các khối cùng cha hiện lệch nhau một nhịp
     function scan() {
       let order = 0;
       let lastParent = null;
@@ -69,7 +64,7 @@ export default function MotionLayer() {
       });
     }
 
-    // Nội dung trang thường đến sau (khi gọi API xong), nên theo dõi DOM để quét lại.
+    // nội dung hay tới sau khi API trả về, nên theo dõi DOM để quét lại
     let frame = 0;
     const mutations = new MutationObserver(() => {
       if (!frame) frame = requestAnimationFrame(() => { frame = 0; scan(); });
@@ -84,7 +79,7 @@ export default function MotionLayer() {
     };
   }, []);
 
-  // Hiệu ứng 2 và 3: theo dõi vị trí cuộn (gom lại mỗi khung hình một lần cho nhẹ).
+  // (2) và (3): theo dõi vị trí cuộn, gom lại mỗi khung hình một lần cho nhẹ
   useEffect(() => {
     let frame = 0;
     function update() {
@@ -107,7 +102,7 @@ export default function MotionLayer() {
     };
   }, [pathname]);
 
-  // Hiệu ứng 4: lưu vị trí con trỏ vào biến CSS --mx, --my của thẻ đang được trỏ vào.
+  // (4) ghi vị trí con trỏ vào biến CSS --mx, --my của thẻ đang trỏ vào
   useEffect(() => {
     function onMove(event) {
       const card = event.target.closest?.(".tour-card, .suggestion-card");

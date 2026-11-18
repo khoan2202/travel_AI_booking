@@ -1,10 +1,9 @@
-// Nhận request đặt tour của khách, gọi bookingService xử lý rồi trả kết quả.
+// Nhận request đặt tour, giao cho bookingService xử lý rồi trả kết quả.
 import pool from '../db/pool.js';
 import { BookingError, bookingColumns, positiveId, readOwnedBooking, createBooking, cancelBooking } from '../services/bookingService.js';
 
-// Chuyển lỗi thành response phù hợp.
-// BookingError: lỗi nghiệp vụ đã biết (hết chỗ, đổi giá...), trả đúng mã lỗi.
-// 55P03 (chờ khóa quá lâu), 57014 (câu SQL quá giờ), 40P01 (deadlock): báo khách thử lại.
+// BookingError là lỗi đã biết (hết chỗ, đổi giá...) nên trả đúng mã của nó.
+// 55P03, 57014, 40P01 là chờ khóa quá lâu, SQL quá giờ, deadlock: bảo khách thử lại.
 function failure(error, res, next) {
   if (error instanceof BookingError) return res.status(error.status).json({ message: error.message, code: error.code });
   if (['55P03', '57014', '40P01'].includes(error.code)) {
@@ -13,7 +12,7 @@ function failure(error, res, next) {
   next(error);
 }
 
-// POST /api/bookings: tạo đơn. Gửi lại cùng request_key thì trả đơn cũ (200) thay vì tạo đơn mới (201).
+// POST /api/bookings. Gửi lại cùng request_key thì trả đơn cũ (200) chứ không tạo thêm (201).
 export async function create(req, res, next) {
   try {
     const result = await createBooking(req.user, req.body);
@@ -21,7 +20,7 @@ export async function create(req, res, next) {
   } catch (error) { failure(error, res, next); }
 }
 
-// GET /api/bookings?page=1: danh sách đơn của tôi, 10 đơn mỗi trang.
+// GET /api/bookings?page=1: đơn của tôi, 10 đơn một trang
 export async function listMine(req, res, next) {
   const page = req.query.page === undefined ? 1 : positiveId(req.query.page);
   if (!page || page > 1000000) return res.status(400).json({ message: 'Số trang không hợp lệ.' });
@@ -39,7 +38,7 @@ export async function listMine(req, res, next) {
   } catch (error) { next(error); }
 }
 
-// GET /api/bookings/:id: chi tiết một đơn, chỉ xem được đơn của chính mình.
+// GET /api/bookings/:id: chỉ xem được đơn của mình
 export async function detail(req, res, next) {
   const id = positiveId(req.params.id);
   if (!id) return res.status(400).json({ message: 'Mã đơn không hợp lệ.' });
@@ -50,7 +49,7 @@ export async function detail(req, res, next) {
   } catch (error) { next(error); }
 }
 
-// POST /api/bookings/:id/cancel: khách tự hủy đơn.
+// POST /api/bookings/:id/cancel
 export async function cancel(req, res, next) {
   const id = positiveId(req.params.id);
   if (!id) return res.status(400).json({ message: 'Mã đơn không hợp lệ.' });

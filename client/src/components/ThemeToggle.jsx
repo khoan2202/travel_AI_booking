@@ -1,30 +1,29 @@
-// Nút chuyển giao diện sáng/tối trên header.
-// Lựa chọn được lưu lại cho lần sau; khách chưa chọn thì website theo cài đặt của máy.
-// Khi đổi, giao diện mới lan ra thành vòng tròn từ vị trí nút bấm.
+// Nút sáng/tối trên header. Lựa chọn được nhớ cho lần sau, chưa chọn thì theo cài đặt của máy.
+// Giao diện mới lan ra thành vòng tròn từ chỗ nút vừa bấm.
 import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 
 const STORAGE_KEY = "travel.theme";
 const HEADER_COLORS = { light: "#232323", dark: "#0b110f" };
 
-// Đọc lựa chọn đã lưu; trình duyệt chặn lưu trữ thì coi như chưa chọn.
+// trình duyệt chặn lưu trữ thì coi như chưa chọn
 function readSaved() {
   try { return localStorage.getItem(STORAGE_KEY); } catch { return null; }
 }
 
-// Áp dụng giao diện lên toàn trang và đổi màu thanh trình duyệt trên điện thoại.
+// đổi giao diện cả trang, kèm màu thanh trình duyệt trên điện thoại
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
   document.querySelector('meta[name="theme-color"]')?.setAttribute("content", HEADER_COLORS[theme]);
 }
 
 export default function ThemeToggle() {
-  // theme-init.js đã chọn giao diện từ trước nên chỉ cần đọc lại.
+  // theme-init.js đã chọn sẵn từ trước, chỉ cần đọc lại
   const [theme, setTheme] = useState(() => (document.documentElement.dataset.theme === "dark" ? "dark" : "light"));
   const buttonRef = useRef(null);
   const next = theme === "dark" ? "light" : "dark";
 
-  // Khách chưa tự chọn: máy đổi sáng/tối thì website đổi theo.
+  // khách chưa tự chọn thì máy đổi sáng/tối, web đổi theo
   useEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const onChange = (event) => {
@@ -44,11 +43,11 @@ export default function ThemeToggle() {
     };
     try { localStorage.setItem(STORAGE_KEY, next); } catch { /* Không lưu được thì vẫn đổi trong lần xem này. */ }
 
-    // Trình duyệt cũ hoặc khách bật "giảm chuyển động": đổi ngay, không có hiệu ứng.
+    // trình duyệt cũ hoặc khách bật "giảm chuyển động": đổi ngay, không hiệu ứng
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!document.startViewTransition || reduced) { change(); return; }
 
-    // Tính vòng tròn đủ lớn để phủ kín màn hình, tâm là nút vừa bấm.
+    // vòng tròn đủ to để phủ cả màn hình, tâm là nút vừa bấm
     const box = buttonRef.current.getBoundingClientRect();
     const x = box.left + box.width / 2, y = box.top + box.height / 2;
     const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
@@ -64,7 +63,7 @@ export default function ThemeToggle() {
   const label = next === "dark" ? "Chuyển sang giao diện tối" : "Chuyển sang giao diện sáng";
   return (
     <button ref={buttonRef} className="theme-toggle" type="button" onClick={toggle} aria-label={label} title={label}>
-      {/* Hai biểu tượng xếp chồng, xoay và mờ dần khi đổi giao diện */}
+      {/* hai icon xếp chồng, xoay và mờ dần khi đổi */}
       <svg className="theme-icon is-sun" viewBox="0 0 24 24" aria-hidden="true">
         <circle cx="12" cy="12" r="4.2" />
         <path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8" />

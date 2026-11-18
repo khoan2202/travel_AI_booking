@@ -1,5 +1,5 @@
-// "Kho" dùng chung danh sách tour khách đang chọn để so sánh (tối đa 3 tour).
-// Provider nằm ở CompareProvider.jsx. Component dùng: const { items, toggle, has } = useCompare();
+// Kho chung các tour đang chọn để so sánh (tối đa 3). Provider ở CompareProvider.jsx.
+// const { items, toggle, has } = useCompare();
 import { createContext, useContext } from "react";
 
 export const COMPARE_LIMIT = 3;

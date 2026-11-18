@@ -1,12 +1,11 @@
-// Trang Nguồn ảnh (/credits): ghi công tác giả và giấy phép của mọi ảnh lấy từ Wikimedia Commons.
-// Ảnh CC BY / CC BY-SA bắt buộc ghi tên tác giả ở nơi người xem tìm được,
-// nên trang này phủ cho mọi chỗ dùng ảnh (thẻ tour, lưới điểm đến, bưu thiếp 3D, bộ sưu tập).
+// Nguồn ảnh: tác giả và giấy phép của ảnh lấy từ Wikimedia Commons.
+// Ảnh CC BY và CC BY-SA bắt buộc phải ghi tác giả ở chỗ người xem tìm được, nên trang này bao hết mọi nơi dùng ảnh.
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 import { destinationImages } from "../data/destinationImages.js";
 
 export default function CreditsPage() {
-  // Chỉ liệt kê ảnh có thông tin tác giả (ảnh cũ trong /images/tours/ chưa rõ nguồn).
+  // chỉ liệt kê ảnh có tác giả (ảnh cũ trong /images/tours/ chưa rõ nguồn)
   const groups = Object.entries(destinationImages)
     .map(([name, data]) => ({ name, photos: data.gallery.filter((photo) => photo.author) }))
     .filter((group) => group.photos.length);

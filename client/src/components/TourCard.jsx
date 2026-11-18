@@ -1,5 +1,4 @@
-// Thẻ hiển thị tóm tắt một tour (ảnh, điểm đến, tối đa 3 tag, giá từ, số lịch đi).
-// Dùng ở trang chủ và trang gợi ý.
+// Thẻ tóm tắt một tour: ảnh, điểm đến, tối đa 3 tag, giá từ, số lịch đi.
 import { Link } from "react-router";
 import TourImage from "./TourImage.jsx";
 import { formatPrice } from "../utils/format.js";
@@ -8,7 +7,6 @@ import CompareToggle from "./CompareToggle.jsx";
 export default function TourCard({ tour }) {
   return (
     <article className="tour-card">
-      {/* Nút thêm vào so sánh, nằm góc phải trên ảnh */}
       <CompareToggle tour={tour} className="on-card" />
       <Link to={`/tours/${tour.id}`} aria-label={`Xem tour ${tour.title}`}>
         <TourImage key={tour.image_url || "illustration"} tour={tour} />

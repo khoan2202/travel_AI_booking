@@ -1,6 +1,7 @@
-// Trang "Đơn của tôi" (/my-bookings?page=1): danh sách đơn của người đang đăng nhập.
-import { useEffect, useState } from 'react';
+// Đơn của tôi (/my-bookings?page=1).
+import { useCallback, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
+import useLoad from '../hooks/useLoad.js';
 import Header from '../components/Header.jsx';
 import Footer from '../components/Footer.jsx';
 import { useAuth } from '../context/AuthContext.js';
@@ -9,29 +10,22 @@ import { bookingCode, bookingDate, bookingStatus } from '../utils/booking.js';
 import { formatPrice } from '../utils/format.js';
 
 export default function MyBookingsPage() {
-  // Số trang lấy từ URL (?page=2); giá trị lạ thì về trang 1.
+  // trang lấy từ URL (?page=2), giá trị lạ thì về trang 1
   const [params, setParams] = useSearchParams();
   const parsedPage = Number(params.get('page') || 1);
   const page = Number.isInteger(parsedPage) && parsedPage > 0 && parsedPage <= 1000000 ? parsedPage : 1;
-  const [data, setData] = useState(null);
-  const [error, setError] = useState('');
   const [retry, setRetry] = useState(0);
   const { reload } = useAuth();
-  // Tải danh sách đơn. Lỗi 401 (phiên hết hạn) thì kiểm tra lại đăng nhập.
-  useEffect(() => {
-    const controller = new AbortController();
-    setData(null); setError('');
-    getMyBookings(page, controller.signal)
-      .then((result) => { if (!controller.signal.aborted) setData(result); })
-      .catch((err) => { if (!controller.signal.aborted) { setError(err.message); if (err.status === 401) reload(); } });
-    return () => controller.abort();
-    // reload được gọi khi phiên hết hạn; chỉ tải danh sách khi đổi trang hoặc retry.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, retry]);
+  // 401 (phiên hết hạn) thì kiểm tra lại đăng nhập
+  const load = useCallback((signal) => getMyBookings(page, signal).catch((err) => {
+    if (err.status === 401) reload();
+    throw err;
+  }), [page, reload]);
+  const { data, error } = useLoad(load, retry);
   return <><Header /><main className="container booking-page">
     <p className="section-kicker">NHỮNG HÀNH TRÌNH CỦA BẠN</p><h1>Đơn của tôi</h1>
     <p className="booking-intro">Xem thông tin và trạng thái các tour bạn đã đặt.</p>
-    {/* Ba trạng thái: lỗi / đang tải / có dữ liệu (danh sách hoặc thông báo chưa có đơn) */}
+    {/* lỗi, đang tải, hoặc có dữ liệu (danh sách, hay thông báo chưa có đơn) */}
     {error ? <div className="state-box"><p role="alert">{error}</p><button className="button button-primary" onClick={() => setRetry((n) => n + 1)}>Thử lại</button></div>
       : !data ? <p role="status">Đang tải đơn đặt tour…</p>
         : <>{data.items.length ? <div className="booking-list">{data.items.map((booking) => <article className="booking-list-card" key={booking.id}>
@@ -40,7 +34,7 @@ export default function MyBookingsPage() {
           <p>Khởi hành {bookingDate(booking.departure_date)} <span aria-hidden="true">·</span> {booking.guest_count} người</p>
           <div className="booking-list-bottom"><strong>{formatPrice(booking.total_price)}</strong><Link className="button button-secondary" to={`/my-bookings/${booking.id}`}>Xem đơn</Link></div>
         </article>)}</div> : <div className="state-box"><h2>{page === 1 ? 'Bạn chưa có đơn đặt tour' : 'Không có đơn ở trang này'}</h2><p>Chọn một hành trình yêu thích để bắt đầu chuyến đi.</p><Link className="button button-primary" to="/#tours">Khám phá tour</Link></div>}
-        {/* Phân trang: chỉ hiện khi có nhiều hơn 1 trang */}
+        {/* chỉ phân trang khi có hơn 1 trang */}
         {(data.total_pages > 1 || page > 1) && <nav className="booking-pagination" aria-label="Phân trang đơn đặt tour"><button className="button button-secondary" disabled={page <= 1} onClick={() => setParams({ page: String(page - 1) })}>Trang trước</button><span>Trang {page} / {data.total_pages}</span><button className="button button-secondary" disabled={page >= data.total_pages} onClick={() => setParams({ page: String(page + 1) })}>Trang sau</button></nav>}</>}
   </main><Footer /></>;
 }

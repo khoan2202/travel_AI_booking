@@ -1,4 +1,4 @@
-// Thẻ tóm tắt một bài viết, dùng ở trang blog và phần "Đọc tiếp".
+// Thẻ một bài blog, dùng ở trang blog và mục "Đọc tiếp".
 import { Link } from "react-router";
 import { BLOG_CATEGORIES, DEFAULT_COVER, formatDate, readingMinutes } from "../utils/blog.js";
 

@@ -1,15 +1,13 @@
-// Xử lý form Liên hệ: kiểm tra dữ liệu rồi lưu vào bảng support_requests.
-// Khách chưa đăng nhập vẫn gửi được; muốn gắn với một đơn đặt tour thì phải đăng nhập.
+// Form Liên hệ. Khách chưa đăng nhập vẫn gửi được, nhưng muốn gắn với một đơn thì phải đăng nhập.
 import pool from "../db/pool.js";
 
 export async function createSupportRequest(req, res, next) {
   const body = req.body ?? {};
 
-  // Lấy và làm sạch dữ liệu từ form.
   const fullName =
     typeof body.full_name === "string" ? body.full_name.trim() : "";
 
-  // Cho phép khách nhập khoảng trắng, dấu chấm hoặc dấu gạch ngang.
+  // khách hay gõ số có dấu cách, chấm, gạch nên bỏ hết
   const phone =
     typeof body.phone === "string"
       ? body.phone.trim().replace(/[\s.-]/g, "")
@@ -25,7 +23,7 @@ export async function createSupportRequest(req, res, next) {
       ? null
       : body.booking_id;
 
-  // [...chuỗi].length đếm đúng số ký tự kể cả chữ có dấu hoặc emoji.
+  // [...chuỗi].length đếm đúng cả chữ có dấu và emoji
   if ([...fullName].length < 2 || [...fullName].length > 100) {
     return res.status(400).json({
       message: "Họ tên cần có từ 2 đến 100 ký tự.",
@@ -44,7 +42,7 @@ export async function createSupportRequest(req, res, next) {
     });
   }
 
-  // Frontend phải gửi booking_id dạng số hoặc null.
+  // booking_id phải là số hoặc null
   if (
     bookingId !== null &&
     (!Number.isInteger(bookingId) ||
@@ -56,7 +54,7 @@ export async function createSupportRequest(req, res, next) {
     });
   }
 
-  // Lấy tài khoản từ phiên đăng nhập, không nhận user_id từ form.
+  // user lấy từ phiên, không nhận user_id từ form
   const userId = req.user?.id ?? null;
 
   if (bookingId !== null && userId === null) {
@@ -67,7 +65,7 @@ export async function createSupportRequest(req, res, next) {
 
   try {
     if (bookingId !== null) {
-      // Chỉ được chọn đơn đặt tour thuộc tài khoản đang đăng nhập.
+      // chỉ chọn được đơn của chính mình
       const booking = await pool.query(
         "SELECT id FROM bookings WHERE id = $1 AND user_id = $2",
         [bookingId, userId],
@@ -80,7 +78,6 @@ export async function createSupportRequest(req, res, next) {
       }
     }
 
-    // Lưu yêu cầu hỗ trợ, trạng thái mặc định do database đặt.
     const result = await pool.query(
       `INSERT INTO support_requests
          (user_id, booking_id, full_name, phone, message)
