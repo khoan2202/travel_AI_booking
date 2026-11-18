@@ -1,10 +1,9 @@
-// Nghiệp vụ đặt và hủy tour. Đây là phần quan trọng nhất về dữ liệu:
-// - Không bán quá số chỗ (khóa dòng FOR UPDATE trong transaction)
-// - Không tạo đơn trùng khi khách bấm hai lần (request_key)
-// - Giá luôn lấy từ database, không tin giá trình duyệt gửi lên
+// Đặt và hủy tour, phần dễ sai nhất của cả dự án. Ba điều phải giữ:
+// không bán quá chỗ (khóa dòng trong transaction), không tạo đơn trùng khi bấm hai lần (request_key),
+// và giá luôn lấy từ DB chứ không tin giá trình duyệt gửi.
 import { withTransaction } from '../db/transaction.js';
 
-// Lỗi nghiệp vụ khi đặt hoặc hủy tour, có mã HTTP và mã lỗi để frontend hiển thị.
+// lỗi đã biết trước, mang theo mã HTTP và mã lỗi cho frontend
 export class BookingError extends Error {
   constructor(status, code, message) {
     super(message);
@@ -13,8 +12,8 @@ export class BookingError extends Error {
   }
 }
 
-// Danh sách cột trả về cho một đơn, dùng chung ở nhiều câu SQL.
-// can_cancel: khách chỉ được tự hủy đơn còn hiệu lực, chưa thanh toán và chưa tới ngày đi.
+// cột trả về cho một đơn, dùng chung nhiều câu SQL.
+// can_cancel: khách chỉ tự hủy được đơn còn hiệu lực, chưa trả tiền và chưa tới ngày đi
 export const bookingColumns = `
   b.id, b.departure_id, td.tour_id, b.guest_count, b.unit_price, b.total_price,
   b.tour_title, to_char(b.departure_date, 'YYYY-MM-DD') AS departure_date,
@@ -24,7 +23,7 @@ export const bookingColumns = `
     AND b.departure_date > CURRENT_DATE) AS can_cancel
 `;
 
-// Đọc một đơn và kiểm tra đơn đó thuộc đúng người dùng.
+// chỉ trả đơn nếu đúng của người này
 export async function readOwnedBooking(client, id, userId) {
   const result = await client.query(`
     SELECT ${bookingColumns} FROM bookings b
@@ -34,16 +33,16 @@ export async function readOwnedBooking(client, id, userId) {
   return result.rows[0];
 }
 
-// Chuyển chuỗi thành ID số nguyên dương hợp lệ, không hợp lệ thì trả null.
+// chuỗi thành ID hợp lệ, sai thì null
 export function positiveId(value) {
   if (!/^[1-9]\d*$/.test(String(value))) return null;
   const number = Number(value);
   return Number.isSafeInteger(number) && number <= 2147483647 ? number : null;
 }
 
-// Kiểm tra toàn bộ dữ liệu form đặt tour. Sai bất kỳ trường nào thì báo lỗi 400.
-// request_key là UUID do frontend tạo cho mỗi lần đặt, dùng để chống đặt trùng.
-// expected_unit_price là giá khách đã thấy trên màn hình, dùng để phát hiện giá thay đổi.
+// kiểm tra form đặt tour, sai chỗ nào là 400.
+// request_key: UUID frontend tạo cho mỗi lần đặt, để chống đặt trùng.
+// expected_unit_price: giá khách đang thấy, để biết giá có vừa đổi không.
 function validate(body) {
   const departureId = Number.isInteger(body?.departure_id) ? positiveId(body.departure_id) : null;
   const guests = body?.guest_count;
@@ -65,16 +64,16 @@ function validate(body) {
   return { departureId, guests, key, name, phone, notes, expected: String(Number(expected)) };
 }
 
-// Tạo đơn đặt tour. Toàn bộ chạy trong một transaction.
+// cả hàm chạy trong một transaction
 export async function createBooking(user, body) {
   const input = validate(body);
   return withTransaction(async (client) => {
-    // Khóa theo người dùng: hai lần gửi cùng mã yêu cầu phải được xét lần lượt.
+    // khóa theo người dùng để hai lần gửi cùng mã được xét lần lượt
     await client.query('SELECT id FROM users WHERE id = $1 FOR UPDATE', [user.id]);
     const previous = (await client.query(
       'SELECT * FROM bookings WHERE user_id = $1 AND request_key = $2', [user.id, input.key]
     )).rows[0];
-    // Đã có đơn với request_key này (khách bấm gửi lại): trả đơn cũ nếu dữ liệu giống hệt.
+    // đã có đơn với mã này (khách bấm lại): trả đơn cũ nếu nội dung y hệt
     if (previous) {
       if (previous.departure_id !== input.departureId || previous.guest_count !== input.guests
         || previous.contact_name !== input.name || previous.contact_phone !== input.phone
@@ -84,14 +83,14 @@ export async function createBooking(user, body) {
       return { booking: await readOwnedBooking(client, previous.id, user.id), replayed: true };
     }
 
-    // FOR UPDATE giữ khóa đến COMMIT/ROLLBACK; yêu cầu khác phải chờ rồi đọc số chỗ mới.
+    // FOR UPDATE giữ khóa tới hết transaction, người đặt sau phải chờ rồi đọc số chỗ mới
     const departure = (await client.query(`
       SELECT td.*, to_char(td.start_date, 'YYYY-MM-DD') AS snapshot_date, t.title, t.status AS tour_status,
         (td.start_date > CURRENT_DATE) AS is_future
       FROM tour_departures td JOIN tours t ON t.id = td.tour_id
       WHERE td.id = $1 FOR UPDATE OF td, t
     `, [input.departureId])).rows[0];
-    // Kiểm tra lần lượt: lịch tồn tại, còn mở bán, đủ chỗ, giá không đổi.
+    // lần lượt: có lịch không, còn mở bán không, đủ chỗ không, giá có đổi không
     if (!departure) throw new BookingError(404, 'NOT_FOUND', 'Không tìm thấy lịch khởi hành.');
     if (departure.tour_status !== 'active' || departure.status !== 'scheduled' || !departure.is_future) {
       throw new BookingError(409, 'DEPARTURE_CLOSED', 'Lịch khởi hành này không còn nhận đặt tour.');
@@ -103,9 +102,8 @@ export async function createBooking(user, body) {
       throw new BookingError(409, 'PRICE_CHANGED', 'Giá tour vừa thay đổi. Hãy cập nhật giá và xem lại trước khi xác nhận.');
     }
 
-    // Cộng số chỗ đã đặt, rồi tạo đơn.
     await client.query('UPDATE tour_departures SET seats_booked = seats_booked + $1 WHERE id = $2', [input.guests, input.departureId]);
-    // Giá được đọc từ DB. Bỏ qua user_id, role, total_price do trình duyệt gửi lên.
+    // giá lấy từ DB, user_id/role/total_price trình duyệt gửi lên đều bỏ qua
     const inserted = await client.query(`
       INSERT INTO bookings (user_id, departure_id, request_key, guest_count, unit_price,
         total_price, tour_title, departure_date, contact_name, contact_email, contact_phone, notes)
@@ -117,18 +115,18 @@ export async function createBooking(user, body) {
   });
 }
 
-// Khách tự hủy đơn: trả lại chỗ cho lịch khởi hành và đổi trạng thái đơn.
+// khách tự hủy: trả chỗ lại cho lịch rồi đổi trạng thái đơn
 export async function cancelBooking(userId, id) {
   return withTransaction(async (client) => {
     const ref = (await client.query('SELECT departure_id FROM bookings WHERE id = $1 AND user_id = $2', [id, userId])).rows[0];
     if (!ref) throw new BookingError(404, 'NOT_FOUND', 'Không tìm thấy đơn đặt tour của bạn.');
-    // Thống nhất thứ tự khóa lịch trước, đơn sau; hai lần hủy không trả chỗ hai lần.
+    // khóa lịch trước, đơn sau (cùng thứ tự mọi nơi) để hủy hai lần không trả chỗ hai lần
     await client.query('SELECT id FROM tour_departures WHERE id = $1 FOR UPDATE', [ref.departure_id]);
     const booking = (await client.query(`
       SELECT *, (departure_date > CURRENT_DATE) AS is_future FROM bookings
       WHERE id = $1 AND user_id = $2 FOR UPDATE
     `, [id, userId])).rows[0];
-    // Đơn đã hủy trước đó thì trả kết quả luôn (bấm hủy hai lần không sao).
+    // đã hủy rồi thì trả luôn, bấm hai lần không sao
     if (booking.status === 'cancelled') return { booking: await readOwnedBooking(client, id, userId), replayed: true };
     if (booking.payment_status !== 'unpaid' || !booking.is_future) {
       throw new BookingError(409, 'CANNOT_CANCEL', 'Chỉ hủy trực tuyến đơn chưa thanh toán và chưa đến ngày khởi hành.');

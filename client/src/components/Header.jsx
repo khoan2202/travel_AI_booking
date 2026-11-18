@@ -1,19 +1,18 @@
-// Thanh điều hướng trên cùng, dùng chung cho mọi trang.
-// Menu thay đổi theo trạng thái: chưa đăng nhập, đã đăng nhập, là admin.
-// NavLink tự thêm class "active" cho mục ứng với trang đang mở (để gạch chân và tô màu).
+// Thanh menu trên cùng. Menu đổi theo việc đã đăng nhập chưa, và có phải admin không.
+// NavLink tự gắn class "active" cho mục đang mở (để gạch chân, tô màu).
 import { Link, NavLink } from "react-router";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext.js";
 import ThemeToggle from "./ThemeToggle.jsx";
 
 export default function Header() {
-  // menuOpen: menu đang mở trên điện thoại hay không.
+  // menu trên điện thoại đang mở hay đóng
   const [menuOpen, setMenuOpen] = useState(false);
-  // pending: đang đăng xuất (khóa nút để không bấm hai lần).
+  // đang đăng xuất, khóa nút cho khỏi bấm hai lần
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const { user, status, logout } = useAuth();
-  // Đóng menu sau khi bấm một link (trên điện thoại).
+  // bấm link xong thì đóng menu (điện thoại)
   const closeMenu = () => setMenuOpen(false);
 
   async function handleLogout() {
@@ -40,7 +39,7 @@ export default function Header() {
         >
           TRAVEL <span>MINT.</span>
         </Link>
-        {/* Nút mở/đóng menu, chỉ hiện trên màn hình nhỏ (xem CSS) */}
+        {/* chỉ hiện trên màn hình nhỏ, xem CSS */}
         <button
           className="menu-toggle"
           type="button"
@@ -70,12 +69,12 @@ export default function Header() {
           <NavLink to="/contact" onClick={closeMenu}>
             Liên hệ &amp; Hỗ trợ
           </NavLink>
-          {/* Đang kiểm tra phiên: hiện chữ chờ. Đã đăng nhập: hiện menu tài khoản. Chưa đăng nhập: hiện nút Đăng nhập */}
+          {/* ba trường hợp: đang kiểm tra phiên, đã đăng nhập, chưa đăng nhập */}
           {status === "loading" ? (
             <span className="header-session-status">Đang kiểm tra…</span>
           ) : user ? (
             <>
-              {/* Mục Quản trị chỉ hiện với admin */}
+              {/* chỉ admin mới thấy mục này */}
               {user.role === "admin" && (
                 <NavLink to="/admin" onClick={closeMenu}>
                   Quản trị
@@ -106,7 +105,7 @@ export default function Header() {
             </Link>
           )}
         </nav>
-        {/* Nút sáng/tối nằm ngoài menu để trên điện thoại không cần mở menu vẫn bấm được */}
+        {/* để ngoài menu cho điện thoại khỏi phải mở menu mới bấm được */}
         <ThemeToggle />
       </div>
       {error && (

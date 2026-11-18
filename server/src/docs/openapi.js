@@ -1,10 +1,6 @@
-// server/src/docs/openapi.js
-// Tài liệu cho các API hiện có của Travel Mint.
-// File này chỉ mô tả API, không thay đổi xử lý backend.
+// Tài liệu OpenAPI cho Swagger (/api-docs). File này chỉ mô tả API, không chạy logic gì.
 
-// ======================================================
-// 1. Hàm hỗ trợ tạo cấu trúc tài liệu dùng chung
-// ======================================================
+// ----- hàm nhỏ để viết tài liệu cho gọn -----
 
 const str = (extra = {}) => ({ type: "string", ...extra });
 const int = (extra = {}) => ({ type: "integer", ...extra });
@@ -22,7 +18,7 @@ const id = () => int({ minimum: 1, maximum: 2147483647 });
 const date = () => str({ format: "date", example: "2026-12-20" });
 const timestamp = () => str({ format: "date-time" });
 
-// PostgreSQL NUMERIC được backend hiện tại trả về dạng chuỗi.
+// NUMERIC của Postgres ra JSON là chuỗi
 const money = () =>
   str({
     description: "Số tiền VND, trả về dạng chuỗi từ PostgreSQL.",
@@ -107,7 +103,7 @@ function errors(codes, schemaName = "Error") {
 const sessionSecurity = [{ sessionCookie: [] }];
 const csrfSecurity = [{ csrfToken: [] }];
 
-// Cả cookie phiên VÀ CSRF đều cần thiết.
+// cần cả cookie phiên lẫn CSRF
 const sessionCsrfSecurity = [{ sessionCookie: [], csrfToken: [] }];
 
 function operation({
@@ -154,9 +150,7 @@ function adminOperation(options) {
   });
 }
 
-// ======================================================
-// 2. Các trường dữ liệu dùng chung khi thực sự giống nhau
-// ======================================================
+// ----- các nhóm trường dùng chung -----
 
 const userFields = {
   id: id(),
@@ -296,9 +290,7 @@ function adminPage(itemSchema) {
   );
 }
 
-// ======================================================
-// 3. Định nghĩa OpenAPI
-// ======================================================
+// ----- phần chính -----
 
 const openapi = {
   openapi: "3.0.3",
@@ -417,7 +409,7 @@ const openapi = {
 
       CurrentUserResponse: dataResponse(obj({ user: ref("User") }, ["user"])),
 
-      // Danh sách tour có available_departures.
+      // trong danh sách có available_departures
       PublicTourListItem: obj({
         ...tourFields,
         destination: str(),
@@ -426,8 +418,7 @@ const openapi = {
         available_departures: int(),
       }),
 
-      // Chi tiết tour không có available_departures.
-      // price_from có thể null nếu không còn lịch khả dụng.
+      // trang chi tiết không có available_departures; price_from null nếu hết lịch
       PublicTourDetail: obj({
         ...tourFields,
         destination: str(),
@@ -565,10 +556,10 @@ const openapi = {
         ["name", "slug", "region"],
       ),
 
-      // Tạo/cập nhật tour trả hàng dữ liệu bảng tours.
+      // tạo hoặc sửa tour trả đúng một dòng bảng tours
       AdminTour: obj(adminTourFields),
 
-      // Danh sách admin còn JOIN thêm destination và region.
+      // danh sách admin có thêm destination và region
       AdminTourListItem: obj({
         ...adminTourFields,
         destination: str(),
@@ -728,9 +719,7 @@ const openapi = {
   },
 
   paths: {
-    // ==================================================
-    // HEALTH — 1 API
-    // ==================================================
+    // --- health ---
 
     "/health": {
       get: operation({
@@ -748,9 +737,7 @@ const openapi = {
       }),
     },
 
-    // ==================================================
-    // AUTH — 5 API
-    // ==================================================
+    // --- đăng nhập ---
 
     "/auth/csrf": {
       get: operation({
@@ -829,9 +816,7 @@ const openapi = {
       }),
     },
 
-    // ==================================================
-    // TOURS — 3 API
-    // ==================================================
+    // --- tour ---
 
     "/tours": {
       get: operation({
@@ -877,9 +862,7 @@ const openapi = {
       }),
     },
 
-    // ==================================================
-    // BOOKINGS — 4 API
-    // ==================================================
+    // --- đơn đặt tour ---
 
     "/bookings": {
       get: operation({
@@ -948,9 +931,7 @@ const openapi = {
       }),
     },
 
-    // ==================================================
-    // RECOMMENDATIONS — 3 API
-    // ==================================================
+    // --- gợi ý và tư vấn AI ---
 
     "/recommendations/options": {
       get: operation({
@@ -1004,9 +985,7 @@ const openapi = {
       }),
     },
 
-    // ==================================================
-    // ADMIN — 12 API
-    // ==================================================
+    // --- admin ---
 
     "/admin/overview": {
       get: adminOperation({
@@ -1179,9 +1158,7 @@ const openapi = {
       }),
     },
 
-    // ==================================================
-    // ADMIN MỞ RỘNG: phân tích, blog, khách hàng, hỗ trợ, nhật ký
-    // ==================================================
+    // --- admin: dashboard, blog, khách hàng, hỗ trợ, nhật ký ---
 
     "/admin/insights": {
       get: adminOperation({
@@ -1320,9 +1297,7 @@ const openapi = {
       }),
     },
 
-    // ==================================================
-    // BLOG — 2 API công khai
-    // ==================================================
+    // --- blog công khai ---
 
     "/blog": {
       get: operation({
@@ -1344,9 +1319,7 @@ const openapi = {
       }),
     },
 
-    // ==================================================
-    // SUPPORT — 1 API
-    // ==================================================
+    // --- hỗ trợ ---
 
     "/support": {
       post: operation({

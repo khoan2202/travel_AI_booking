@@ -1,6 +1,5 @@
-// Khay so sánh nổi ở cuối màn hình, hiện khi khách đã chọn ít nhất 1 tour.
-// Có 3 ô (tour đã chọn hoặc ô trống), nút "So sánh ngay" (cần ít nhất 2 tour) và nút xóa hết.
-// Ẩn khi đang ở chính trang /compare.
+// Khay so sánh nổi ở cuối màn hình, hiện khi đã chọn ít nhất 1 tour: 3 ô, nút "So sánh ngay" (cần 2 tour trở lên), nút xóa hết.
+// Đang ở trang /compare thì ẩn.
 import { useEffect } from "react";
 import { Link, useLocation } from "react-router";
 import { useCompare, COMPARE_LIMIT } from "../context/CompareContext.js";
@@ -11,7 +10,7 @@ export default function CompareTray() {
   const { pathname } = useLocation();
   const visible = items.length > 0 && pathname !== "/compare";
 
-  // Báo cho CSS biết khay đang hiện, để nút "lên đầu trang" nhích lên, không bị che.
+  // báo cho CSS để nút "lên đầu trang" nhích lên, khỏi bị khay che
   useEffect(() => {
     document.documentElement.classList.toggle("has-compare-tray", visible);
     return () => document.documentElement.classList.remove("has-compare-tray");

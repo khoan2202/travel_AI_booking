@@ -1,13 +1,11 @@
-// Giữ danh sách tour đang chọn để so sánh và lưu vào localStorage,
-// nên tải lại trang hoặc chuyển trang vẫn còn.
-// Mỗi mục chỉ lưu vài thông tin để hiện trên khay so sánh: id, tên, điểm đến, ảnh.
-// Dữ liệu đầy đủ (giá, lịch đi...) luôn được tải mới ở trang /compare.
+// Giữ các tour đang chọn để so sánh và lưu vào localStorage, tải lại hay sang trang khác vẫn còn.
+// Mỗi mục chỉ lưu id, tên, điểm đến, ảnh cho khay; giá và lịch luôn tải mới ở /compare.
 import { useEffect, useState } from "react";
 import { CompareContext, COMPARE_LIMIT } from "./CompareContext.js";
 
 const STORAGE_KEY = "travel.compare";
 
-// Đọc danh sách đã lưu, bỏ qua dữ liệu hỏng hoặc trình duyệt chặn lưu trữ.
+// dữ liệu hỏng hoặc trình duyệt chặn lưu trữ thì coi như trống
 function loadSaved() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
@@ -19,7 +17,7 @@ function loadSaved() {
   }
 }
 
-// Chỉ giữ các trường cần cho khay so sánh.
+// chỉ giữ trường khay cần
 const pick = (tour) => ({
   id: tour.id,
   title: tour.title,
@@ -30,7 +28,7 @@ const pick = (tour) => ({
 export default function CompareProvider({ children }) {
   const [items, setItems] = useState(loadSaved);
 
-  // Mỗi lần danh sách đổi thì lưu lại.
+  // danh sách đổi là lưu lại
   useEffect(() => {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); } catch { /* Không lưu được thì vẫn dùng bình thường trong phiên này. */ }
   }, [items]);
@@ -38,7 +36,7 @@ export default function CompareProvider({ children }) {
   const has = (id) => items.some((item) => item.id === id);
   const full = items.length >= COMPARE_LIMIT;
 
-  // Bấm một lần để thêm, bấm lần nữa để bỏ. Đã đủ 3 tour thì không thêm nữa.
+  // bấm lần đầu thêm, bấm lần nữa bỏ; đủ 3 tour thì không thêm nữa
   function toggle(tour) {
     setItems((current) => {
       if (current.some((item) => item.id === tour.id)) return current.filter((item) => item.id !== tour.id);
@@ -48,7 +46,7 @@ export default function CompareProvider({ children }) {
   }
   const remove = (id) => setItems((current) => current.filter((item) => item.id !== id));
   const clear = () => setItems([]);
-  // Thay cả danh sách (ví dụ: so sánh 3 tour từ kết quả quiz).
+  // thay cả danh sách (vd so sánh 3 tour từ kết quả quiz)
   const replace = (tours) => setItems(tours.slice(0, COMPARE_LIMIT).map(pick));
 
   return (

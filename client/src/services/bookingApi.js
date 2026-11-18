@@ -1,4 +1,4 @@
-// Các hàm gọi API đặt tour, xem đơn và hủy đơn của khách.
+// API đặt tour, xem và hủy đơn của khách.
 import { request, postAuth } from './authApi.js';
 
 export const createBooking = (body) => postAuth('/bookings', body);

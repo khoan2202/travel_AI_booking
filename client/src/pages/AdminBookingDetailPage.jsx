@@ -1,6 +1,5 @@
-// Trang chi tiết đơn cho admin (/admin/bookings/:id): xem thông tin, ghi nhận thanh toán,
-// hủy đơn hoặc hoàn tiền, kèm lịch sử thanh toán và nhật ký thao tác.
-import { useEffect,useState } from 'react';
+// Chi tiết đơn cho admin: ghi nhận thanh toán, hủy hoặc hoàn tiền, kèm lịch sử và nhật ký.
+import { useCallback,useState } from 'react';
 import { Link,useParams } from 'react-router';
 import Header from '../components/Header.jsx';
 import Footer from '../components/Footer.jsx';
@@ -8,26 +7,30 @@ import AdminNav from '../components/AdminNav.jsx';
 import { getAdminBooking,actOnBooking } from '../services/adminApi.js';
 import { bookingCode,bookingDate,bookingStatus,paymentStatus } from '../utils/booking.js';
 import { formatPrice } from '../utils/format.js';
-// Nội dung trang. Tách riêng để dùng key={id}: đổi đơn khác thì React tạo lại toàn bộ state.
+import useLoad from '../hooks/useLoad.js';
+// tách riêng để dùng key={id}, sang đơn khác thì state làm lại từ đầu
 function Content({id}){
-  const [data,setData]=useState(null),[error,setError]=useState(''),[notice,setNotice]=useState(''),[version,setVersion]=useState(0),[busy,setBusy]=useState(false);
-  // Form xử lý: thao tác, mã đối soát, ghi chú, ô xác nhận.
-  const [action,setAction]=useState('mark_paid'),[reference,setReference]=useState(''),[note,setNote]=useState(''),[confirmed,setConfirmed]=useState(false);
-  // Tải đơn. Thao tác mặc định: đơn đã trả tiền thì chọn "hoàn tiền", chưa trả thì chọn "ghi nhận thanh toán".
-  useEffect(()=>{const c=new AbortController();setError('');setData(null);getAdminBooking(id,c.signal).then(d=>{if(!c.signal.aborted){setData(d);setAction(d.booking.payment_status==='paid'?'refund_cancel':'mark_paid');setConfirmed(false);}}).catch(e=>{if(!c.signal.aborted)setError(e.message);});return()=>c.abort();},[id,version]);
-  // Gửi thao tác lên server, xong thì tải lại đơn để thấy trạng thái mới.
-  async function submit(e){e.preventDefault();setBusy(true);setError('');setNotice('');try{await actOnBooking(id,{action,reference,note,confirmed});setVersion(v=>v+1);setReference('');setNote('');setNotice('Đã lưu thao tác và nhật ký đối soát.');}catch(err){setError(err.message);}finally{setBusy(false);}}
+  const [error,setError]=useState(''),[notice,setNotice]=useState(''),[version,setVersion]=useState(0),[busy,setBusy]=useState(false);
+  // form xử lý: thao tác đã chọn (null = để mặc định), mã đối soát, ghi chú, ô xác nhận
+  const [chosen,setChosen]=useState(null),[reference,setReference]=useState(''),[note,setNote]=useState(''),[confirmed,setConfirmed]=useState(false);
+  // tải lại khi đổi đơn hoặc bấm "Tải lại" (version tăng)
+  const load=useCallback((signal)=>getAdminBooking(id,signal),[id]);
+  const {data,error:loadError}=useLoad(load,version);
+  // mặc định: đã trả tiền thì hoàn tiền, chưa trả thì ghi nhận thanh toán
+  const action=chosen??(data?.booking.payment_status==='paid'?'refund_cancel':'mark_paid');
+  // tải lại và đưa form về mặc định, vì trạng thái đơn có thể đã đổi
+  function refresh(){setChosen(null);setConfirmed(false);setVersion(v=>v+1);}
+  // gửi lên server, xong tải lại đơn
+  async function submit(e){e.preventDefault();setBusy(true);setError('');setNotice('');try{await actOnBooking(id,{action,reference,note,confirmed});refresh();setReference('');setNote('');setNotice('Đã lưu thao tác và nhật ký đối soát.');}catch(err){setError(err.message);}finally{setBusy(false);}}
   const b=data?.booking;
   return <main className="container admin-page"><AdminNav/><p className="section-kicker">XỬ LÝ ĐƠN</p><h1>{b?bookingCode(b.id):'Chi tiết đơn'}</h1>
-    {error&&<p className="auth-error" role="alert">{error}</p>}{notice&&<p className="auth-success" role="status">{notice}</p>}
-    {/* Thông tin đơn và người liên hệ */}
-    {!data?!error&&<p role="status">Đang tải…</p>:<><div className="booking-receipt"><section className="booking-receipt-main"><h2>{b.tour_title}</h2><dl className="booking-facts"><div><dt>Ngày đi</dt><dd>{bookingDate(b.departure_date)}</dd></div><div><dt>Số người</dt><dd>{b.guest_count}</dd></div><div><dt>Đơn</dt><dd>{bookingStatus(b.status)}</dd></div><div><dt>Thanh toán</dt><dd>{paymentStatus(b.payment_status)}</dd></div></dl><div className="booking-total"><span>Tổng tiền</span><strong>{formatPrice(b.total_price)}</strong></div></section><section className="booking-receipt-contact"><h2>Liên hệ</h2><dl className="profile-fields"><div><dt>Họ tên</dt><dd>{b.contact_name}</dd></div><div><dt>Email</dt><dd>{b.contact_email}</dd></div><div><dt>Điện thoại</dt><dd>{b.contact_phone}</dd></div><div><dt>Ghi chú</dt><dd>{b.notes||'Không có'}</dd></div></dl></section></div>
-      {/* Form xử lý: chỉ hiện với đơn còn hiệu lực. Các lựa chọn thay đổi theo trạng thái thanh toán */}
-      {b.status==='confirmed'&&<section className="admin-editor"><h2>Ghi nhận xử lý</h2><p className="admin-hint">Chức năng này ghi sổ thủ công. Với thanh toán/hoàn tiền, chỉ xác nhận sau khi đã kiểm tra giao dịch thực tế; website không thực hiện chuyển tiền.</p><form className="admin-form" onSubmit={submit}><fieldset disabled={busy}><label>Thao tác<select value={action} onChange={e=>{setAction(e.target.value);setConfirmed(false);}}>{b.payment_status==='unpaid'?<><option value="mark_paid">Ghi nhận đã nhận đủ tiền</option><option value="cancel_unpaid">Hủy đơn chưa thanh toán</option></>:<option value="refund_cancel">Ghi nhận đã hoàn đủ tiền và hủy đơn</option>}</select></label>{action!=='cancel_unpaid'&&<label>Mã đối soát / biên nhận<input required minLength="4" maxLength="120" value={reference} onChange={e=>setReference(e.target.value)}/></label>}<label>Ghi chú / lý do<textarea required minLength="5" maxLength="500" rows="3" value={note} onChange={e=>setNote(e.target.value)}/></label><label className="manual-confirm"><input required type="checkbox" checked={confirmed} onChange={e=>setConfirmed(e.target.checked)}/><span>Tôi đã kiểm tra đơn, số tiền và xác nhận thao tác được chọn.</span></label><button className="button button-primary" disabled={!confirmed||busy}>{busy?'Đang lưu…':'Xác nhận thao tác'}</button></fieldset></form></section>}
-      {/* Lịch sử nhận/hoàn tiền và nhật ký thao tác của admin */}
+    {(error||loadError)&&<p className="auth-error" role="alert">{error||loadError}</p>}{notice&&<p className="auth-success" role="status">{notice}</p>}
+    {!data?!loadError&&<p role="status">Đang tải…</p>:<><div className="booking-receipt"><section className="booking-receipt-main"><h2>{b.tour_title}</h2><dl className="booking-facts"><div><dt>Ngày đi</dt><dd>{bookingDate(b.departure_date)}</dd></div><div><dt>Số người</dt><dd>{b.guest_count}</dd></div><div><dt>Đơn</dt><dd>{bookingStatus(b.status)}</dd></div><div><dt>Thanh toán</dt><dd>{paymentStatus(b.payment_status)}</dd></div></dl><div className="booking-total"><span>Tổng tiền</span><strong>{formatPrice(b.total_price)}</strong></div></section><section className="booking-receipt-contact"><h2>Liên hệ</h2><dl className="profile-fields"><div><dt>Họ tên</dt><dd>{b.contact_name}</dd></div><div><dt>Email</dt><dd>{b.contact_email}</dd></div><div><dt>Điện thoại</dt><dd>{b.contact_phone}</dd></div><div><dt>Ghi chú</dt><dd>{b.notes||'Không có'}</dd></div></dl></section></div>
+      {/* chỉ đơn còn hiệu lực mới xử lý được, lựa chọn đổi theo trạng thái thanh toán */}
+      {b.status==='confirmed'&&<section className="admin-editor"><h2>Ghi nhận xử lý</h2><p className="admin-hint">Chức năng này ghi sổ thủ công. Với thanh toán/hoàn tiền, chỉ xác nhận sau khi đã kiểm tra giao dịch thực tế; website không thực hiện chuyển tiền.</p><form className="admin-form" onSubmit={submit}><fieldset disabled={busy}><label>Thao tác<select value={action} onChange={e=>{setChosen(e.target.value);setConfirmed(false);}}>{b.payment_status==='unpaid'?<><option value="mark_paid">Ghi nhận đã nhận đủ tiền</option><option value="cancel_unpaid">Hủy đơn chưa thanh toán</option></>:<option value="refund_cancel">Ghi nhận đã hoàn đủ tiền và hủy đơn</option>}</select></label>{action!=='cancel_unpaid'&&<label>Mã đối soát / biên nhận<input required minLength="4" maxLength="120" value={reference} onChange={e=>setReference(e.target.value)}/></label>}<label>Ghi chú / lý do<textarea required minLength="5" maxLength="500" rows="3" value={note} onChange={e=>setNote(e.target.value)}/></label><label className="manual-confirm"><input required type="checkbox" checked={confirmed} onChange={e=>setConfirmed(e.target.checked)}/><span>Tôi đã kiểm tra đơn, số tiền và xác nhận thao tác được chọn.</span></label><button className="button button-primary" disabled={!confirmed||busy}>{busy?'Đang lưu…':'Xác nhận thao tác'}</button></fieldset></form></section>}
       <section className="admin-editor"><h2>Lịch sử thanh toán thủ công</h2>{data.events.length?<div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Loại</th><th>Số tiền</th><th>Mã đối soát</th><th>Ghi chú</th></tr></thead><tbody>{data.events.map(e=><tr key={e.id}><td>{e.kind==='payment'?'Nhận tiền':'Hoàn tiền'}</td><td>{formatPrice(e.amount)}</td><td>{e.reference}</td><td>{e.note}</td></tr>)}</tbody></table></div>:<p>Chưa có ghi nhận thanh toán.</p>}<h3 className="audit-heading">Nhật ký xử lý</h3>{data.logs.map((l,i)=><p className="audit-line" key={i}>{new Date(l.created_at).toLocaleString('vi-VN')} · {l.action}<br/>{l.details.note}</p>)}</section></>}
-    <div className="admin-card-actions"><Link className="button button-secondary" to="/admin/bookings">Về danh sách đơn</Link><button className="button button-secondary" onClick={()=>setVersion(n=>n+1)}>Tải lại đơn</button></div>
+    <div className="admin-card-actions"><Link className="button button-secondary" to="/admin/bookings">Về danh sách đơn</Link><button className="button button-secondary" onClick={refresh}>Tải lại đơn</button></div>
   </main>;
 }
-// Lấy id đơn từ URL.
+// id đơn lấy từ URL
 export default function AdminBookingDetailPage(){const {id}=useParams();return <><Header/><Content id={id} key={id}/><Footer/></>;}

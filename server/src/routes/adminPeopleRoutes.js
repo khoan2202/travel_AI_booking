@@ -1,15 +1,15 @@
-// API admin về con người và vận hành: khách hàng, yêu cầu hỗ trợ, nhật ký thao tác.
+// Admin: khách hàng, hộp thư hỗ trợ, nhật ký thao tác.
 import { Router } from 'express';
 import pool from '../db/pool.js';
 import { withTransaction } from '../db/transaction.js';
 import { requireCsrf } from '../middleware/csrf.js';
 import { audit, check, handle, integer } from '../services/adminCommon.js';
 
-const router = Router(); // Được mount sau requireAuth + requireAdmin của adminRoutes.
+const router = Router(); // adminRoutes đã chặn người không phải admin từ trước
 const PAGE_SIZE = 20;
 const pages = (total) => Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-// GET /users: danh sách tài khoản kèm số đơn và số tiền đã thanh toán. Không bao giờ trả mật khẩu.
+// GET /users: kèm số đơn và tiền đã trả. Tuyệt đối không trả mật khẩu.
 router.get('/users', handle(async (req, res) => {
   const page = req.query.page || '1', role = String(req.query.role || ''), q = String(req.query.q || '').trim();
   check(integer(page, 1, 1000000) && q.length <= 100 && ['', 'user', 'admin'].includes(role), 'Bộ lọc tài khoản chưa hợp lệ.');
@@ -27,7 +27,7 @@ router.get('/users', handle(async (req, res) => {
   res.json({ data: { items: rows.rows, total: count.rows[0].total, page: Number(page), total_pages: pages(count.rows[0].total), me: req.user.id } });
 }));
 
-// POST /users/:id/role: đổi quyền. Không tự đổi quyền của chính mình để hệ thống luôn còn admin.
+// POST /users/:id/role. Không cho tự đổi quyền của mình, để hệ thống không bị mất hết admin.
 router.post('/users/:id/role', requireCsrf, handle(async (req, res) => {
   check(integer(req.params.id), 'ID tài khoản chưa hợp lệ.');
   const role = req.body?.role;
@@ -44,7 +44,7 @@ router.post('/users/:id/role', requireCsrf, handle(async (req, res) => {
   res.json({ data: row });
 }));
 
-// GET /support: hộp thư yêu cầu hỗ trợ từ trang Liên hệ.
+// GET /support: thư từ trang Liên hệ
 router.get('/support', handle(async (req, res) => {
   const page = req.query.page || '1', status = String(req.query.status || ''), q = String(req.query.q || '').trim();
   check(integer(page, 1, 1000000) && q.length <= 100 && ['', 'pending', 'resolved'].includes(status), 'Bộ lọc yêu cầu chưa hợp lệ.');
@@ -60,7 +60,7 @@ router.get('/support', handle(async (req, res) => {
   res.json({ data: { items: rows.rows, total: count.rows[0].total, page: Number(page), total_pages: pages(count.rows[0].total), pending: pending.rows[0].total } });
 }));
 
-// POST /support/:id/status: đánh dấu đã xử lý hoặc mở lại yêu cầu.
+// POST /support/:id/status: đánh dấu đã xử lý hoặc mở lại
 router.post('/support/:id/status', requireCsrf, handle(async (req, res) => {
   check(integer(req.params.id), 'ID yêu cầu chưa hợp lệ.');
   const status = req.body?.status;
@@ -74,7 +74,7 @@ router.post('/support/:id/status', requireCsrf, handle(async (req, res) => {
   res.json({ data: row });
 }));
 
-// GET /activity: nhật ký thao tác của các admin, mới nhất trước.
+// GET /activity: mới nhất trước
 router.get('/activity', handle(async (req, res) => {
   const page = req.query.page || '1', type = String(req.query.type || '');
   check(integer(page, 1, 1000000) && ['', 'booking', 'tour', 'departure', 'destination', 'post', 'user', 'support'].includes(type), 'Bộ lọc nhật ký chưa hợp lệ.');

@@ -1,4 +1,4 @@
-// Nút chuyển trang dùng chung cho các bảng quản trị. Chỉ có 1 trang thì không hiện.
+// Nút chuyển trang cho các bảng quản trị, chỉ 1 trang thì ẩn.
 export default function AdminPager({ page, totalPages, onPage }) {
   if (totalPages <= 1) return null;
   return (

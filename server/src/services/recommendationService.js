@@ -1,9 +1,8 @@
-// Gợi ý tour bằng truy vấn SQL theo bộ lọc của khách (không dùng AI).
+// Gợi ý tour bằng SQL theo bộ lọc của khách, chưa dính tới AI.
 import pool from '../db/pool.js';
 import { check, integer } from './adminCommon.js';
 
-// Đọc và kiểm tra bộ lọc: ngân sách (VND/người), số ngày tối đa, số khách, khu vực, sở thích (tag).
-// Bỏ trống thì không lọc theo tiêu chí đó; số khách mặc định là 1.
+// bỏ trống tiêu chí nào thì không lọc theo nó, số khách mặc định là 1
 export function readFilters(raw = {}) {
   check(raw && typeof raw === 'object' && !Array.isArray(raw), 'Bộ lọc chưa hợp lệ.');
   const budget = raw.budget === '' || raw.budget == null ? null : raw.budget;
@@ -17,10 +16,10 @@ export function readFilters(raw = {}) {
   return { budget: budget === null ? null : Number(budget), days: days === null ? null : Number(days), guests: Number(guests), region: region.trim(), interest: interest.trim() };
 }
 
-// Lấy tối đa 12 tour, mỗi tour kèm lịch đi rẻ nhất còn đủ chỗ cho số khách.
-// JOIN LATERAL: với mỗi tour, chạy một truy vấn con để chọn đúng 1 lịch phù hợp nhất.
+// tối đa 12 tour, mỗi tour kèm lịch rẻ nhất còn đủ chỗ.
+// JOIN LATERAL để mỗi tour chọn ra đúng 1 lịch
 export async function recommend(filters) {
-  // Hard filters in SQL. The model cannot add unpublished/sold-out tours to this list.
+  // lọc cứng ngay trong SQL nên AI không thể đưa tour nháp hay hết chỗ vào danh sách
   const { rows } = await pool.query(`
     SELECT t.id,t.title,t.description,t.duration_days,t.departure_location,t.image_url,t.tags,
       d.name AS destination,d.region,td.id AS departure_id,to_char(td.start_date,'YYYY-MM-DD') AS start_date,
@@ -36,11 +35,11 @@ export async function recommend(filters) {
       AND ($4='' OR d.region=$4) AND ($5='' OR $5=ANY(t.tags))
     ORDER BY td.price_per_person,td.start_date,t.id LIMIT 12`,
     [filters.guests, filters.budget, filters.days, filters.region, filters.interest]);
-  // Thay mô tả đầy đủ bằng bản tóm tắt 650 ký tự (gửi cho AI ngắn gọn hơn).
+  // cắt mô tả còn 650 ký tự cho AI đỡ phải đọc dài
   return rows.map(({ description, ...tour }) => ({ ...tour, summary: description.slice(0, 650) }));
 }
 
-// Các lựa chọn cho bộ lọc: danh sách khu vực và tag của các tour đang bán.
+// khu vực và tag của các tour đang bán, cho ô chọn
 export async function recommendationOptions() {
   const [regions, interests] = await Promise.all([
     pool.query("SELECT DISTINCT d.region FROM destinations d JOIN tours t ON t.destination_id=d.id WHERE t.status='active' ORDER BY d.region"),

@@ -1,7 +1,7 @@
 /* CSS cho: lưới "Điểm đến nổi bật" ở trang chủ, nút "Xem thêm tour",
    bộ sưu tập ảnh và lightbox ở trang chi tiết tour. */
 
-/* ========== Điểm đến nổi bật (lưới kiểu bento: ô đầu lớn, ô thứ 6 kéo dài) ========== */
+/* Điểm đến nổi bật (lưới kiểu bento: ô đầu lớn, ô thứ 6 kéo dài) */
 .destination-section { padding-bottom: 6px; }
 .destination-grid {
   display: grid;
@@ -75,7 +75,7 @@
 .load-more { display: flex; justify-content: center; padding-top: 34px; }
 .load-more .button { min-width: 220px; }
 
-/* ========== Bộ sưu tập ảnh ở trang chi tiết tour ========== */
+/* Bộ sưu tập ảnh ở trang chi tiết tour */
 .tour-gallery { min-width: 0; }
 .gallery-main { aspect-ratio: 1.65; border-radius: 4px; }
 .gallery-open {
@@ -170,7 +170,7 @@
 .gallery-thumb:hover { opacity: 1; transform: translateY(-2px); }
 .gallery-thumb.is-active { opacity: 1; border-color: var(--primary); }
 
-/* ========== Lightbox: xem ảnh toàn màn hình ========== */
+/* Lightbox: xem ảnh toàn màn hình */
 .lightbox {
   position: fixed;
   inset: 0;
@@ -220,7 +220,7 @@
 .lightbox-nav.is-prev { left: 14px; }
 .lightbox-nav.is-next { right: 14px; }
 
-/* ========== Màn hình nhỏ ========== */
+/* Màn hình nhỏ */
 @media (max-width: 960px) {
   .destination-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 170px; }
   .destination-tile:nth-child(1) { grid-row: span 2; }

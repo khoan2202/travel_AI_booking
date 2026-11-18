@@ -1,4 +1,4 @@
-// Trang Dashboard quản trị (/admin): số liệu tổng quan, việc cần làm, doanh thu, tour bán chạy, đơn mới.
+// Dashboard: con số tổng quan, biểu đồ tiền thu, việc cần làm, tour bán chạy, đơn mới.
 import { useCallback, useState } from "react";
 import { Link } from "react-router";
 import Header from "../components/Header.jsx";
@@ -13,16 +13,16 @@ import { bookingCode, bookingDate, paymentStatus } from "../utils/booking.js";
 import { formatDateTime } from "../utils/blog.js";
 
 export default function AdminPage() {
-  // retry tăng lên khi bấm "Thử lại", làm hàm tải được tạo mới.
+  // bấm "Thử lại" thì retry tăng, ép tải lại
   const [retry, setRetry] = useState(0);
   const load = useCallback(async (signal) => {
     const [overview, insights] = await Promise.all([getAdminOverview(signal), getAdminInsights(signal)]);
-    return { overview, insights, retry };
-  }, [retry]);
-  const { data, error } = useLoad(load);
+    return { overview, insights };
+  }, []);
+  const { data, error } = useLoad(load, retry);
   const overview = data?.overview, insights = data?.insights;
 
-  // Danh sách việc cần làm: chỉ hiện những việc đang có số lượng lớn hơn 0.
+  // việc cần làm: chỉ hiện cái nào đang có số lượng > 0
   const todos = insights ? [
     { count: insights.todo.unpaid_departing_soon, label: "đơn chưa thanh toán, khởi hành trong 7 ngày", to: "/admin/bookings?payment=unpaid", urgent: true },
     { count: insights.support_pending ?? 0, label: "yêu cầu hỗ trợ đang chờ", to: "/admin/support", urgent: true },
@@ -71,9 +71,9 @@ export default function AdminPage() {
         </section>
 
         <section className="admin-panel">
-          <h2>Tour doanh thu cao nhất</h2>
+          <h2>Tour bán chạy nhất</h2>
           {insights.top_tours.length === 0 ? <p className="admin-empty">Chưa có đơn còn hiệu lực.</p> : (
-            <ol className="admin-rank">
+            <ol className="admin-rank" aria-label="Xếp theo tổng giá trị các đơn còn hiệu lực, gồm cả đơn chưa thanh toán">
               {insights.top_tours.map((tour) => <li key={tour.id}>
                 <div><span>{tour.title}</span><b>{formatPrice(tour.revenue)}</b></div>
                 <span className="admin-meter"><span style={{ width: `${(Number(tour.revenue) / topRevenue) * 100}%` }} /></span>
