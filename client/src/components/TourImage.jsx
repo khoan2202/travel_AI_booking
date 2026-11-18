@@ -1,11 +1,10 @@
-// Ảnh của tour, kèm nhãn số ngày.
-// Ưu tiên ảnh image_url trong DB; không có hoặc tải lỗi thì dùng ảnh bìa theo điểm đến
-// (khai báo trong src/data/destinationImages.js).
+// Ảnh tour kèm nhãn số ngày. Ưu tiên image_url trong DB, không có hoặc tải lỗi thì dùng ảnh bìa
+// theo điểm đến (src/data/destinationImages.js).
 import { useState } from "react";
 import { imagesFor } from "../data/destinationImages.js";
 
 export default function TourImage({ tour }) {
-  // failed = true khi ảnh từ image_url tải lỗi.
+  // true khi ảnh từ image_url tải lỗi
   const [failed, setFailed] = useState(false);
 
   const fallback = imagesFor(tour.destination).cover.src;

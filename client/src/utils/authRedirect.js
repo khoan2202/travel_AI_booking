@@ -1,6 +1,5 @@
-// Chỉ nhận đường dẫn nội bộ đã biết, giữ query để quay lại lịch tour sau đăng nhập.
-// Sau khi đăng nhập, chuyển người dùng về trang họ đang xem dở (?redirect=...).
-// Chỉ chấp nhận các trang trong danh sách, chặn việc bị chuyển sang website lạ.
+// Sau đăng nhập thì đưa khách về trang đang xem dở (?redirect=...), giữ cả query để quay lại đúng lịch tour.
+// Chỉ nhận các trang nội bộ trong danh sách, không để ai dụ khách sang web lạ.
 export function safeAuthRedirect(value) {
   if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//')) return '/account';
   try {

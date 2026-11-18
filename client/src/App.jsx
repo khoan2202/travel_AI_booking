@@ -1,4 +1,4 @@
-// Khai báo toàn bộ các trang (route) của website và đường dẫn tương ứng.
+// Danh sách các trang của web và đường dẫn của từng trang.
 import { BrowserRouter, Route, Routes } from "react-router";
 import RecommendationPage from "./pages/RecommendationPage.jsx";
 import "./styles/ai.css";
@@ -23,19 +23,19 @@ import "./styles/tour-detail.css";
 import "./styles/auth.css";
 import "./styles/booking.css";
 import "./styles/admin.css";
-// Lưới điểm đến, bộ sưu tập ảnh và lightbox.
+// lưới điểm đến, bộ ảnh, lightbox
 import "./styles/gallery.css";
-// Quiz, so sánh tour, trang nguồn ảnh.
+// quiz, so sánh, nguồn ảnh
 import "./styles/quiz.css";
 import "./styles/compare.css";
-// Blog và các màn hình quản trị mở rộng.
+// blog và các trang quản trị thêm
 import "./styles/blog.css";
 import "./styles/admin-pro.css";
-// Hiệu ứng chuyển động: import sau cùng để ghi đè style ở trên khi cần.
+// hiệu ứng chuyển động, import sau để ghi đè style ở trên khi cần
 import "./styles/motion.css";
-// Banner 3D: sau motion.css vì có ghi đè vài thuộc tính của banner.
+// banner 3D, phải sau motion.css vì ghi đè vài thuộc tính của banner
 import "./styles/hero3d.css";
-// Giao diện tối: import sau cùng để ghi đè màu của mọi file ở trên.
+// giao diện tối, để cuối cùng để ghi đè màu của mọi file trên
 import "./styles/theme.css";
 import MotionLayer from "./components/MotionLayer.jsx";
 import CompareProvider from "./context/CompareProvider.jsx";
@@ -51,10 +51,8 @@ import AdminUsersPage from "./pages/AdminUsersPage.jsx";
 import AdminSupportPage from "./pages/AdminSupportPage.jsx";
 import AdminActivityPage from "./pages/AdminActivityPage.jsx";
 
-// BrowserRouter: quản lý URL. AuthProvider: chia sẻ trạng thái đăng nhập cho mọi trang.
-// CompareProvider: danh sách tour đang chọn để so sánh; CompareTray: khay so sánh nổi ở cuối màn hình.
-// ScrollToSection: tự cuộn tới mục khi URL có #id.
-// MotionLayer: hiệu ứng cuộn, header kính mờ, nút lên đầu trang.
+// BrowserRouter lo URL, AuthProvider chia sẻ trạng thái đăng nhập, CompareProvider giữ các tour đang so sánh
+// (CompareTray là khay nổi ở đáy màn hình), ScrollToSection cuộn tới #id, MotionLayer lo hiệu ứng cuộn.
 export default function App() {
   return <BrowserRouter><AuthProvider><CompareProvider><ScrollToSection /><MotionLayer /><CompareTray /><Routes>
     {/* Quiz tìm chuyến đi, so sánh tour, nguồn ảnh: ai cũng dùng được */}

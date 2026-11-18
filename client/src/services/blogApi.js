@@ -1,4 +1,4 @@
-// Các hàm gọi API blog công khai (không cần đăng nhập).
+// API blog công khai.
 import { request } from "./authApi.js";
 
 export const getBlogPosts = (filters, signal) => request("/blog?" + new URLSearchParams(filters), { signal });

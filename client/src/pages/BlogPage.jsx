@@ -1,5 +1,5 @@
-// Trang Blog (/blog): bài nổi bật, lọc theo chuyên mục, tìm kiếm và phân trang.
-// Bộ lọc nằm trên URL (?category=food&q=hue) để gửi link cho người khác vẫn đúng kết quả.
+// Blog: bài nổi bật, lọc chuyên mục, tìm kiếm, phân trang.
+// Bộ lọc nằm trên URL (?category=food&q=hue) nên gửi link cho ai cũng thấy đúng kết quả.
 import { useCallback, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import Header from "../components/Header.jsx";
@@ -15,13 +15,13 @@ export default function BlogPage() {
   const q = params.get("q") || "";
   const page = Math.max(1, Number(params.get("page")) || 1);
   const [draft, setDraft] = useState(q);
-  // retry tăng lên khi bấm "Thử lại", làm hàm tải được tạo mới.
+  // bấm "Thử lại" thì retry tăng, ép tải lại
   const [retry, setRetry] = useState(0);
 
-  const load = useCallback((signal) => getBlogPosts({ page, category, q, retry }, signal), [page, category, q, retry]);
-  const { data, error, loading } = useLoad(load);
+  const load = useCallback((signal) => getBlogPosts({ page, category, q }, signal), [page, category, q]);
+  const { data, error, loading } = useLoad(load, retry);
 
-  // Đổi bộ lọc thì quay về trang 1, bỏ các tham số đang trống cho URL gọn.
+  // đổi bộ lọc thì về trang 1, tham số trống thì bỏ cho URL gọn
   function update(next) {
     const merged = { category, q, page: 1, ...next };
     setParams(Object.fromEntries(Object.entries(merged).filter(([key, value]) => value && !(key === "page" && value === 1))));
@@ -43,7 +43,7 @@ export default function BlogPage() {
         </section>
 
         <div className="container">
-          {/* Bài nổi bật: chỉ hiện khi đang xem toàn bộ blog ở trang đầu */}
+          {/* bài nổi bật chỉ hiện khi xem tất cả, ở trang đầu */}
           {featured && !filtered && (
             <article className="blog-featured">
               <Link className="blog-featured-photo" to={`/blog/${featured.slug}`} tabIndex={-1} aria-hidden="true">
@@ -59,7 +59,6 @@ export default function BlogPage() {
             </article>
           )}
 
-          {/* Chuyên mục và ô tìm kiếm */}
           <div className="blog-toolbar">
             <div className="blog-chips" role="group" aria-label="Chuyên mục">
               <button type="button" aria-pressed={!category} onClick={() => update({ category: "" })}>Tất cả</button>
@@ -75,7 +74,7 @@ export default function BlogPage() {
             </form>
           </div>
 
-          {/* Lỗi, đang tải lần đầu, không có kết quả, hoặc danh sách bài */}
+          {/* lần lượt: lỗi, đang tải, không có kết quả, danh sách bài */}
           {error ? (
             <div className="state-box error-box" role="alert"><p>{error}</p><button className="button button-primary" type="button" onClick={() => setRetry((n) => n + 1)}>Thử lại</button></div>
           ) : !data ? (

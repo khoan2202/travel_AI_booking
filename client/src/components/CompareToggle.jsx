@@ -1,5 +1,5 @@
-// Nút "So sánh" trên thẻ tour và trang chi tiết: bấm để thêm/bỏ tour khỏi danh sách so sánh.
-// Đã chọn đủ 3 tour thì các tour khác bị khóa nút, kèm gợi ý.
+// Nút "So sánh" trên thẻ tour và trang chi tiết, bấm để thêm hoặc bỏ tour khỏi khay.
+// Đủ 3 tour rồi thì nút của các tour khác bị khóa.
 import { useCompare, COMPARE_LIMIT } from "../context/CompareContext.js";
 
 export default function CompareToggle({ tour, className = "" }) {

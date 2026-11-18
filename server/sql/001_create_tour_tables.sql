@@ -1,6 +1,6 @@
--- Bước 1: tạo bảng điểm đến, tour và lịch khởi hành.
--- Thứ tự chạy các file: 001 -> 002 (dữ liệu mẫu) -> 003 -> 004 -> 005 -> 006 -> 007.
--- BEGIN ... COMMIT: chạy cả file như một khối, lỗi giữa chừng thì không tạo gì cả.
+-- Bước 1: điểm đến, tour, lịch khởi hành.
+-- Chạy các file theo thứ tự tên, 001 tới 009 (002 và 008 là dữ liệu mẫu).
+-- Mỗi file bọc trong BEGIN/COMMIT nên lỗi giữa chừng thì không để lại gì dở dang.
 BEGIN;
 
 -- Điểm đến, ví dụ Đà Lạt (khu vực Tây Nguyên).
@@ -46,14 +46,14 @@ CREATE TABLE tour_departures (
 
     start_date DATE NOT NULL,
 
-    -- NUMERIC(12,0): số nguyên tới 12 chữ số (VND), không dùng số thực để tránh sai số.
+    -- tiền VND dùng NUMERIC chứ không dùng số thực, khỏi sai số lẻ
     price_per_person NUMERIC(12, 0) NOT NULL
         CHECK (price_per_person > 0),
 
     capacity INTEGER NOT NULL
         CHECK (capacity > 0),
 
-    -- Số chỗ đã đặt, không bao giờ vượt sức chứa (database tự chặn nhờ CHECK).
+    -- chỗ đã đặt không bao giờ vượt sức chứa, DB tự chặn bằng CHECK
     seats_booked INTEGER NOT NULL DEFAULT 0
         CHECK (seats_booked >= 0 AND seats_booked <= capacity),
 

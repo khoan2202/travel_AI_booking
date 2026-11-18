@@ -1,7 +1,6 @@
-// Trang so sánh tour (/compare?ids=1,2,3): đặt tối đa 3 tour cạnh nhau để khách quyết định nhanh.
-// - Danh sách tour lấy từ URL (gửi link cho bạn bè vẫn xem được), không có thì lấy từ khay so sánh.
-// - Giá, lịch đi, số chỗ được tải mới từ server mỗi lần mở trang.
-// - Đánh dấu tour rẻ nhất, đi sớm nhất và dài ngày nhất.
+// So sánh tối đa 3 tour cạnh nhau (/compare?ids=1,2,3).
+// Danh sách lấy từ URL để gửi link được, không có thì lấy từ khay so sánh. Giá và chỗ luôn tải mới từ server.
+// Tour rẻ nhất, đi sớm nhất, dài ngày nhất được đánh dấu.
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import Header from "../components/Header.jsx";
@@ -12,16 +11,16 @@ import { getTourById, getTourDepartures } from "../services/tourApi.js";
 import { formatPrice } from "../utils/format.js";
 import { bookingDate } from "../utils/booking.js";
 
-// Đọc danh sách id hợp lệ (số nguyên dương, không trùng, tối đa 3) từ chuỗi "1,2,3".
+// "1,2,3" thành danh sách id hợp lệ (số dương, không trùng, tối đa 3)
 function parseIds(value) {
   const ids = String(value || "").split(",").map(Number).filter((id) => Number.isInteger(id) && id > 0);
   return [...new Set(ids)].slice(0, COMPARE_LIMIT);
 }
 
-// Tải thông tin tour và lịch đi, rồi tính các con số cần so sánh.
+// tải tour và lịch đi rồi tính các con số để so
 async function loadTour(id, signal) {
   const [tour, departures] = await Promise.all([getTourById(id, signal), getTourDepartures(id, signal)]);
-  const next = departures[0] || null; // API đã sắp lịch theo ngày tăng dần
+  const next = departures[0] || null; // API đã sắp lịch theo ngày
   return {
     ...tour,
     price: tour.price_from ? Number(tour.price_from) : null,
@@ -31,7 +30,7 @@ async function loadTour(id, signal) {
   };
 }
 
-// Tìm id của tour có giá trị nhỏ nhất/lớn nhất. Chỉ đánh dấu khi các tour thực sự khác nhau.
+// id của tour nhỏ nhất/lớn nhất; các tour bằng nhau thì không đánh dấu
 function best(tours, getValue, pickMax = false) {
   const values = tours.map(getValue).filter((v) => v != null);
   if (values.length < 2 || new Set(values).size < 2) return null;
@@ -52,7 +51,7 @@ export default function ComparePage() {
   const [error, setError] = useState("");
   const [retry, setRetry] = useState(0);
 
-  // Tải lại mỗi khi danh sách id đổi. Tour đã ngừng bán (lỗi 404) thì bỏ qua và báo số lượng.
+  // tour đã ngừng bán (404) thì bỏ qua và báo có mấy tour bị thiếu
   useEffect(() => {
     const controller = new AbortController();
     const list = idsKey ? idsKey.split(",").map(Number) : [];
@@ -68,7 +67,7 @@ export default function ComparePage() {
     return () => controller.abort();
   }, [idsKey, retry]);
 
-  // Bỏ một tour khỏi bảng: cập nhật cả URL và khay so sánh.
+  // bỏ tour khỏi bảng thì cập nhật cả URL lẫn khay
   function drop(id) {
     remove(id);
     const rest = ids.filter((x) => x !== id);
@@ -81,7 +80,7 @@ export default function ComparePage() {
   const soonest = best(list, (t) => (t.nextDate ? Date.parse(t.nextDate) : null));
   const longest = best(list, (t) => t.duration_days, true);
 
-  // Các hàng của bảng: nhãn bên trái, nội dung từng tour ở các cột.
+  // mỗi hàng: nhãn bên trái, mỗi tour một cột
   const rows = [
     { label: "Điểm đến", render: (t) => <>{t.destination}<small>{t.region}</small></> },
     { label: "Giá từ / người", render: (t) => <strong className="compare-price">{t.price ? formatPrice(t.price) : "Liên hệ"}</strong>, badge: (t) => t.id === cheapest && "Rẻ nhất" },
@@ -103,7 +102,7 @@ export default function ComparePage() {
         {error && <div className="state-box" role="alert"><p>{error}</p><button className="button button-primary" type="button" onClick={() => setRetry((n) => n + 1)}>Thử lại</button></div>}
         {missing > 0 && !loading && <p className="compare-note" role="status">{missing} tour không còn mở bán nên đã được ẩn khỏi bảng.</p>}
 
-        {/* Chưa đủ 2 tour: hướng dẫn cách chọn */}
+        {/* chưa đủ 2 tour thì chỉ cách chọn */}
         {!loading && !error && list.length < 2 && (
           <div className="state-box compare-empty">
             <h2>{list.length === 1 ? "Chọn thêm ít nhất 1 tour nữa" : "Chưa có tour nào để so sánh"}</h2>
@@ -112,7 +111,7 @@ export default function ComparePage() {
           </div>
         )}
 
-        {/* Bảng so sánh: cột nhãn + mỗi tour một cột. Màn hình hẹp thì cuộn ngang */}
+        {/* màn hình hẹp thì bảng cuộn ngang */}
         {!loading && list.length >= 2 && (
           <div className="compare-scroll">
             <div className="compare-table" style={{ "--cols": list.length }} role="table" aria-label="Bảng so sánh tour">

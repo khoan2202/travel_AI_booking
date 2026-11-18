@@ -1,4 +1,4 @@
-// Chân trang, dùng chung cho mọi trang.
+// Chân trang.
 import { Link } from "react-router";
 export default function Footer() {
   return (
@@ -6,7 +6,6 @@ export default function Footer() {
       <div className="container footer-inner">
         <Link to="/" className="brand">TRAVEL <span>MINT.</span></Link>
         <p>Khám phá những hành trình đáng nhớ.</p>
-        {/* Lối tắt tới các tính năng và trang ghi công nguồn ảnh */}
         <nav className="footer-links" aria-label="Liên kết chân trang">
           <Link to="/quiz">Quiz tìm chuyến đi</Link>
           <Link to="/compare">So sánh tour</Link>

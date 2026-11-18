@@ -1,37 +1,32 @@
-// Tạo "pool" kết nối PostgreSQL dùng chung cho cả backend.
-// Pool giữ sẵn vài kết nối để tái sử dụng, nhanh hơn mở kết nối mới cho mỗi câu SQL.
+// Pool kết nối Postgres dùng chung cho cả backend (giữ sẵn vài kết nối cho nhanh).
 import 'dotenv/config';
 import pg from 'pg';
 
-// Bật SSL khi chạy production hoặc khi DATABASE_SSL=true (Neon bắt buộc SSL).
+// production hoặc DATABASE_SSL=true thì bật SSL (Neon bắt buộc)
 const useSSL =
   process.env.NODE_ENV === 'production' ||
   process.env.DATABASE_SSL?.trim().toLowerCase() === 'true';
 
 const pool = new pg.Pool({
-  // Thông tin kết nối lấy từ server/.env.
   host: process.env.PGHOST,
   port: Number(process.env.PGPORT || 5432),
   database: process.env.PGDATABASE,
   user: process.env.PGUSER,
   password: process.env.PGPASSWORD,
 
-  // rejectUnauthorized: true = kiểm tra chứng chỉ SSL của server database.
+  // true = có kiểm tra chứng chỉ của DB
   ssl: useSSL ? { rejectUnauthorized: true } : false,
 
-  // Tối đa 10 kết nối cùng lúc.
   max: 10,
-  // Chờ mở kết nối tối đa 10 giây.
   connectionTimeoutMillis: 10000,
-  // Kết nối rảnh quá 30 giây thì đóng.
   idleTimeoutMillis: 30000,
-  // Mỗi câu SQL chạy tối đa 10 giây.
+  // mỗi câu SQL tối đa 10 giây
   statement_timeout: 10000,
-  // Dùng múi giờ Việt Nam cho mọi kết nối.
+  // giờ Việt Nam cho mọi kết nối
   options: '-c timezone=Asia/Ho_Chi_Minh',
 });
 
-// Ghi log khi một kết nối đang rảnh bị lỗi (ví dụ database khởi động lại).
+// kết nối đang rảnh mà đứt (vd DB khởi động lại) thì chỉ ghi log
 pool.on('error', (error) => {
   console.error('PostgreSQL idle connection error:', {
     code: error.code,

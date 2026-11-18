@@ -1,16 +1,16 @@
-// Khối "Bài viết mới" ở trang chủ: 1 bài lớn và 2 bài nhỏ.
-// Chưa có bài hoặc tải lỗi thì ẩn cả khối, để trang chủ không bao giờ bị ảnh hưởng.
+// Khối "Bài viết mới" trên trang chủ: 1 bài lớn, 2 bài nhỏ.
+// Chưa có bài hoặc tải lỗi thì ẩn luôn, để trang chủ không bị vạ lây.
 import { Link } from "react-router";
 import useLoad from "../hooks/useLoad.js";
 import { getBlogPosts } from "../services/blogApi.js";
 import { BLOG_CATEGORIES, DEFAULT_COVER, formatDate, readingMinutes } from "../utils/blog.js";
 
-// Đặt ngoài component để hàm không đổi giữa các lần vẽ, tránh tải lại liên tục.
+// để ngoài component cho hàm không đổi giữa các lần vẽ, kẻo tải lại liên tục
 const loadLatest = (signal) => getBlogPosts({ page: 1 }, signal);
 
 export default function HomeBlog() {
   const { data } = useLoad(loadLatest);
-  // API tách riêng bài nổi bật, nên ghép lại để bài nổi bật đứng đầu.
+  // API tách riêng bài nổi bật, ghép lại cho nó đứng đầu
   const posts = data ? [data.featured, ...data.items].filter(Boolean).slice(0, 3) : [];
   if (posts.length === 0) return null;
   const [lead, ...others] = posts;
@@ -26,7 +26,7 @@ export default function HomeBlog() {
           <img src={lead.cover_image || DEFAULT_COVER} alt="" loading="lazy" decoding="async" width="900" height="600" />
           <div className="home-blog-lead-text">
             <p><span>{BLOG_CATEGORIES[lead.category]}</span> · {readingMinutes(lead.content_length)} phút đọc</p>
-            {/* Link phủ kín cả thẻ (xem CSS) nên bấm vào đâu trên ảnh cũng mở bài */}
+            {/* link được kéo phủ cả thẻ bằng CSS, bấm đâu cũng mở bài */}
             <h3><Link to={`/blog/${lead.slug}`}>{lead.title}</Link></h3>
             <time dateTime={lead.published_at}>{formatDate(lead.published_at)}</time>
           </div>

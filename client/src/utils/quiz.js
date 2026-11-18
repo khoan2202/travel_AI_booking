@@ -1,11 +1,10 @@
-// Câu hỏi và cách chấm điểm cho Quiz tìm chuyến đi (trang /quiz).
-// Chấm hoàn toàn trên trình duyệt từ danh sách tour đang bán, không gọi AI nên không tốn phí.
+// Câu hỏi và cách chấm điểm của Quiz. Chấm ngay trên trình duyệt từ danh sách tour đang bán, không gọi AI nên miễn phí.
 //
-// Mỗi lựa chọn có thể ảnh hưởng tới:
-// - tags: trọng số cho các tag của tour (số âm = không hợp, ví dụ đi cùng trẻ nhỏ thì bớt "phiêu lưu")
-// - days / atLeast: số ngày mong muốn;  max: ngân sách tối đa mỗi người;  from: nơi khởi hành
-// - reason: câu giải thích hiện ở kết quả khi tour khớp các tag của lựa chọn này
-// Muốn thêm câu hỏi: thêm một mục vào QUESTIONS, các tag nên dùng đúng tag có trong tour.
+// Mỗi lựa chọn có thể có:
+//   tags: điểm cho các tag của tour (số âm là không hợp, vd đi với trẻ nhỏ thì trừ "phiêu lưu")
+//   days / atLeast: số ngày muốn đi; max: ngân sách tối đa một người; from: nơi xuất phát
+//   reason: câu giải thích hiện ở kết quả khi tour khớp tag của lựa chọn này
+// Thêm câu hỏi thì thêm một mục vào QUESTIONS, tag nên dùng đúng tag có trong tour.
 
 export const QUESTIONS = [
   {
@@ -76,7 +75,7 @@ export const QUESTIONS = [
   },
 ];
 
-// Trọng số các phần của điểm (tổng = 100).
+// trọng số của điểm, cộng lại đủ 100
 const WEIGHT = { tags: 45, budget: 25, days: 20, from: 10 };
 
 const optionOf = (questionId, answers) =>
@@ -84,12 +83,11 @@ const optionOf = (questionId, answers) =>
 
 const formatMillion = (price) => `${(price / 1e6).toLocaleString("vi-VN", { maximumFractionDigits: 1 })} triệu`;
 
-// Chấm điểm mọi tour theo câu trả lời. Trả về danh sách đã sắp xếp: { tour, score (0–100), reasons[] }.
+// trả danh sách đã xếp hạng: { tour, score (0-100), reasons[] }
 export function scoreTours(tours, answers) {
   const chosen = QUESTIONS.map((q) => optionOf(q.id, answers)).filter(Boolean);
 
-  // Gộp trọng số tag từ mọi lựa chọn. Mẫu số = tổng 3 trọng số dương lớn nhất,
-  // vì mỗi tour có tối đa khoảng 3 tag.
+  // gộp điểm tag của mọi lựa chọn. Mẫu số là tổng 3 điểm dương lớn nhất, vì mỗi tour chỉ có chừng 3 tag
   const tagWeights = {};
   for (const option of chosen) {
     for (const [tag, weight] of Object.entries(option.tags || {})) tagWeights[tag] = (tagWeights[tag] || 0) + weight;
@@ -106,7 +104,7 @@ export function scoreTours(tours, answers) {
     const price = Number(tour.price_from) || 0;
     const reasons = [];
 
-    // 1. Khớp sở thích (tag)
+    // 1. sở thích (tag)
     const matched = tags.reduce((sum, tag) => sum + (tagWeights[tag] || 0), 0);
     const tagScore = Math.max(0, Math.min(1, matched / tagDenominator));
     for (const option of chosen) {
@@ -114,14 +112,14 @@ export function scoreTours(tours, answers) {
       if (hit) reasons.push(option.reason);
     }
 
-    // 2. Ngân sách: trong ngân sách = đủ điểm, vượt tối đa 20% = nửa điểm
+    // 2. ngân sách: trong ngân sách thì đủ điểm, vượt không quá 20% thì nửa điểm
     let budgetScore = 1;
     if (budget?.max) {
       if (price <= budget.max) { budgetScore = 1; reasons.unshift(`Vừa ngân sách: chỉ từ ${formatMillion(price)}`); }
       else budgetScore = price <= budget.max * 1.2 ? 0.5 : 0.1;
     }
 
-    // 3. Số ngày
+    // 3. số ngày
     let daysScore = 1;
     if (days?.days) {
       const d = tour.duration_days;
@@ -130,7 +128,7 @@ export function scoreTours(tours, answers) {
       if (daysScore === 1) reasons.push(`Gọn trong ${d} ngày như bạn muốn`);
     }
 
-    // 4. Nơi khởi hành
+    // 4. nơi xuất phát
     let fromScore = 1;
     if (from?.from) {
       fromScore = tour.departure_location === from.from ? 1 : 0.35;

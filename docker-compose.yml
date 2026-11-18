@@ -1,0 +1,61 @@
+# Chạy cả website trên máy chỉ với một lệnh:
+#
+#     docker compose up --build
+#
+# Sau đó mở http://localhost:5000
+# Lần đầu, database trống nên PostgreSQL tự chạy các file server/sql/001 → 009 (tạo bảng + dữ liệu mẫu).
+#
+# Tạo tài khoản admin: đăng ký trên website rồi chạy
+#     docker compose exec app npm run make-admin -- email-cua-ban@example.com
+#
+# Xóa sạch cả dữ liệu để chạy lại từ đầu:  docker compose down -v
+#
+# CHÚ Ý: các mật khẩu/khóa mặc định bên dưới CHỈ để chạy thử trên máy cá nhân.
+# Đặt giá trị riêng bằng file .env ở thư mục gốc (xem .env.example). Không dùng cấu hình này để deploy thật.
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: travel_app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-travel_local_pw}
+      POSTGRES_DB: travel_ai_booking
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      # Chỉ chạy khi database còn trống. Các file được chạy theo thứ tự tên; lỗi ở file nào sẽ dừng ngay.
+      - ./server/sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      # Kiểm tra qua TCP (-h 127.0.0.1): lúc chạy các file khởi tạo, PostgreSQL mở một server tạm chỉ nghe
+      # qua socket nội bộ. Kiểm tra qua socket sẽ báo "sẵn sàng" quá sớm, khi bảng chưa được tạo xong.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U travel_app -d travel_ai_booking"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build: .
+    # Phòng khi database vẫn chưa sẵn sàng đúng lúc: tự khởi động lại thay vì bỏ cuộc.
+    restart: on-failure
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    environment:
+      # Chạy trên http://localhost nên không dùng NODE_ENV=production (chế độ đó bắt buộc HTTPS).
+      NODE_ENV: development
+      SERVE_CLIENT: "true"
+      PORT: "5000"
+      CLIENT_URL: http://localhost:5000
+      PGHOST: db
+      PGPORT: "5432"
+      PGDATABASE: travel_ai_booking
+      PGUSER: travel_app
+      PGPASSWORD: ${POSTGRES_PASSWORD:-travel_local_pw}
+      SESSION_SECRET: ${SESSION_SECRET:-docker-dev-only-secret-change-me-0123456789}
+      # Không bắt buộc: bỏ trống thì trợ lý AI tự dùng phương án gợi ý từ database.
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-}
+
+volumes:
+  db-data:

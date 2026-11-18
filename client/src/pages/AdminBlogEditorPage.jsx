@@ -1,5 +1,4 @@
-// Trình soạn bài viết (/admin/blog/new và /admin/blog/:id):
-// thanh công cụ định dạng, xem trước trực tiếp, chọn ảnh bìa, hẹn giờ đăng, xóa bài.
+// Trình soạn bài (/admin/blog/new và /admin/blog/:id): có thanh định dạng, xem trước, ảnh bìa, hẹn giờ đăng.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router";
 import Header from "../components/Header.jsx";
@@ -14,17 +13,17 @@ import { parseMarkdown } from "../utils/markdown.js";
 
 const EMPTY = { title: "", slug: "", excerpt: "", content: "", cover_image: "", category: "guide", tags: "", destination_id: "", author_name: "Travel Mint", status: "draft", featured: false, published_at: "" };
 
-// Ảnh có sẵn của website để chọn làm ảnh bìa.
+// ảnh có sẵn để chọn làm ảnh bìa
 const COVERS = Object.entries(destinationImages).flatMap(([name, images]) => images.gallery.map((photo, index) => ({ src: photo.src, label: `${name} ${index + 1}` })));
 
-// Đổi thời gian từ database sang dạng ô chọn ngày giờ theo giờ máy người dùng.
+// giờ trong DB sang giá trị cho ô chọn ngày giờ (theo giờ máy)
 function toLocalInput(value) {
   if (!value) return "";
   const date = new Date(value);
   return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 }
 
-// Các nút định dạng: chèn ký hiệu Markdown vào vị trí con trỏ.
+// mỗi nút chèn ký hiệu Markdown vào chỗ con trỏ
 const TOOLS = [
   { label: "Tiêu đề", title: "Tiêu đề mục", before: "\n## ", after: "\n", sample: "Tiêu đề mục" },
   { label: "Đậm", title: "Chữ đậm", before: "**", after: "**", sample: "chữ đậm" },
@@ -43,12 +42,12 @@ function Editor({ initial, destinations, startNotice }) {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState(startNotice);
   const [confirming, setConfirming] = useState(false);
-  // Trên điện thoại chỉ hiện một trong hai: soạn hoặc xem trước.
+  // điện thoại chỉ đủ chỗ cho một khung: soạn hoặc xem trước
   const [mobileView, setMobileView] = useState("write");
   const areaRef = useRef(null);
   const blocks = useMemo(() => parseMarkdown(form.content), [form.content]);
 
-  // Đang có thay đổi chưa lưu mà đóng tab thì trình duyệt hỏi lại.
+  // chưa lưu mà đóng tab thì trình duyệt hỏi lại
   useEffect(() => {
     if (!dirty) return undefined;
     const warn = (event) => { event.preventDefault(); event.returnValue = ""; };
@@ -58,20 +57,20 @@ function Editor({ initial, destinations, startNotice }) {
 
   function change(key, value) { setForm((current) => ({ ...current, [key]: value })); setDirty(true); }
 
-  // Bài mới: slug tự sinh theo tiêu đề. Bài đã có: giữ slug cũ để link không bị hỏng.
+  // bài mới thì slug theo tiêu đề, bài cũ giữ nguyên slug để link không gãy
   function changeTitle(title) {
     setForm((current) => ({ ...current, title, slug: current.id ? current.slug : slugify(title) }));
     setDirty(true);
   }
 
-  // Chèn định dạng vào đúng chỗ đang chọn trong ô soạn thảo.
+  // chèn vào đúng chỗ đang chọn trong ô soạn
   function applyTool(tool) {
     const area = areaRef.current;
     const start = area.selectionStart, end = area.selectionEnd;
     const selected = form.content.slice(start, end) || tool.sample;
     const content = form.content.slice(0, start) + tool.before + selected + tool.after + form.content.slice(end);
     change("content", content);
-    // Đợi React cập nhật ô nhập rồi bôi đen phần chữ vừa chèn.
+    // đợi React vẽ xong rồi mới bôi đen phần vừa chèn
     requestAnimationFrame(() => {
       area.focus();
       area.setSelectionRange(start + tool.before.length, start + tool.before.length + selected.length);
@@ -184,7 +183,7 @@ export default function AdminBlogEditorPage() {
     return { destinations, post };
   }, [id]);
   const { data, error, loading } = useLoad(load);
-  // Chuyển dữ liệu từ database sang đúng dạng của các ô nhập.
+  // đổi dữ liệu từ DB sang dạng các ô nhập cần
   const initial = data?.post ? {
     ...data.post, tags: data.post.tags.join(", "), cover_image: data.post.cover_image || "",
     destination_id: data.post.destination_id ? String(data.post.destination_id) : "", published_at: toLocalInput(data.post.published_at),

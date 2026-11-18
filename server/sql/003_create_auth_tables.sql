@@ -1,9 +1,8 @@
 -- Bước 3: tạo bảng tài khoản và bảng lưu phiên đăng nhập.
 BEGIN;
 
--- Tài khoản người dùng. role = 'admin' mới vào được trang quản trị.
--- Muốn tạo admin: đăng ký tài khoản thường, rồi chạy
--- UPDATE users SET role = 'admin' WHERE email = '...';
+-- role = 'admin' mới vào được trang quản trị. Muốn có admin thì đăng ký bình thường,
+-- rồi chạy `npm run make-admin -- email` trong server (hoặc UPDATE users SET role = 'admin' ...).
 CREATE TABLE users (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(100) NOT NULL CHECK (char_length(name) BETWEEN 2 AND 100),

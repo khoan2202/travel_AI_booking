@@ -1,7 +1,6 @@
-// Trang Quiz tìm chuyến đi (/quiz): 6 câu hỏi nhanh -> 3 tour hợp nhất kèm % phù hợp và lý do.
-// - Không cần đăng nhập, không gọi AI: chấm điểm trên trình duyệt (xem utils/quiz.js).
-// - Chọn đáp án là tự sang câu kế; có nút quay lại; bấm phím số 1–5 để chọn nhanh.
-// - Kết quả có nút "So sánh 3 tour này" nối sang trang so sánh.
+// Quiz tìm chuyến đi: 6 câu hỏi nhanh rồi ra 3 tour hợp nhất, kèm % phù hợp và lý do.
+// Không cần đăng nhập, không gọi AI, chấm điểm ngay trên trình duyệt (utils/quiz.js).
+// Chọn đáp án là tự sang câu kế, bấm phím số 1-5 cũng được. Cuối có nút "So sánh 3 tour này".
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import Header from "../components/Header.jsx";
@@ -12,7 +11,7 @@ import { QUESTIONS, scoreTours } from "../utils/quiz.js";
 import { formatPrice } from "../utils/format.js";
 import { useCompare } from "../context/CompareContext.js";
 
-// Vòng tròn % phù hợp: vẽ bằng SVG, vòng chạy từ 0 tới đúng % khi hiện ra.
+// vòng tròn % phù hợp vẽ bằng SVG, chạy từ 0 tới đúng % khi hiện ra
 function MatchRing({ value }) {
   const r = 26;
   const c = 2 * Math.PI * r;
@@ -33,14 +32,14 @@ export default function QuizPage() {
   // step: -1 = màn mở đầu, 0..5 = câu hỏi, 6 = kết quả
   const [step, setStep] = useState(-1);
   const [answers, setAnswers] = useState({});
-  // Hướng chuyển câu để chọn hiệu ứng trượt sang trái hay phải
+  // hướng chuyển câu, để chọn trượt sang trái hay phải
   const [direction, setDirection] = useState("next");
   const [tours, setTours] = useState(null);
   const [error, setError] = useState("");
   const [retry, setRetry] = useState(0);
   const advancing = useRef(false);
 
-  // Tải danh sách tour ngay khi mở trang, để lúc làm xong là có kết quả luôn.
+  // tải tour ngay từ đầu để làm xong là có kết quả liền
   useEffect(() => {
     const controller = new AbortController();
     getTours(controller.signal)
@@ -53,8 +52,8 @@ export default function QuizPage() {
   const done = step >= total;
   const question = QUESTIONS[step];
 
-  // Chọn đáp án: lưu lại, chờ một nhịp ngắn cho hiệu ứng "đã chọn" rồi sang câu kế.
-  // advancing chặn bấm đúp làm nhảy cóc 2 câu trong lúc đang chờ chuyển.
+  // chọn xong chờ một nhịp cho hiệu ứng "đã chọn" rồi mới sang câu kế.
+  // advancing chặn bấm đúp kẻo nhảy cóc hai câu
   function choose(value) {
     if (advancing.current) return;
     advancing.current = true;
@@ -65,7 +64,7 @@ export default function QuizPage() {
   function back() { setDirection("back"); setStep((s) => Math.max(-1, s - 1)); }
   function restart() { setAnswers({}); setDirection("next"); setStep(0); }
 
-  // Phím số 1..n để chọn nhanh đáp án của câu đang hiện.
+  // phím số 1..n chọn nhanh đáp án của câu đang hiện
   useEffect(() => {
     if (!question) return;
     function onKey(event) {
@@ -75,17 +74,17 @@ export default function QuizPage() {
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-    // choose dùng question hiện tại; chỉ cần gắn lại khi đổi câu.
+    // choose chỉ cần gắn lại khi đổi câu
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
-  // Chỉ chấm điểm khi đã làm xong và có dữ liệu tour.
+  // làm xong và có tour mới chấm
   const results = useMemo(
     () => (done && tours ? scoreTours(tours, answers).slice(0, 3) : []),
     [done, tours, answers],
   );
 
-  // So sánh 3 tour kết quả: thay danh sách so sánh rồi mở trang so sánh.
+  // đổi khay so sánh thành 3 tour này rồi mở trang so sánh
   function compareResults() {
     replace(results.map((r) => r.tour));
     navigate(`/compare?ids=${results.map((r) => r.tour.id).join(",")}`);
@@ -96,7 +95,6 @@ export default function QuizPage() {
       <main className="quiz-page">
         <div className="quiz-glow" aria-hidden="true" />
         <div className="container quiz-wrap">
-          {/* Màn mở đầu */}
           {step === -1 && (
             <section className="quiz-intro quiz-anim-next" aria-labelledby="quiz-title">
               <p className="section-kicker">TRAVEL MINT · QUIZ 1 PHÚT</p>
@@ -107,7 +105,7 @@ export default function QuizPage() {
             </section>
           )}
 
-          {/* Câu hỏi: key theo câu để hiệu ứng trượt chạy lại mỗi lần đổi câu */}
+          {/* key theo câu để hiệu ứng trượt chạy lại mỗi lần đổi câu */}
           {question && (
             <section className={`quiz-card quiz-anim-${direction}`} key={step} aria-labelledby="quiz-question">
               <div className="quiz-progress" role="progressbar" aria-valuemin={1} aria-valuemax={total} aria-valuenow={step + 1} aria-label="Tiến độ quiz">
@@ -138,12 +136,10 @@ export default function QuizPage() {
             </section>
           )}
 
-          {/* Kết quả */}
           {done && (
             <section className="quiz-result quiz-anim-next" aria-labelledby="quiz-result-title">
               <p className="section-kicker">KẾT QUẢ CỦA BẠN</p>
               <h1 id="quiz-result-title">3 hành trình hợp với bạn nhất</h1>
-              {/* Tóm tắt các lựa chọn của khách */}
               <ul className="quiz-chips">
                 {QUESTIONS.map((q) => {
                   const option = q.options.find((o) => o.value === answers[q.id]);

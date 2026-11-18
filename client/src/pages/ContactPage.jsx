@@ -1,5 +1,4 @@
-// Trang Liên hệ & Hỗ trợ (/contact): form gửi yêu cầu hỗ trợ.
-// Khách chưa đăng nhập vẫn gửi được. Đã đăng nhập thì chọn được một đơn đã đặt để hỏi về đơn đó.
+// Liên hệ & Hỗ trợ. Chưa đăng nhập vẫn gửi được; đăng nhập rồi thì chọn thêm được đơn muốn hỏi.
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import Header from "../components/Header.jsx";
@@ -9,18 +8,17 @@ import { getMyBookings } from "../services/bookingApi.js";
 import { sendSupportRequest } from "../services/supportApi.js";
 import "../styles/contact.css";
 
-// Điền thông tin liên hệ thật vào đây khi có.
-// Để trống thì không hiển thị liên kết đó.
+// điền kênh liên hệ thật vào đây, để trống thì ẩn
 const CONTACT = {
   facebook: "",
   email: "",
   phone: "",
 };
 
-// Form liên hệ. user = null nếu chưa đăng nhập.
+// user = null nếu chưa đăng nhập
 function ContactForm({ user }) {
   const userId = user?.id ?? null;
-  // sendingRef chặn gửi hai lần khi bấm nhanh (cập nhật ngay, không chờ React vẽ lại như state).
+  // sendingRef chặn bấm gửi hai lần (đổi ngay lập tức, không phải chờ React vẽ lại như state)
   const sendingRef = useRef(false);
 
   const [form, setForm] = useState({
@@ -30,7 +28,7 @@ function ContactForm({ user }) {
     message: "",
   });
 
-  // bookings: danh sách đơn của tài khoản, dùng cho ô chọn "Tour đã đặt".
+  // đơn của tài khoản, cho ô chọn "Tour đã đặt"
   const [bookings, setBookings] = useState([]);
   const [loadingBookings, setLoadingBookings] = useState(Boolean(userId));
   const [bookingError, setBookingError] = useState("");
@@ -38,7 +36,7 @@ function ContactForm({ user }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Đã đăng nhập thì tải danh sách đơn để khách chọn.
+  // đăng nhập rồi thì tải đơn cho khách chọn
   useEffect(() => {
     if (!userId) return;
 
@@ -49,7 +47,7 @@ function ContactForm({ user }) {
         const first = await getMyBookings(1, controller.signal);
         const items = [...first.items];
 
-        // Lấy đủ các trang đơn đặt tour của tài khoản hiện tại.
+        // lấy đủ mọi trang đơn
         for (let page = 2; page <= first.total_pages; page += 1) {
           if (controller.signal.aborted) return;
           const result = await getMyBookings(page, controller.signal);
@@ -76,7 +74,7 @@ function ContactForm({ user }) {
     return () => controller.abort();
   }, [userId]);
 
-  // Dùng chung cho mọi ô nhập: thuộc tính name của ô quyết định trường nào trong form được cập nhật.
+  // dùng chung cho mọi ô, thuộc tính name cho biết cập nhật trường nào
   function handleChange(event) {
     const { name, value } = event.target;
     setForm((current) => ({ ...current, [name]: value }));
@@ -84,7 +82,6 @@ function ContactForm({ user }) {
     setSuccess("");
   }
 
-  // Gửi form.
   async function handleSubmit(event) {
     event.preventDefault();
     if (sendingRef.current) return;
@@ -92,7 +89,7 @@ function ContactForm({ user }) {
     setError("");
     setSuccess("");
 
-    // Chuẩn hóa dữ liệu trước khi gửi: bỏ khoảng trắng, đổi mã đơn sang số.
+    // bỏ khoảng trắng thừa, đổi mã đơn sang số
     const payload = {
       full_name: form.full_name.trim(),
       phone: form.phone.trim().replace(/[\s.-]/g, ""),
@@ -100,7 +97,7 @@ function ContactForm({ user }) {
       message: form.message.trim(),
     };
 
-    // Kiểm tra ở trình duyệt cho nhanh (server vẫn kiểm tra lại lần nữa).
+    // kiểm tra sơ ở đây cho nhanh, server vẫn kiểm tra lại
     if (
       [...payload.full_name].length < 2 ||
       [...payload.full_name].length > 100
@@ -128,7 +125,7 @@ function ContactForm({ user }) {
     try {
       await sendSupportRequest(payload);
 
-      // Gửi thành công: báo cho khách, xóa nội dung nhưng giữ họ tên và số điện thoại.
+      // gửi xong thì xóa nội dung, giữ lại họ tên và số điện thoại
       setSuccess(
         "Đã gửi yêu cầu thành công. Chúng tôi sẽ liên hệ lại qua số điện thoại bạn cung cấp.",
       );
@@ -138,7 +135,7 @@ function ContactForm({ user }) {
         message: "",
       }));
     } catch (err) {
-      // Không xóa nội dung khi gửi thất bại.
+      // gửi lỗi thì giữ nguyên nội dung khách đã gõ
       setError(err.message || "Chưa gửi được yêu cầu. Vui lòng thử lại.");
     } finally {
       sendingRef.current = false;
@@ -185,7 +182,7 @@ function ContactForm({ user }) {
           </div>
         </div>
 
-        {/* Ô chọn đơn: chỉ dùng được khi đã đăng nhập và tải xong danh sách đơn */}
+        {/* chỉ dùng được khi đã đăng nhập và tải xong danh sách đơn */}
         <div className="contact-field">
           <label htmlFor="contact-booking">Tour đã đặt</label>
           <select
@@ -259,10 +256,9 @@ function ContactForm({ user }) {
   );
 }
 
-// Component trang: bố cục, phần giới thiệu và form.
 export default function ContactPage() {
   const { user, status } = useAuth();
-  // Chỉ hiện phần "Kết nối với Travel Mint" khi đã điền ít nhất một kênh trong CONTACT.
+  // mục "Kết nối với Travel Mint" chỉ hiện khi CONTACT có ít nhất một kênh
   const hasContacts = CONTACT.facebook || CONTACT.email || CONTACT.phone;
 
   return (
@@ -298,7 +294,7 @@ export default function ContactPage() {
               </p>
             </aside>
 
-            {/* Chờ kiểm tra đăng nhập xong mới hiện form. key đổi theo tài khoản để form được tạo lại */}
+            {/* chờ biết đã đăng nhập hay chưa mới hiện form; key theo tài khoản để form làm lại khi đổi người */}
             {status === "loading" ? (
               <div className="contact-form" role="status">
                 Đang tải biểu mẫu…

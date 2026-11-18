@@ -1,4 +1,4 @@
-// Hiển thị giá dạng tiền Việt, ví dụ 2500000 -> "2.500.000 ₫". Giá không hợp lệ thì hiện "Liên hệ".
+// 2500000 thành "2.500.000 ₫"; giá lỗi hoặc bằng 0 thì hiện "Liên hệ"
 export function formatPrice(value) {
   const price = Number(value);
   if (!Number.isFinite(price) || price <= 0) return "Liên hệ";
@@ -10,7 +10,7 @@ export function formatPrice(value) {
   }).format(price);
 }
 
-// Cho phép tìm "da lat" và "Đà Lạt" cho cùng một kết quả.
+// bỏ dấu để gõ "da lat" cũng ra "Đà Lạt"
 export function normalizeText(value) {
   return String(value ?? "")
     .normalize("NFD")

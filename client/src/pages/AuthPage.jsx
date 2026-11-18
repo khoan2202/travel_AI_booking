@@ -1,5 +1,4 @@
-// Trang Đăng nhập (/login) và Đăng ký (/register), dùng chung một component.
-// Prop mode = "login" hoặc "register" (khai báo trong App.jsx).
+// Đăng nhập (/login) và đăng ký (/register) dùng chung một component, phân biệt bằng prop mode (khai báo trong App.jsx).
 import { useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router";
 import Header from "../components/Header.jsx";
@@ -12,10 +11,10 @@ export default function AuthPage({ mode }) {
   const isRegister = mode === "register";
   const location = useLocation();
   const navigate = useNavigate();
-  // status: trạng thái phiên đăng nhập; login(): hàm đăng nhập từ AuthProvider.
+  // status là trạng thái phiên, login() lấy từ AuthProvider
   const { user, status, login } = useAuth();
   const [name, setName] = useState("");
-  // Vừa đăng ký xong thì điền sẵn email (trang đăng ký gửi sang qua location.state).
+  // vừa đăng ký xong thì điền sẵn email (gửi sang qua location.state)
   const [email, setEmail] = useState(
     typeof location.state?.email === "string"
       ? location.state.email
@@ -28,23 +27,21 @@ export default function AuthPage({ mode }) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
 
-  // Chỉ quay về các trang nội bộ đã biết,
-  // không nhận URL ngoài từ đầu vào.
+  // chỉ quay về trang nội bộ, không bao giờ nghe theo URL ngoài
   const destination = safeAuthRedirect(location.state?.from);
 
-  // Ảnh nền khác nhau cho Login và Register
+  // đăng nhập và đăng ký dùng hai ảnh nền khác nhau
   const backgroundImage = isRegister
     ? "/images/auth_login_register/register.jpg"
     : "/images/auth_login_register/login.jpg";
-  // Đã đăng nhập rồi thì không ở lại trang này, chuyển luôn tới trang đích.
+  // đăng nhập rồi thì đi thẳng tới trang đích, không ở lại đây
   if (user) {
     return <Navigate to={destination} replace />;
   }
-  // Xử lý khi bấm nút gửi form.
   async function submit(event) {
     event.preventDefault();
     setError("");
-    // Kiểm tra nhanh ở trình duyệt trước khi gửi: mật khẩu nhập lại phải khớp và không quá 72 byte.
+    // kiểm tra nhanh trước khi gửi: mật khẩu nhập lại phải khớp, không quá 72 byte
     if (isRegister && password !== confirmation) {
       setError("Hai mật khẩu chưa khớp nhau.");
       return;
@@ -55,7 +52,7 @@ export default function AuthPage({ mode }) {
     }
     setPending(true);
     try {
-      // Đăng ký xong: chuyển sang trang đăng nhập, kèm email và trang đích ban đầu.
+      // đăng ký xong thì sang đăng nhập, mang theo email và trang đích ban đầu
       if (isRegister) {
         await registerUser({
           name,
@@ -70,7 +67,7 @@ export default function AuthPage({ mode }) {
             from: destination,
           },
         });
-      // Đăng nhập xong: về trang người dùng đang xem dở (hoặc /account).
+      // đăng nhập xong thì về trang đang xem dở (hoặc /account)
       } else {
         await login(email, password);
         navigate(destination, {
@@ -92,12 +89,10 @@ export default function AuthPage({ mode }) {
           backgroundImage: `url(${backgroundImage})`,
         }}
       >
-        {/* lớp tối phủ lên ảnh nền */}
+        {/* lớp tối phủ ảnh nền */}
         <div className="auth-modern-overlay" />
         <div className="auth-modern-container">
-          {/* ============================= */}
-          {/* BÊN TRÁI - NỘI DUNG GIỚI THIỆU */}
-          {/* ============================= */}
+          {/* bên trái: lời giới thiệu */}
           <section className="auth-modern-story">
             <p className="auth-modern-kicker">
               {isRegister ? "THAM GIA MIỄN PHÍ" : "TRAVEL MINT"}
@@ -122,24 +117,8 @@ export default function AuthPage({ mode }) {
                 ? "Tạo tài khoản và bắt đầu khám phá những hành trình đáng nhớ cùng Travel Mint."
                 : "Từ một điểm đến yêu thích đến một chuyến đi đáng nhớ. Tiếp tục hành trình của bạn cùng Travel Mint."}
             </p>
-            {/* <div className="auth-modern-actions">
-              <Link
-                to="/#tours"
-                className="auth-modern-button auth-modern-button-outline"
-              >
-                Khám phá tour
-              </Link>
-              <Link
-                to="/recommendations"
-                className="auth-modern-button auth-modern-button-primary"
-              >
-                Tư vấn AI
-              </Link>
-            </div> */}
           </section>
-          {/* ============================= */}
-          {/* BÊN PHẢI - FORM */}
-          {/* ============================= */}
+          {/* bên phải: form */}
           <section
             className="auth-modern-card"
             aria-labelledby="auth-title"
@@ -156,7 +135,7 @@ export default function AuthPage({ mode }) {
                 ? "Điền thông tin bên dưới để bắt đầu hành trình của bạn."
                 : "Đăng nhập để tiếp tục với tài khoản Travel Mint."}
             </p>
-            {/* Đang kiểm tra phiên thì hiện chữ chờ, xong thì hiện form */}
+            {/* đang kiểm tra phiên thì hiện chữ chờ, xong mới hiện form */}
             {status === "loading" ? (
               <p role="status">Đang kiểm tra phiên đăng nhập…</p>
             ) : (
@@ -181,9 +160,9 @@ export default function AuthPage({ mode }) {
                   className="auth-form auth-modern-form"
                   onSubmit={submit}
                 >
-                  {/* Khóa toàn bộ ô nhập khi đang gửi */}
+                  {/* đang gửi thì khóa hết ô nhập */}
                   <fieldset disabled={pending}>
-                    {/* Ô họ tên chỉ có ở trang đăng ký */}
+                    {/* họ tên chỉ có ở đăng ký */}
                     {isRegister && (
                       <label htmlFor="full-name">
                         Họ và tên
@@ -252,7 +231,7 @@ export default function AuthPage({ mode }) {
                         Dùng ít nhất 10 ký tự.
                       </p>
                     )}
-                    {/* Ô nhập lại mật khẩu chỉ có ở trang đăng ký */}
+                    {/* nhập lại mật khẩu cũng chỉ có ở đăng ký */}
                     {isRegister && (
                       <label htmlFor="confirm-password">
                         Nhập lại mật khẩu
@@ -299,7 +278,7 @@ export default function AuthPage({ mode }) {
                 </form>
               </>
             )}
-            {/* Link chuyển qua lại giữa đăng nhập và đăng ký, giữ nguyên trang đích */}
+            {/* chuyển qua lại đăng nhập/đăng ký mà vẫn giữ trang đích */}
             <p className="auth-switch auth-modern-switch">
               {isRegister
                 ? "Đã có tài khoản? ": "Chưa có tài khoản? "}

@@ -1,4 +1,4 @@
-// API admin quản lý bài viết blog: xem, tạo, sửa, xóa. Mọi thao tác ghi đều lưu nhật ký.
+// Admin quản lý bài blog. Thao tác ghi nào cũng vào nhật ký.
 import { Router } from 'express';
 import pool from '../db/pool.js';
 import { withTransaction } from '../db/transaction.js';
@@ -6,11 +6,11 @@ import { requireCsrf } from '../middleware/csrf.js';
 import { audit, check, handle, integer, text } from '../services/adminCommon.js';
 import { BLOG_CATEGORIES } from './blogRoutes.js';
 
-const router = Router(); // Được mount sau requireAuth + requireAdmin của adminRoutes.
+const router = Router(); // adminRoutes đã chặn người không phải admin từ trước
 const PAGE_SIZE = 15;
 const STATUSES = ['draft', 'published', 'archived'];
 
-// GET /posts: danh sách bài cho admin, lọc theo trạng thái và từ khóa.
+// GET /posts
 router.get('/posts', handle(async (req, res) => {
   const page = req.query.page || '1', status = String(req.query.status || ''), q = String(req.query.q || '').trim();
   check(integer(page, 1, 1000000) && q.length <= 100 && (!status || STATUSES.includes(status)), 'Bộ lọc bài viết chưa hợp lệ.');
@@ -31,7 +31,7 @@ router.get('/posts', handle(async (req, res) => {
   } });
 }));
 
-// GET /posts/:id: đầy đủ một bài để mở trong trình soạn thảo.
+// GET /posts/:id: cả nội dung, để mở trong trình soạn
 router.get('/posts/:id', handle(async (req, res) => {
   check(integer(req.params.id), 'ID bài viết chưa hợp lệ.');
   const post = (await pool.query('SELECT * FROM blog_posts WHERE id = $1', [req.params.id])).rows[0];
@@ -39,7 +39,7 @@ router.get('/posts/:id', handle(async (req, res) => {
   res.json({ data: post });
 }));
 
-// Kiểm tra và chuẩn hóa dữ liệu bài viết gửi lên.
+// kiểm tra dữ liệu bài viết, sai chỗ nào là báo 400
 function postInput(body) {
   check(body && typeof body === 'object', 'Dữ liệu bài viết chưa hợp lệ.');
   const title = text(body.title, 5, 200, 'Tiêu đề');
@@ -51,7 +51,7 @@ function postInput(body) {
   check(STATUSES.includes(body.status), 'Trạng thái bài viết chưa hợp lệ.');
   const author = text(body.author_name || 'Travel Mint', 2, 100, 'Tên tác giả');
   check(Array.isArray(body.tags) && body.tags.length <= 10 && body.tags.every((t) => typeof t === 'string' && t.trim().length > 0 && t.length <= 30), 'Tối đa 10 tag, mỗi tag tối đa 30 ký tự.');
-  // Ảnh bìa: để trống, ảnh có sẵn trong /images/ hoặc link https.
+  // ảnh bìa: trống, ảnh trong /images/ hoặc link https
   const cover = typeof body.cover_image === 'string' ? body.cover_image.trim() : '';
   if (cover && !/^\/images\/[\w./-]+$/.test(cover)) {
     let url; try { url = new URL(cover); } catch { /* báo lỗi ở dòng dưới */ }
@@ -60,7 +60,7 @@ function postInput(body) {
   check(!cover.includes('..'), 'Đường dẫn ảnh bìa chưa hợp lệ.');
   const destination = body.destination_id === '' || body.destination_id == null ? null : body.destination_id;
   check(destination === null || integer(destination), 'Điểm đến chưa hợp lệ.');
-  // Ngày đăng: bỏ trống là đăng ngay; ngày tương lai là hẹn giờ.
+  // bỏ trống là đăng ngay, ngày tương lai là hẹn giờ
   let publishedAt = null;
   if (body.published_at) {
     const parsed = new Date(body.published_at);
@@ -74,7 +74,7 @@ function postInput(body) {
   };
 }
 
-// POST /posts: tạo bài mới.
+// POST /posts
 router.post('/posts', requireCsrf, handle(async (req, res) => {
   const p = postInput(req.body);
   const row = await withTransaction(async (client) => {
@@ -88,7 +88,7 @@ router.post('/posts', requireCsrf, handle(async (req, res) => {
   res.status(201).json({ data: row });
 }));
 
-// POST /posts/:id/update: sửa bài. Đăng lại bài cũ thì giữ nguyên ngày đăng ban đầu.
+// POST /posts/:id/update. Đăng lại bài cũ thì giữ ngày đăng ban đầu.
 router.post('/posts/:id/update', requireCsrf, handle(async (req, res) => {
   check(integer(req.params.id), 'ID bài viết chưa hợp lệ.');
   const p = postInput(req.body);
@@ -104,7 +104,7 @@ router.post('/posts/:id/update', requireCsrf, handle(async (req, res) => {
   res.json({ data: row });
 }));
 
-// POST /posts/:id/delete: xóa hẳn bài viết (nhật ký vẫn giữ lại tiêu đề của bài).
+// POST /posts/:id/delete. Xóa hẳn, nhưng nhật ký vẫn giữ tiêu đề bài.
 router.post('/posts/:id/delete', requireCsrf, handle(async (req, res) => {
   check(integer(req.params.id), 'ID bài viết chưa hợp lệ.');
   const row = await withTransaction(async (client) => {

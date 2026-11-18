@@ -1,14 +1,12 @@
-// Bộ sưu tập ảnh ở trang chi tiết tour:
-// - Ảnh lớn (đổi ảnh có hiệu ứng mờ dần), nút trước/sau, số thứ tự ảnh.
-// - Hàng ảnh nhỏ bên dưới để chọn nhanh.
-// - Bấm ảnh lớn để xem toàn màn hình (lightbox): phím ← → để chuyển, Esc để đóng.
-// - Ảnh có tác giả thì hiện dòng ghi công (bắt buộc với giấy phép CC BY / CC BY-SA).
+// Bộ ảnh ở trang chi tiết tour: ảnh lớn (đổi ảnh mờ dần), nút trước/sau, hàng ảnh nhỏ để chọn nhanh.
+// Bấm ảnh lớn thì mở toàn màn hình (lightbox), dùng phím ← → để chuyển, Esc để đóng.
+// Ảnh có tác giả thì ghi công bên dưới, giấy phép CC BY và CC BY-SA bắt buộc vậy.
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { imagesFor } from "../data/destinationImages.js";
 
 export default function TourGallery({ tour }) {
-  // Ảnh riêng của tour (image_url) đứng đầu, sau đó là ảnh theo điểm đến.
+  // ảnh riêng của tour (image_url) đứng đầu, sau đó tới ảnh theo điểm đến
   const destination = imagesFor(tour.destination);
   const photos = tour.image_url
     ? [{ src: tour.image_url }, ...destination.gallery]
@@ -21,11 +19,11 @@ export default function TourGallery({ tour }) {
   const current = photos[index];
   const many = photos.length > 1;
 
-  // Chuyển ảnh, quay vòng khi tới đầu/cuối danh sách.
+  // tới đầu hoặc cuối thì quay vòng
   const go = (step) => setIndex((value) => (value + step + photos.length) % photos.length);
 
-  // Khi mở lightbox: khóa cuộn trang, đưa focus vào nút đóng, bắt phím tắt.
-  // Khi đóng: mở lại cuộn trang và trả focus về ảnh đã bấm.
+  // mở lightbox: khóa cuộn trang, focus vào nút đóng, bắt phím tắt.
+  // đóng: mở lại cuộn trang và trả focus về ảnh đã bấm
   useEffect(() => {
     if (!open) return;
     const opener = openerRef.current;
@@ -43,7 +41,7 @@ export default function TourGallery({ tour }) {
       document.removeEventListener("keydown", onKey);
       opener?.focus();
     };
-    // go chỉ đổi state qua hàm cập nhật nên không cần nằm trong danh sách phụ thuộc.
+    // go chỉ đổi state bằng hàm cập nhật nên không cần đưa vào deps
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
@@ -56,7 +54,7 @@ export default function TourGallery({ tour }) {
   return (
     <div className="tour-gallery">
       <div className="gallery-main tour-picture">
-        {/* Xếp chồng mọi ảnh, chỉ ảnh đang chọn hiện rõ: đổi ảnh sẽ mờ dần mượt */}
+        {/* xếp chồng mọi ảnh, chỉ ảnh đang chọn hiện rõ nên đổi ảnh thì mờ dần */}
         <button
           type="button"
           className="gallery-open"
@@ -86,7 +84,6 @@ export default function TourGallery({ tour }) {
       </div>
       {credit}
 
-      {/* Hàng ảnh nhỏ */}
       {many && (
         <div className="gallery-thumbs" role="group" aria-label="Chọn ảnh">
           {photos.map((photo, i) => (
@@ -108,7 +105,7 @@ export default function TourGallery({ tour }) {
           màn hình, không bị khung của các phần tử cha (có hiệu ứng) giới hạn. */}
       {open && createPortal(
         <div className="lightbox" role="dialog" aria-modal="true" aria-label={`Ảnh ${tour.title}`} onClick={() => setOpen(false)}>
-          {/* Bấm vào vùng tối bên ngoài để đóng; bấm vào ảnh hoặc nút thì không đóng */}
+          {/* bấm vùng tối bên ngoài thì đóng, bấm vào ảnh hay nút thì không */}
           <figure className="lightbox-figure" onClick={(event) => event.stopPropagation()}>
             <img key={current.src} src={current.src} alt={`${tour.title}, ảnh ${index + 1}`} />
             <figcaption>

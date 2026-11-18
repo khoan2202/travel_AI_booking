@@ -1,4 +1,4 @@
-// Trang quản lý blog (/admin/blog): danh sách bài viết, lọc theo trạng thái, tìm kiếm.
+// Quản lý blog: danh sách bài, lọc theo trạng thái, tìm kiếm.
 import { useCallback, useState } from "react";
 import { Link } from "react-router";
 import Header from "../components/Header.jsx";
@@ -9,7 +9,7 @@ import useLoad from "../hooks/useLoad.js";
 import { getAdminPosts } from "../services/adminApi.js";
 import { BLOG_CATEGORIES, DEFAULT_COVER, POST_STATUSES, formatDateTime } from "../utils/blog.js";
 
-// Màu nhãn theo trạng thái; bài đã đăng nhưng chưa tới giờ hiện là "Hẹn giờ".
+// bài đã đăng mà chưa tới giờ thì hiện "Hẹn giờ"
 function statusPill(post) {
   if (post.scheduled) return <span className="pill pill-warn">Hẹn giờ</span>;
   return <span className={`pill ${post.status === "published" ? "pill-good" : "pill-muted"}`}>{POST_STATUSES[post.status]}</span>;
