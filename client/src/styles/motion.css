@@ -35,6 +35,8 @@ main { animation: page-in .65s var(--ease-out) backwards; }
   transition: clip-path 1.3s var(--ease-out), scale 1.6s var(--ease-out);
 }
 .about-art.reveal { translate: none; }
+/* Ảnh đang phóng to (chờ hiệu ứng) không được làm trang rộng ra, nếu không điện thoại bị tràn ngang */
+.about-art { overflow: clip; }
 .about-art.reveal img { clip-path: inset(14% 10% 14% 10% round 10px); scale: 1.18; }
 .about-art.reveal.is-visible img { clip-path: inset(0 round 0); scale: 1; }
 

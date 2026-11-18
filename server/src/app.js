@@ -15,6 +15,7 @@ import adminRoutes from "./routes/adminRoutes.js";
 import recommendationRoutes from "./routes/recommendationRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import supportRoutes from "./routes/supportRoutes.js";
+import blogRoutes from "./routes/blogRoutes.js";
 import swaggerUi from "swagger-ui-express";
 import openapi from "./docs/openapi.js";
 
@@ -77,6 +78,8 @@ export function createApp() {
     }),
   );
 
+  // Bài viết blog dài hơn các form khác nên được nhận tối đa 256KB, chỉ riêng đường dẫn này.
+  app.use("/api/admin/posts", express.json({ limit: "256kb" }));
   // Đọc body JSON của request, giới hạn 32KB để chống gửi dữ liệu quá lớn.
   app.use(express.json({ limit: "32kb" }));
   // Gắn session (phiên đăng nhập lưu trong PostgreSQL) vào mọi request.
@@ -105,6 +108,7 @@ export function createApp() {
   app.use("/api/bookings", bookingRoutes);
   app.use("/api/recommendations", recommendationRoutes);
   app.use("/api/support", supportRoutes);
+  app.use("/api/blog", blogRoutes);
   // Tài liệu API: /api-docs.json (dạng JSON) và /api-docs (giao diện Swagger).
   app.get("/api-docs.json", (req, res) => {
   res.json(openapi);

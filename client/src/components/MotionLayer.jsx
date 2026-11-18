@@ -14,7 +14,7 @@ const REVEAL_SELECTOR = [
   ".travel-callout", ".detail-title", ".tour-facts > div", ".tour-overview", ".detail-help",
   ".departure-panel", ".suggestion-card", ".ai-filter", ".ai-chat", ".booking-list-card",
   ".booking-receipt", ".account-card", ".admin-metrics > article", ".contact-heading",
-  ".contact-intro", ".contact-form", ".destination-tile",
+  ".contact-intro", ".contact-form", ".destination-tile", ".blog-card", ".blog-featured", ".admin-panel", ".home-blog-lead", ".home-blog-item",
 ].join(",");
 
 // Chu vi vòng tròn tiến độ (bán kính 20).

@@ -26,6 +26,18 @@ router.get('/bookings', handle(async(req,res) => {
   ]);
   res.json({data:{items:rows.rows,total:count.rows[0].total,page:Number(page),total_pages:Math.max(1,Math.ceil(count.rows[0].total/20))}});
 }));
+// GET /bookings/export: toàn bộ đơn khớp bộ lọc (tối đa 5000) để xuất file CSV.
+// Phải đặt trước /bookings/:id để chữ "export" không bị hiểu là ID đơn.
+router.get('/bookings/export',handle(async(req,res)=>{
+  const status=req.query.status||'',payment=req.query.payment||'',q=String(req.query.q||'').trim();
+  check(q.length<=100&&['','confirmed','cancelled'].includes(status)&&['','unpaid','paid','refunded'].includes(payment),'Bộ lọc đơn chưa hợp lệ.');
+  const rows=await pool.query(`SELECT b.id,b.contact_name,b.contact_email,b.contact_phone,b.tour_title,to_char(b.departure_date,'YYYY-MM-DD') AS departure_date,
+      b.guest_count,b.total_price,b.status,b.payment_status,b.created_at FROM bookings b
+    WHERE ($1='' OR b.status=$1) AND ($2='' OR b.payment_status=$2)
+      AND (b.contact_name ILIKE $3 OR b.contact_email ILIKE $3 OR b.tour_title ILIKE $3 OR ('TM'||lpad(b.id::text,6,'0')) ILIKE $3)
+    ORDER BY b.id DESC LIMIT 5000`,[status,payment,`%${q}%`]);
+  res.json({data:rows.rows});
+}));
 // GET /bookings/:id: chi tiết đơn, lịch sử thanh toán và nhật ký thao tác admin.
 router.get('/bookings/:id',handle(async(req,res)=>{
   check(integer(req.params.id),'ID đơn chưa hợp lệ.');

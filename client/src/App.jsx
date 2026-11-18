@@ -28,16 +28,28 @@ import "./styles/gallery.css";
 // Quiz, so sánh tour, trang nguồn ảnh.
 import "./styles/quiz.css";
 import "./styles/compare.css";
+// Blog và các màn hình quản trị mở rộng.
+import "./styles/blog.css";
+import "./styles/admin-pro.css";
 // Hiệu ứng chuyển động: import sau cùng để ghi đè style ở trên khi cần.
 import "./styles/motion.css";
 // Banner 3D: sau motion.css vì có ghi đè vài thuộc tính của banner.
 import "./styles/hero3d.css";
+// Giao diện tối: import sau cùng để ghi đè màu của mọi file ở trên.
+import "./styles/theme.css";
 import MotionLayer from "./components/MotionLayer.jsx";
 import CompareProvider from "./context/CompareProvider.jsx";
 import CompareTray from "./components/CompareTray.jsx";
 import QuizPage from "./pages/QuizPage.jsx";
 import ComparePage from "./pages/ComparePage.jsx";
 import CreditsPage from "./pages/CreditsPage.jsx";
+import BlogPage from "./pages/BlogPage.jsx";
+import BlogPostPage from "./pages/BlogPostPage.jsx";
+import AdminBlogPage from "./pages/AdminBlogPage.jsx";
+import AdminBlogEditorPage from "./pages/AdminBlogEditorPage.jsx";
+import AdminUsersPage from "./pages/AdminUsersPage.jsx";
+import AdminSupportPage from "./pages/AdminSupportPage.jsx";
+import AdminActivityPage from "./pages/AdminActivityPage.jsx";
 
 // BrowserRouter: quản lý URL. AuthProvider: chia sẻ trạng thái đăng nhập cho mọi trang.
 // CompareProvider: danh sách tour đang chọn để so sánh; CompareTray: khay so sánh nổi ở cuối màn hình.
@@ -49,6 +61,9 @@ export default function App() {
     <Route path="/quiz" element={<QuizPage />} />
     <Route path="/compare" element={<ComparePage />} />
     <Route path="/credits" element={<CreditsPage />} />
+    {/* Blog: ai cũng đọc được */}
+    <Route path="/blog" element={<BlogPage />} />
+    <Route path="/blog/:slug" element={<BlogPostPage />} />
     {/* Trang công khai: trang chủ, gợi ý tour, chi tiết tour */}
     <Route path="/" element={<HomePage />} />
     <Route path="/recommendations" element={<RecommendationPage />} />
@@ -62,6 +77,12 @@ export default function App() {
     <Route path="/admin/tours" element={<ProtectedRoute adminOnly><AdminToursPage /></ProtectedRoute>} />
     <Route path="/admin/bookings" element={<ProtectedRoute adminOnly><AdminBookingsPage /></ProtectedRoute>} />
     <Route path="/admin/bookings/:id" element={<ProtectedRoute adminOnly><AdminBookingDetailPage /></ProtectedRoute>} />
+    <Route path="/admin/blog" element={<ProtectedRoute adminOnly><AdminBlogPage /></ProtectedRoute>} />
+    <Route path="/admin/blog/new" element={<ProtectedRoute adminOnly><AdminBlogEditorPage /></ProtectedRoute>} />
+    <Route path="/admin/blog/:id" element={<ProtectedRoute adminOnly><AdminBlogEditorPage /></ProtectedRoute>} />
+    <Route path="/admin/users" element={<ProtectedRoute adminOnly><AdminUsersPage /></ProtectedRoute>} />
+    <Route path="/admin/support" element={<ProtectedRoute adminOnly><AdminSupportPage /></ProtectedRoute>} />
+    <Route path="/admin/activity" element={<ProtectedRoute adminOnly><AdminActivityPage /></ProtectedRoute>} />
     {/* Trang Liên hệ: ai cũng gửi được */}
     <Route path="/contact" element={<ContactPage />} />
     {/* Đặt tour và xem đơn của tôi: cần đăng nhập */}

@@ -35,6 +35,8 @@ export function handle(fn) {
       // Đổi mã lỗi PostgreSQL thành thông báo cho người dùng:
       // 23505 trùng dữ liệu UNIQUE; 23503/23514/22003 sai khóa ngoại, vi phạm CHECK hoặc số quá lớn;
       // 55P03/40P01/57014 đang bận (khóa, deadlock, quá giờ).
+      // 42P01: database chưa có bảng của chức năng này (chưa chạy file SQL mới).
+      if (error.code === '42P01') return res.status(503).json({ message: 'Database chưa có bảng cho chức năng này. Hãy chạy file SQL mới nhất trong server/sql.' });
       if (error.code === '23505') return res.status(409).json({ message: 'Slug hoặc ngày khởi hành đã tồn tại. Hãy kiểm tra lại.' });
       if (['23503', '23514', '22003'].includes(error.code)) return res.status(400).json({ message: 'Dữ liệu tham chiếu hoặc giá trị chưa hợp lệ.' });
       if (['55P03', '40P01', '57014'].includes(error.code)) return res.status(503).json({ message: 'Dữ liệu đang được cập nhật. Vui lòng thử lại.' });
