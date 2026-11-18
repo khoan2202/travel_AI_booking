@@ -1,9 +1,8 @@
-/* Hiệu ứng chuyển động và tinh chỉnh UI/UX cho toàn website.
-   File này được import SAU CÙNG trong App.jsx để ghi đè style cũ khi cần.
-   Toàn bộ hiệu ứng tự tắt khi người dùng bật "giảm chuyển động" (cuối file). */
+/* Hiệu ứng chuyển động cho cả web. Import gần cuối App.jsx để ghi đè style cũ khi cần.
+   Ai bật "giảm chuyển động" thì tắt hết (xem cuối file). */
 
 :root {
-  /* Đường cong chuyển động: ra nhanh, dừng êm. Dùng chung để mọi hiệu ứng có cùng "nhịp". */
+  /* đường cong chung cho mọi hiệu ứng: ra nhanh, dừng êm */
   --ease-out: cubic-bezier(.22, 1, .36, 1);
   --ease-soft: cubic-bezier(.4, 0, .2, 1);
   --mint-glow: rgb(0 255 195 / 45%);
@@ -11,16 +10,15 @@
 
 ::selection { background: var(--primary); color: #0f2f26; }
 
-/* ========== 1. Chuyển trang: nội dung chính trượt lên và hiện dần ========== */
-/* "backwards": chỉ giữ trạng thái đầu trong lúc chờ chạy; chạy xong thì bỏ hẳn hiệu ứng,
-   để main không thành khung neo cho các phần tử position: fixed bên trong (như lightbox). */
+/* Chuyển trang: nội dung chính trượt lên và hiện dần */
+/* dùng "backwards" để chạy xong là bỏ hẳn hiệu ứng, kẻo main thành khung neo cho phần tử position: fixed bên trong (như lightbox) */
 main { animation: page-in .65s var(--ease-out) backwards; }
 @keyframes page-in {
   from { opacity: 0; translate: 0 14px; }
   to { opacity: 1; translate: none; }
 }
 
-/* ========== 2. Hiện dần khi cuộn tới (class do MotionLayer.jsx gắn) ========== */
+/* Hiện dần khi cuộn tới (class do MotionLayer.jsx gắn) */
 .reveal {
   opacity: 0;
   translate: 0 28px;
@@ -40,7 +38,7 @@ main { animation: page-in .65s var(--ease-out) backwards; }
 .about-art.reveal img { clip-path: inset(14% 10% 14% 10% round 10px); scale: 1.18; }
 .about-art.reveal.is-visible img { clip-path: inset(0 round 0); scale: 1; }
 
-/* ========== 3. Header: nền kính mờ khi cuộn, gạch chân chạy từ giữa ra ========== */
+/* Header: nền kính mờ khi cuộn, gạch chân chạy từ giữa ra */
 .site-header { transition: background-color .4s var(--ease-soft), box-shadow .4s var(--ease-soft); }
 .is-scrolled .site-header {
   background: rgb(28 30 29 / 82%);
@@ -86,7 +84,7 @@ main { animation: page-in .65s var(--ease-out) backwards; }
   to { opacity: 1; translate: none; }
 }
 
-/* ========== 4. Nút bấm: nổi lên, phát sáng, vệt sáng lướt qua ========== */
+/* Nút bấm: nổi lên, phát sáng, vệt sáng lướt qua */
 .button {
   position: relative;
   overflow: hidden;
@@ -126,7 +124,7 @@ input, select, textarea { transition: border-color .25s, box-shadow .25s, backgr
   box-shadow: 0 0 0 4px rgb(0 255 195 / 16%);
 }
 
-/* ========== 5. Banner trang chủ ========== */
+/* Banner trang chủ */
 .hero { overflow: hidden; background: #0d2420; min-height: min(640px, 82vh); }
 .hero-slides { position: absolute; inset: 0; }
 .hero-slide {
@@ -226,7 +224,7 @@ input, select, textarea { transition: border-color .25s, box-shadow .25s, backgr
   border-color: transparent transparent transparent currentColor;
 }
 
-/* ========== 6. Tiêu đề mục: dòng kẻ nhỏ trước chữ kicker ========== */
+/* Tiêu đề mục: dòng kẻ nhỏ trước chữ kicker */
 .section-heading .section-kicker, .about-content .section-kicker,
 .tour-overview .section-kicker, .ai-chat .section-kicker {
   display: flex;
@@ -242,7 +240,7 @@ input, select, textarea { transition: border-color .25s, box-shadow .25s, backgr
   background: linear-gradient(90deg, #00795c, var(--primary));
 }
 
-/* ========== 7. Thẻ tour: nổi lên, ảnh zoom chậm, vệt sáng theo con trỏ ========== */
+/* Thẻ tour: nổi lên, ảnh zoom chậm, vệt sáng theo con trỏ */
 .tour-card, .suggestion-card {
   position: relative;
   transition: transform .5s var(--ease-out), box-shadow .5s var(--ease-out), border-color .4s;
@@ -301,7 +299,7 @@ input, select, textarea { transition: border-color .25s, box-shadow .25s, backgr
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
 
-/* ========== 8. Các khối khác ========== */
+/* Các khối khác */
 /* Khung kêu gọi cuối trang: nền chuyển màu rất chậm */
 .travel-callout {
   background: linear-gradient(120deg, #e3fbf2, #f2fffa, #dff6f6, #e9fbf3) 0 50% / 300% 300%;
@@ -343,7 +341,7 @@ input, select, textarea { transition: border-color .25s, box-shadow .25s, backgr
 /* Tin nhắn chat AI xuất hiện lần lượt */
 .ai-message { animation: rise-in .5s var(--ease-out) both; }
 
-/* ========== 9. Nút lên đầu trang (có vòng tiến độ cuộn) ========== */
+/* Nút lên đầu trang (có vòng tiến độ cuộn) */
 .to-top {
   position: fixed;
   right: 22px;
@@ -374,7 +372,7 @@ input, select, textarea { transition: border-color .25s, box-shadow .25s, backgr
 .to-top:hover span { translate: 0 -3px; }
 @media (max-width: 640px) { .to-top { right: 14px; bottom: 14px; width: 46px; height: 46px; } }
 
-/* ========== 10. Tôn trọng cài đặt "giảm chuyển động" của người dùng ========== */
+/* Tôn trọng cài đặt "giảm chuyển động" của người dùng */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: .01ms !important;

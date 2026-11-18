@@ -1,4 +1,4 @@
-// Gửi form Liên hệ lên server.
+// Gửi form Liên hệ.
 import { postAuth } from "./authApi.js";
 
 export function sendSupportRequest(form) {

@@ -1,14 +1,14 @@
-// Trả chi tiết một tour và các lịch khởi hành của tour đó (trang chi tiết tour).
+// Chi tiết một tour và các lịch khởi hành của nó.
 import pool from "../db/pool.js";
 
-// Cột id hiện dùng INTEGER của PostgreSQL: 1 đến 2147483647.
+// id là INTEGER của Postgres nên tối đa 2147483647
 function parseTourId(value) {
   if (!/^\d+$/.test(value)) return null;
   const id = Number(value);
   return Number.isInteger(id) && id > 0 && id <= 2147483647 ? id : null;
 }
 
-// GET /api/tours/:id: thông tin tour đang mở bán, kèm giá thấp nhất còn đặt được.
+// GET /api/tours/:id
 export async function getTourById(req, res, next) {
   const id = parseTourId(req.params.id);
   if (id === null) {
@@ -45,7 +45,7 @@ export async function getTourById(req, res, next) {
   }
 }
 
-// GET /api/tours/:id/departures: các lịch đi còn nhận đặt, kèm số chỗ còn trống.
+// GET /api/tours/:id/departures: lịch còn nhận đặt kèm số chỗ trống
 export async function getTourDepartures(req, res, next) {
   const id = parseTourId(req.params.id);
   if (id === null) {
@@ -53,7 +53,7 @@ export async function getTourDepartures(req, res, next) {
   }
 
   try {
-    // Phân biệt tour không tồn tại với tour còn tồn tại nhưng chưa có lịch đi.
+    // tour không tồn tại khác với tour có nhưng chưa có lịch
     const tour = await pool.query(
       "SELECT id FROM tours WHERE id = $1 AND status = 'active'",
       [id]
@@ -79,7 +79,7 @@ export async function getTourDepartures(req, res, next) {
       ORDER BY td.start_date ASC, td.id ASC
     `, [id]);
 
-    // Giá và chỗ là dữ liệu thay đổi: lần kiểm tra sau phải đọc lại.
+    // giá và chỗ đổi liên tục nên không cho cache
     res.set("Cache-Control", "no-store");
     res.json({
       message: "Lấy lịch khởi hành thành công",

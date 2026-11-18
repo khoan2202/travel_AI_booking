@@ -1,11 +1,9 @@
-// Lớp bưu thiếp 3D lơ lửng trong banner trang chủ.
-// - Mỗi tấm có vị trí, độ sâu (trục Z) và góc nghiêng riêng, tự trôi nhẹ lên xuống.
-// - Cả cụm nghiêng theo chuột: Hero.jsx ghi biến CSS --tx, --ty (từ -1 đến 1) lên thẻ <section>.
-// - Bấm một tấm để lọc danh sách tour theo điểm đến đó.
-// Ảnh bưu thiếp là bản thu nhỏ (WebP 420px) của ảnh trong /images/destinations/, nguồn ảnh xem trang /credits.
+// Mấy tấm bưu thiếp 3D lơ lửng trong banner. Mỗi tấm có vị trí, độ sâu và góc nghiêng riêng, tự trôi nhẹ lên xuống.
+// Cả cụm nghiêng theo chuột nhờ biến CSS --tx, --ty mà Hero.jsx ghi lên thẻ <section>.
+// Bấm một tấm thì lọc tour theo điểm đến đó. Ảnh là bản thu nhỏ (WebP 420px) của ảnh trong /images/destinations/, nguồn ở /credits.
 
-// x, y: vị trí theo % khung banner; z: độ sâu (px, số dương là gần người xem hơn);
-// r: góc xoay; w: chiều rộng; dur, delay: nhịp trôi; hideSm: ẩn ở màn hình vừa cho đỡ rối.
+// x, y: vị trí theo % banner; z: độ sâu (dương là gần mắt hơn); r: góc xoay; w: rộng;
+// dur, delay: nhịp trôi; hideSm: ẩn ở màn hình vừa cho đỡ rối
 const POSTCARDS = [
   { name: "Hội An", img: "hoi-an", x: 13, y: 33, z: 70, r: -8, w: 196, dur: 7, delay: 0 },
   { name: "Hà Giang", img: "ha-giang", x: 87, y: 27, z: 30, r: 7, w: 176, dur: 8.5, delay: -2 },
@@ -32,7 +30,7 @@ export default function HeroPostcards({ onPick }) {
             aria-label={`Xem các tour ${card.name}`}
             tabIndex={onPick ? 0 : -1}
           >
-            {/* Lớp trôi tách riêng để chuyển động trôi không đè lên vị trí và góc nghiêng */}
+            {/* lớp trôi tách riêng để chuyển động không đè lên vị trí và góc nghiêng */}
             <span className="postcard-float">
               <span className="postcard-photo">
                 <img src={`/images/postcards/${card.img}.webp`} alt="" width="420" height="315" decoding="async" />

@@ -1,4 +1,4 @@
-// Trang chi tiết tour (/tours/:id): thông tin tour và khung chọn lịch khởi hành.
+// Chi tiết tour: ảnh, mô tả và khung chọn lịch khởi hành.
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import Header from "../components/Header.jsx";
@@ -8,19 +8,18 @@ import CompareToggle from "../components/CompareToggle.jsx";
 import DeparturePicker from "../components/DeparturePicker.jsx";
 import { getTourById, getTourDepartures } from "../services/tourApi.js";
 
-// Nội dung chính của trang.
 function TourDetailContent({ id }) {
   const [tour, setTour] = useState(null);
   const [departures, setDepartures] = useState([]);
-  // status: "loading" | "success" | "not-found" | "error".
+  // status: loading, success, not-found hoặc error
   const [status, setStatus] = useState("loading");
   const [error, setError] = useState("");
   const [retryCount, setRetryCount] = useState(0);
 
-  // Tải song song thông tin tour và các lịch khởi hành.
+  // tour và lịch tải cùng lúc
   useEffect(() => {
     const controller = new AbortController();
-    // active = false khi rời trang, để không cập nhật state của trang đã đóng.
+    // rời trang rồi thì không cập nhật state nữa
     let active = true;
 
     async function loadDetail() {
@@ -55,7 +54,7 @@ function TourDetailContent({ id }) {
     setRetryCount((count) => count + 1);
   }
 
-  // Chưa tải xong hoặc có lỗi: hiện trạng thái tương ứng.
+  // chưa xong hoặc lỗi thì hiện trạng thái tương ứng
   if (status !== "success") {
     return (
       <main className="container detail-state" id="main-content">
@@ -71,10 +70,8 @@ function TourDetailContent({ id }) {
     );
   }
 
-  // Tải xong: hiện chi tiết tour.
   return (
     <main className="container tour-detail-page" id="main-content">
-      {/* Đường dẫn: Trang chủ / Tour du lịch / Tên điểm đến */}
       <nav className="breadcrumbs" aria-label="Đường dẫn trang">
         <Link to="/">Trang chủ</Link><span aria-hidden="true">/</span>
         <Link to="/#tours">Tour du lịch</Link><span aria-hidden="true">/</span>
@@ -84,13 +81,11 @@ function TourDetailContent({ id }) {
         <p className="section-kicker">{tour.region} · {tour.destination}</p>
         <h1>{tour.title}</h1>
         <p>{tour.duration_days} ngày <span aria-hidden="true">·</span> Khởi hành từ {tour.departure_location}</p>
-        {/* Thêm tour này vào danh sách so sánh */}
         <CompareToggle tour={tour} className="on-detail" />
       </div>
-      {/* Bố cục 2 cột: trái là ảnh và mô tả, phải là khung chọn lịch đi */}
+      {/* hai cột: trái ảnh và mô tả, phải chọn lịch đi */}
       <div className="tour-detail-layout">
         <div className="tour-main-column">
-          {/* Bộ sưu tập ảnh: ảnh lớn, hàng ảnh nhỏ và xem toàn màn hình */}
           <TourGallery key={tour.id} tour={tour} />
           <div className="tour-facts">
             <div><span>Điểm đến</span><strong>{tour.destination}</strong></div>
@@ -105,7 +100,7 @@ function TourDetailContent({ id }) {
           </section>
           <div className="detail-help"><h3>Lên kế hoạch cho chuyến đi</h3><p>Chọn lịch khởi hành còn chỗ và số người để xem chi phí dự kiến. Mỗi đợt khởi hành có thể có mức giá khác nhau.</p><Link to="/#tours">Khám phá các tour khác <span aria-hidden="true">→</span></Link></div>
         </div>
-        {/* Khung chọn lịch đi và số người (xem components/DeparturePicker.jsx) */}
+        {/* chọn lịch và số người, xem components/DeparturePicker.jsx */}
         <DeparturePicker key={tour.id} tourId={tour.id} initialDepartures={departures} />
       </div>
     </main>
@@ -114,7 +109,7 @@ function TourDetailContent({ id }) {
 
 export default function TourDetailPage() {
   const { id } = useParams();
-  // Đổi tour sẽ tạo một component mới, tránh giữ lựa chọn của tour trước.
+  // key theo id để sang tour khác thì không giữ lại lựa chọn của tour trước
   return (
     <div id="top">
       <a href="#main-content" className="skip-link">Đến nội dung chính</a>

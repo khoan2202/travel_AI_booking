@@ -1,7 +1,7 @@
 /* CSS cho: nút "So sánh" trên thẻ tour, khay so sánh nổi, trang So sánh tour (/compare),
    trang Nguồn ảnh (/credits) và các link ở chân trang. */
 
-/* ========== Nút So sánh ========== */
+/* Nút So sánh */
 .compare-toggle {
   display: inline-flex;
   align-items: center;
@@ -40,7 +40,7 @@
 /* Trên trang chi tiết: nằm dưới tiêu đề */
 .compare-toggle.on-detail { margin-top: 16px; }
 
-/* ========== Khay so sánh nổi ========== */
+/* Khay so sánh nổi */
 .compare-tray {
   position: fixed;
   left: 50%;
@@ -109,7 +109,7 @@
 .has-compare-tray .to-top { bottom: 104px; }
 .has-compare-tray body { padding-bottom: 110px; }
 
-/* ========== Trang So sánh tour ========== */
+/* Trang So sánh tour */
 .compare-page, .credits-page { padding-block: 48px 30px; }
 .compare-page h1, .credits-page h1 { font-size: clamp(32px, 4vw, 44px); letter-spacing: -1px; }
 .compare-intro { max-width: 680px; margin-top: 12px; color: var(--muted); font-size: 14px; line-height: 1.8; }
@@ -163,7 +163,7 @@
   .compare-row:not(.compare-head):hover .compare-cell:not(.is-best) { background: #fafcfb; }
 }
 
-/* ========== Trang Nguồn ảnh ========== */
+/* Trang Nguồn ảnh */
 .credits-group { margin-top: 34px; }
 .credits-group h2 { font-size: 20px; margin-bottom: 14px; }
 .credits-group ul { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
@@ -174,7 +174,7 @@
 .credits-group strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--dark); }
 .credits-group small { color: var(--muted); }
 
-/* ========== Link ở chân trang ========== */
+/* Link ở chân trang */
 .footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 20px; margin: 4px 0 16px; font-size: 13px; }
 .footer-links a { color: #2f5e4f; transition: color .2s; }
 .footer-links a:hover { color: #00a07a; }

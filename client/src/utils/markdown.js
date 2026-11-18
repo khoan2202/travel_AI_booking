@@ -1,16 +1,15 @@
-// Đọc nội dung bài viết viết bằng Markdown đơn giản và chuyển thành danh sách khối.
-// Không dùng thư viện và không chèn HTML thô, nên nội dung bài viết không thể chạy mã độc.
-// Hỗ trợ: ## tiêu đề, ### tiêu đề nhỏ, - danh sách, 1. danh sách số, > trích dẫn,
-// ![mô tả](ảnh), --- đường kẻ, **đậm**, *nghiêng*, [chữ](link).
+// Tự đọc Markdown đơn giản thành các khối cho React vẽ. Không dùng thư viện và không bao giờ chèn HTML thô,
+// nên bài viết không thể nhét mã chạy vào trang.
+// Hiểu: ## và ### tiêu đề, - và 1. danh sách, > trích dẫn, ![mô tả](ảnh), ---, **đậm**, *nghiêng*, [chữ](link).
 import { slugify } from "./blog.js";
 
-// Chỉ cho phép link http(s) và link nội bộ. Chặn javascript: và //trang-la.com.
+// chỉ nhận http(s) và link nội bộ; javascript: và //trang-la.com thì chặn
 export function safeUrl(url) {
   const value = String(url).trim();
   return /^https?:\/\//i.test(value) || /^\/(?!\/)/.test(value) ? value : null;
 }
 
-// Tách một dòng chữ thành các đoạn: chữ thường, đậm, nghiêng, link.
+// tách một dòng thành đoạn: chữ thường, đậm, nghiêng, link
 export function parseInline(text) {
   const pattern = /\*\*([^*]+)\*\*|\*([^*\n]+)\*|\[([^\]]+)\]\(([^)\s]+)\)/g;
   const parts = [];
@@ -21,7 +20,7 @@ export function parseInline(text) {
     else if (match[2]) parts.push({ type: "em", text: match[2] });
     else {
       const href = safeUrl(match[4]);
-      // Link không an toàn thì chỉ giữ lại phần chữ.
+      // link không an toàn thì chỉ giữ chữ
       parts.push(href ? { type: "link", text: match[3], href } : { type: "text", text: match[3] });
     }
     last = match.index + match[0].length;
@@ -30,12 +29,12 @@ export function parseInline(text) {
   return parts;
 }
 
-// Chuyển toàn bộ bài viết thành danh sách khối để component hiển thị.
+// cả bài thành danh sách khối
 export function parseMarkdown(source) {
-  const lines = String(source).replace(/\r\n/g, "\n").split("\n");
+  const lines = String(source ?? "").replace(/\r\n/g, "\n").split("\n");
   const blocks = [];
   const usedIds = new Map();
-  // Tạo id cho tiêu đề; hai tiêu đề trùng tên thì thêm số phía sau.
+  // id cho tiêu đề, trùng tên thì thêm số phía sau
   const headingId = (text) => {
     const base = slugify(text) || "muc";
     const seen = usedIds.get(base) || 0;
@@ -61,7 +60,7 @@ export function parseMarkdown(source) {
       continue;
     }
 
-    // Các dòng liền nhau cùng loại được gom thành một khối.
+    // các dòng liền nhau cùng loại gom thành một khối
     const collect = (pattern) => {
       const items = [];
       while (i < lines.length && pattern.test(lines[i].trim())) {
@@ -74,13 +73,13 @@ export function parseMarkdown(source) {
     if (/^>\s?/.test(line)) { blocks.push({ type: "quote", text: collect(/^>\s?/).join(" ") }); continue; }
     if (/^[-*]\s+/.test(line)) { blocks.push({ type: "ul", items: collect(/^[-*]\s+/) }); continue; }
     if (/^\d+\.\s+/.test(line)) {
-      // Giữ số bắt đầu, vì danh sách có thể bị ngắt bởi tiêu đề rồi đánh số tiếp.
+      // giữ số bắt đầu, vì danh sách có thể bị tiêu đề ngắt giữa chừng rồi đánh số tiếp
       const start = Number(line.match(/^\d+/)[0]);
       blocks.push({ type: "ol", start, items: collect(/^\d+\.\s+/) });
       continue;
     }
 
-    // Còn lại là đoạn văn: gom các dòng cho tới khi gặp dòng trống hoặc khối khác.
+    // còn lại là đoạn văn, gom tới khi gặp dòng trống hoặc khối khác
     const paragraph = [line];
     while (i + 1 < lines.length) {
       const next = lines[i + 1].trim();

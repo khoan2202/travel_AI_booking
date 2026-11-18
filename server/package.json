@@ -1,16 +1,26 @@
 {
-  "name": "server",
+  "name": "travel-mint-server",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Backend REST API của Travel Mint: Express 5, PostgreSQL, session + CSRF, đặt tour an toàn khi nhiều người đặt cùng lúc.",
+  "main": "src/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node --watch src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "test": "node --test --test-concurrency=1 \"test/**/*.test.js\"",
+    "make-admin": "node scripts/make-admin.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "express",
+    "postgresql",
+    "rest-api",
+    "booking"
+  ],
+  "author": "Phùng Khắc Khoan",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/khoan2202/travel_AI_booking.git"
+  },
   "type": "module",
   "dependencies": {
     "bcryptjs": "^3.0.3",

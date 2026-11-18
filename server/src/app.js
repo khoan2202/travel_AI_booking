@@ -1,5 +1,5 @@
-// Tạo và cấu hình ứng dụng Express: bảo mật, CORS, session, các nhóm API, Swagger,
-// và (trên production) phục vụ luôn giao diện React đã build trong client/dist.
+// Dựng app Express: bảo mật, CORS, session, các nhóm API và Swagger.
+// Ở production thì phục vụ luôn bản build của React.
 import "dotenv/config";
 import express from "express";
 import path from "node:path";
@@ -19,13 +19,13 @@ import blogRoutes from "./routes/blogRoutes.js";
 import swaggerUi from "swagger-ui-express";
 import openapi from "./docs/openapi.js";
 
-// Hàm tạo app. Tách riêng khỏi server.js để dễ kiểm thử và khởi động.
+// Tách khỏi server.js để test tự dựng app được.
 export function createApp() {
   const app = express();
-  // Ẩn header "X-Powered-By: Express" để không lộ công nghệ đang dùng.
+  // giấu "X-Powered-By" cho đỡ lộ đang dùng Express
   app.disable("x-powered-by");
   const production = process.env.NODE_ENV === "production";
-  // Production bắt buộc CLIENT_URL là https, nếu không thì dừng luôn.
+  // production mà CLIENT_URL không phải https thì dừng luôn
   if (
     production &&
     (!process.env.CLIENT_URL ||
@@ -33,19 +33,19 @@ export function createApp() {
   ) {
     throw new Error("Production requires an HTTPS CLIENT_URL.");
   }
-  // Production bắt buộc bật SSL khi kết nối database (Neon yêu cầu).
+  // production bắt buộc SSL tới DB (Neon đòi vậy)
   if (production && process.env.DATABASE_SSL !== "true")
     throw new Error("Production requires DATABASE_SSL=true.");
-  // Thêm các header bảo mật cho mọi response (xem middleware/security.js).
+  // header bảo mật, xem middleware/security.js
   app.use(securityHeaders);
-  // Địa chỉ gốc của frontend, ví dụ http://localhost:5173.
+  // origin của frontend, vd http://localhost:5173
   app.locals.clientOrigin = new URL(
     process.env.CLIENT_URL || "http://localhost:5173",
   ).origin;
-  // Trên Render, request đi qua proxy; dòng này giúp Express nhận đúng HTTPS và IP thật.
+  // Render có proxy đứng trước, cần dòng này mới thấy đúng HTTPS và IP khách
   if (process.env.NODE_ENV === "production") app.set("trust proxy", 1);
 
-  // Danh sách các địa chỉ frontend được phép gọi API.
+  // các origin được gọi API
   const allowedOrigins = new Set([
     app.locals.clientOrigin,
     "http://localhost:5173",
@@ -54,40 +54,39 @@ export function createApp() {
 
   app.locals.allowedOrigins = allowedOrigins;
 
-  // Khi chạy local (không phải production): chấp nhận frontend ở MỌI cổng của localhost,
-  // vì Vite tự nhảy sang 5174, 5175... khi cổng 5173 đang bận.
-  // Production chỉ chấp nhận đúng các origin trong danh sách ở trên.
+  // chạy local thì nhận mọi cổng localhost, vì Vite hay nhảy sang 5174, 5175 khi 5173 bận
+  // production chỉ nhận origin trong danh sách trên
   const localDevOrigin = /^http:\/\/(localhost|127\.0\.0\.1):\d{2,5}$/;
   const isAllowedOrigin = (origin) =>
     allowedOrigins.has(origin) || (!production && localDevOrigin.test(origin));
   app.locals.isAllowedOrigin = isAllowedOrigin;
 
-  // CORS: chỉ cho phép trình duyệt từ các origin hợp lệ gọi API.
   app.use(
     cors({
       origin(origin, callback) {
-        // Không có origin (gọi cùng domain, Postman, curl...) hoặc origin hợp lệ thì cho qua.
+        // không có origin (cùng domain, curl, Postman) thì cho qua
         if (!origin || isAllowedOrigin(origin)) {
           return callback(null, true);
         }
 
-        return callback(new Error(`Origin not allowed by CORS: ${origin}`));
+        // gắn 403 để lỗi này không bị tính là 500
+        return callback(Object.assign(new Error(`Origin not allowed by CORS: ${origin}`), { status: 403 }));
       },
-      // Cho phép gửi kèm cookie phiên đăng nhập.
+      // cho gửi cookie đăng nhập
       credentials: true,
     }),
   );
 
-  // Bài viết blog dài hơn các form khác nên được nhận tối đa 256KB, chỉ riêng đường dẫn này.
+  // bài blog dài hơn form thường nên riêng đường này cho tới 256KB
   app.use("/api/admin/posts", express.json({ limit: "256kb" }));
-  // Đọc body JSON của request, giới hạn 32KB để chống gửi dữ liệu quá lớn.
+  // body JSON tối đa 32KB
   app.use(express.json({ limit: "32kb" }));
-  // Gắn session (phiên đăng nhập lưu trong PostgreSQL) vào mọi request.
+  // session lưu trong Postgres
   const { middleware, store } = createSessionMiddleware();
   app.locals.sessionStore = store;
   app.use(middleware);
 
-  // API kiểm tra nhanh backend và database còn sống không: GET /api/health.
+  // GET /api/health: xem backend và DB còn sống không
   app.get("/api/health", async (req, res) => {
     try {
       await pool.query("SELECT 1");
@@ -101,7 +100,7 @@ export function createApp() {
     }
   });
 
-  // Gắn các nhóm API theo đường dẫn. Mỗi file route xử lý một nhóm chức năng.
+  // mỗi file trong routes/ lo một nhóm API
   app.use("/api/tours", tourRoutes);
   app.use("/api/auth", authRoutes);
   app.use("/api/admin", adminRoutes);
@@ -109,7 +108,7 @@ export function createApp() {
   app.use("/api/recommendations", recommendationRoutes);
   app.use("/api/support", supportRoutes);
   app.use("/api/blog", blogRoutes);
-  // Tài liệu API: /api-docs.json (dạng JSON) và /api-docs (giao diện Swagger).
+  // tài liệu API: /api-docs.json và giao diện Swagger ở /api-docs
   app.get("/api-docs.json", (req, res) => {
   res.json(openapi);
 });
@@ -121,18 +120,17 @@ app.use(
     customSiteTitle: "Travel Mint API Documentation",
     swaggerOptions: {
       validatorUrl: null,
-      // Chỉ cho thử API GET trực tiếp trong tài liệu.
-      // API ghi dữ liệu vẫn được hiển thị đầy đủ.
+      // chỉ cho bấm thử API GET, API ghi thì chỉ để xem
       supportedSubmitMethods: ["get"],
     },
   }),
 );
 
-  // Mọi đường dẫn /api/... không khớp route nào ở trên thì trả 404.
+  // /api/... nào không khớp thì 404
   app.use("/api", (req, res) =>
     res.status(404).json({ message: "Đường dẫn API không tồn tại" }),
   );
-  // Production: server phục vụ luôn file giao diện React đã build (cùng một domain).
+  // production: server phục vụ luôn bản build của React, cùng một domain
   if (production || process.env.SERVE_CLIENT === "true") {
     const clientDist = fileURLToPath(
       new URL("../../client/dist/", import.meta.url),
@@ -141,9 +139,9 @@ app.use(
       throw new Error(
         "Run npm run build in client before serving the website.",
       );
-    // Trả các file tĩnh (js, css, ảnh) trong client/dist.
+    // file tĩnh: js, css, ảnh
     app.use(express.static(clientDist, { index: false }));
-    // Các đường dẫn trang (ví dụ /tours/5) đều trả index.html để React Router tự xử lý.
+    // đường dẫn trang như /tours/5 thì trả index.html cho React Router lo
     app.get(/.*/, (req, res, next) => {
       if (path.extname(req.path) || !req.accepts("html")) return next();
       res
@@ -151,14 +149,15 @@ app.use(
         .sendFile(path.join(clientDist, "index.html"));
     });
   }
-  // Không khớp gì cả thì trả 404.
   app.use((req, res) =>
     res.status(404).json({ message: "Đường dẫn không tồn tại" }),
   );
-  // Bộ bắt lỗi chung: lỗi nào lọt tới đây đều trả thông báo chung, không lộ chi tiết.
+  // bắt lỗi chung, không để lộ chi tiết ra ngoài
   app.use((error, req, res, next) => {
     console.error("Lỗi xử lý API:", error.code || error.name);
-    // 400 = body sai định dạng, 413 = body quá lớn; các lỗi còn lại tính là 500.
+    // origin lạ bị CORS chặn ở trên
+    if (error.status === 403) return res.status(403).json({ message: "Nguồn gửi yêu cầu không được chấp nhận." });
+    // 400 body sai định dạng, 413 body quá lớn, còn lại coi là 500
     const status = [400, 413].includes(error.status) ? error.status : 500;
     res
       .status(status)

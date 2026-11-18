@@ -1,4 +1,4 @@
-// Nhật ký thao tác (/admin/activity): ai đã làm gì, với đối tượng nào, lúc nào.
+// Nhật ký: admin nào đã làm gì, lúc nào.
 import { useCallback, useState } from "react";
 import { Link } from "react-router";
 import Header from "../components/Header.jsx";
@@ -10,7 +10,7 @@ import { getAdminActivity } from "../services/adminApi.js";
 import { bookingCode } from "../utils/booking.js";
 import { formatDateTime } from "../utils/blog.js";
 
-// Đổi mã thao tác thành câu tiếng Việt dễ đọc.
+// mã thao tác sang câu tiếng Việt
 const ACTIONS = {
   "booking.mark_paid": "ghi nhận thanh toán đơn", "booking.cancel_unpaid": "hủy đơn chưa thanh toán", "booking.refund_cancel": "hoàn tiền và hủy đơn",
   "tour.create": "tạo tour", "tour.update": "sửa tour", "tour.status": "đổi trạng thái tour", "tour.duplicate": "nhân bản tour",
@@ -20,7 +20,7 @@ const ACTIONS = {
 };
 const TYPES = [["", "Tất cả"], ["booking", "Đơn"], ["tour", "Tour"], ["departure", "Lịch đi"], ["post", "Blog"], ["user", "Tài khoản"], ["support", "Hỗ trợ"]];
 
-// Tên đối tượng; loại nào có trang riêng thì gắn link để mở nhanh.
+// đối tượng nào có trang riêng thì gắn link
 function Target({ log }) {
   if (log.entity_type === "booking") return <Link to={`/admin/bookings/${log.entity_id}`}>{bookingCode(log.entity_id)}</Link>;
   if (log.entity_type === "post" && log.action !== "post.delete") return <Link to={`/admin/blog/${log.entity_id}`}>{log.details?.title || `#${log.entity_id}`}</Link>;

@@ -1,13 +1,12 @@
-// Ảnh cho từng điểm đến: ảnh bìa (thẻ tour) và bộ sưu tập (trang chi tiết tour).
-// Ảnh mới nằm trong client/public/images/destinations/, lấy từ Wikimedia Commons
-// (giấy phép tự do CC BY / CC BY-SA / CC0 / Public domain). Giấy phép CC BY và CC BY-SA
-// yêu cầu ghi tên tác giả, nên mỗi ảnh có credit đi kèm và được hiện trong bộ sưu tập.
-// Ảnh cũ trong /images/tours/ có sẵn từ trước, chưa rõ nguồn nên không có credit.
-// Thêm điểm đến mới: chép ảnh vào thư mục trên rồi thêm một mục vào destinationImages.
+// Ảnh theo từng điểm đến: ảnh bìa cho thẻ tour và bộ ảnh cho trang chi tiết.
+// Ảnh nằm trong client/public/images/destinations/, lấy từ Wikimedia Commons (CC BY, CC BY-SA, CC0, Public domain).
+// CC BY và CC BY-SA bắt buộc ghi tác giả nên mỗi ảnh đi kèm credit và được hiện trong bộ ảnh.
+// Ảnh cũ trong /images/tours/ có từ trước, chưa rõ nguồn nên không có credit.
+// Thêm điểm đến mới thì chép ảnh vào thư mục trên rồi thêm một mục vào destinationImages.
 
 const DIR = "/images/destinations/";
 
-// photo(tên file, tác giả, giấy phép, link trang ảnh gốc)
+// photo(tên file, tác giả, giấy phép, link trang gốc)
 const photo = (file, author, license, source) => ({ src: DIR + file, author, license, source });
 
 export const destinationImages = {
@@ -172,10 +171,10 @@ export const destinationImages = {
   },
 };
 
-// Ảnh minh họa dùng khi điểm đến chưa có ảnh riêng.
+// điểm đến nào chưa có ảnh riêng thì dùng ảnh này
 export const FALLBACK_IMAGE = { src: "/images/coast.svg" };
 
-// Lấy ảnh bìa và bộ sưu tập theo tên điểm đến (không có thì dùng ảnh minh họa).
+// ảnh bìa và bộ ảnh theo tên điểm đến, không có thì ảnh minh họa
 export function imagesFor(destination) {
   return destinationImages[destination] || { cover: FALLBACK_IMAGE, gallery: [FALLBACK_IMAGE] };
 }

@@ -1,18 +1,17 @@
-// Hàm gọi API dùng chung cho cả frontend, cùng các API đăng nhập/đăng ký.
-// Địa chỉ backend: lấy từ biến VITE_API_BASE_URL, không có thì dùng localhost:5000.
+// Hàm gọi API dùng chung của cả frontend, kèm đăng nhập/đăng ký.
+// Địa chỉ backend lấy từ VITE_API_BASE_URL, không có thì localhost:5000.
 const API_BASE_URL = (
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api"
 ).replace(/\/+$/, "");
 
-// request(): gọi API, tự xử lý timeout, cookie, CSRF token và đổi lỗi thành thông báo tiếng Việt.
-// Trả về phần "data" trong JSON server gửi về.
+// request(): lo timeout, cookie, CSRF, đổi lỗi thành câu tiếng Việt. Trả về phần "data" của JSON.
 export async function request(path, { method = "GET", body, token, signal } = {}) {
-  // Gộp hai cách hủy: component tự hủy (signal) và hủy do quá thời gian.
+  // gộp hai cách hủy: component hủy (signal) và hết giờ
   const controller = new AbortController();
   const cancel = () => controller.abort();
   if (signal?.aborted) cancel();
   else signal?.addEventListener("abort", cancel, { once: true });
-  // Quá 15 giây không có phản hồi thì hủy.
+  // 15 giây không trả lời thì bỏ
   let timedOut = false;
   const timeout = setTimeout(() => { timedOut = true; controller.abort(); }, 15000);
   try {
@@ -21,14 +20,14 @@ export async function request(path, { method = "GET", body, token, signal } = {}
     if (token) headers["X-CSRF-Token"] = token;
     const response = await fetch(`${API_BASE_URL}${path}`, {
       method,
-      credentials: "include", // Cho trình duyệt gửi/nhận cookie phiên.
+      credentials: "include", // để gửi và nhận cookie phiên
       cache: "no-store",
       headers,
       body: body === undefined ? undefined : JSON.stringify(body),
       signal: controller.signal,
     });
     const result = await response.json();
-    // Server trả mã lỗi (4xx, 5xx): ném lỗi kèm thông báo, mã HTTP (status) và mã lỗi (code).
+    // server báo lỗi (4xx, 5xx): ném lỗi kèm thông báo, status và code
     if (!response.ok) {
       const error = new Error(result.message || "Yêu cầu chưa thực hiện được.");
       error.status = response.status;
@@ -37,10 +36,10 @@ export async function request(path, { method = "GET", body, token, signal } = {}
     }
     return result.data;
   } catch (error) {
-    // Đổi lỗi kỹ thuật thành câu dễ hiểu: quá giờ, mất mạng, server trả dữ liệu không phải JSON.
-    if (timedOut) throw new Error("Máy chủ phản hồi quá lâu. Vui lòng thử lại.");
-    if (error instanceof TypeError) throw new Error("Chưa kết nối được máy chủ. Vui lòng thử lại.");
-    if (error instanceof SyntaxError) throw new Error("Phản hồi của máy chủ chưa đúng định dạng.");
+    // đổi lỗi kỹ thuật (hết giờ, mất mạng, trả về không phải JSON) thành câu dễ hiểu; cause giữ lỗi gốc cho lúc gỡ lỗi
+    if (timedOut) throw new Error("Máy chủ phản hồi quá lâu. Vui lòng thử lại.", { cause: error });
+    if (error instanceof TypeError) throw new Error("Chưa kết nối được máy chủ. Vui lòng thử lại.", { cause: error });
+    if (error instanceof SyntaxError) throw new Error("Phản hồi của máy chủ chưa đúng định dạng.", { cause: error });
     throw error;
   } finally {
     clearTimeout(timeout);
@@ -48,9 +47,9 @@ export async function request(path, { method = "GET", body, token, signal } = {}
   }
 }
 
-// postAuth(): gửi POST có kèm CSRF token (dùng cho mọi thao tác ghi dữ liệu).
+// POST có kèm CSRF token, dùng cho mọi thao tác ghi
 export async function postAuth(path, body) {
-  // Lấy token theo phiên hiện tại trước mỗi yêu cầu thay đổi trạng thái.
+  // lấy token mới trước mỗi lần ghi
   const { csrfToken } = await request("/auth/csrf");
   return request(path, { method: "POST", body, token: csrfToken });
 }

@@ -1,4 +1,4 @@
-// Trang 404: hiện khi đường dẫn không khớp trang nào.
+// 404: đường dẫn không khớp trang nào.
 import { Link } from "react-router";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";

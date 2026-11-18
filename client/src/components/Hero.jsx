@@ -1,16 +1,15 @@
-// Banner lớn ở đầu trang chủ, có 3 slide.
-// - Tự chuyển slide sau mỗi SLIDE_MS mili giây, ảnh mờ dần sang ảnh mới và zoom chậm (hiệu ứng Ken Burns).
-// - Tạm dừng khi rê chuột vào phần chữ/nút chấm, khi focus vào banner, hoặc khi bấm nút tạm dừng.
-// - Hiệu ứng 3D: bưu thiếp lơ lửng (HeroPostcards) và cả cảnh nghiêng theo chuột, ảnh nền trôi ngược chiều.
-// - Người dùng bật "giảm chuyển động" thì không tự chạy và không nghiêng.
+// Banner đầu trang chủ, 3 slide tự chuyển sau mỗi SLIDE_MS (ảnh mờ dần sang ảnh mới, zoom chậm kiểu Ken Burns).
+// Tạm dừng khi rê chuột vào chữ hoặc nút chấm, khi focus vào banner, hoặc khi bấm nút tạm dừng.
+// Bản 3D: bưu thiếp lơ lửng (HeroPostcards), cả cảnh nghiêng theo chuột, ảnh nền trôi ngược chiều.
+// Ai bật "giảm chuyển động" trên máy thì không tự chạy và không nghiêng.
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import HeroPostcards from "./HeroPostcards.jsx";
 
-// Thời gian mỗi slide (ms). Thanh tiến độ trong nút chấm dùng đúng giá trị này.
+// thời gian mỗi slide, thanh tiến độ trong nút chấm cũng dùng đúng số này
 const SLIDE_MS = 6500;
 
-// Nội dung từng slide. Ảnh nằm trong client/public/images/hero/.
+// nội dung từng slide, ảnh ở client/public/images/hero/
 const slides = [
   {
     label: "ĐI ĐỂ CÓ THÊM NHỮNG CÂU CHUYỆN",
@@ -35,12 +34,11 @@ const slides = [
   },
 ];
 
-// onPickDestination: hàm do trang chủ truyền vào, gọi khi bấm một tấm bưu thiếp.
+// onPickDestination do trang chủ truyền vào, gọi khi bấm một tấm bưu thiếp
 export default function Hero({ onPickDestination }) {
   const heroRef = useRef(null);
-  // Thứ tự slide đang hiển thị (0, 1, 2).
   const [activeSlide, setActiveSlide] = useState(0);
-  // paused: người dùng bấm tạm dừng; hovering: chuột hoặc focus đang ở trong banner.
+  // paused: khách bấm tạm dừng; hovering: chuột hoặc focus đang ở trong banner
   const [paused, setPaused] = useState(false);
   const [hovering, setHovering] = useState(false);
   const [reduceMotion] = useState(
@@ -50,13 +48,13 @@ export default function Hero({ onPickDestination }) {
   const autoplay = !reduceMotion;
   const playing = autoplay && !paused && !hovering;
 
-  // Thanh tiến độ chạy hết (animation CSS kết thúc) thì sang slide kế tiếp.
-  // Dùng animation để thanh tiến độ và việc chuyển slide luôn khớp nhau, kể cả khi tạm dừng giữa chừng.
+  // thanh tiến độ chạy hết (animation CSS kết thúc) thì sang slide kế.
+  // dựa vào animation để thanh và việc chuyển slide luôn khớp nhau, kể cả khi tạm dừng giữa chừng
   const next = () => setActiveSlide((index) => (index + 1) % slides.length);
 
-  // Nghiêng 3D theo chuột: đổi vị trí chuột thành --tx, --ty (từ -1 đến 1) trên thẻ section.
-  // Giá trị được "đuổi theo" dần mỗi khung hình (lerp) nên chuyển động mềm, không giật.
-  // Ghi thẳng biến CSS lên DOM, không dùng state, để không phải vẽ lại React 60 lần mỗi giây.
+  // nghiêng 3D theo chuột: đổi vị trí chuột thành --tx, --ty (-1 tới 1) trên thẻ section.
+  // mỗi khung hình đuổi dần tới giá trị đích (lerp) cho mượt, và ghi thẳng biến CSS thay vì dùng state
+  // để React không phải vẽ lại 60 lần mỗi giây
   useEffect(() => {
     const hero = heroRef.current;
     const canHover = window.matchMedia?.("(hover: hover) and (pointer: fine)").matches;
@@ -89,7 +87,7 @@ export default function Hero({ onPickDestination }) {
     };
   }, [reduceMotion]);
 
-  // Chỉ tạm dừng khi chuột ở phần chữ hoặc nút chấm (rê chuột lên bưu thiếp vẫn tự chuyển slide).
+  // chỉ dừng khi chuột ở chữ hoặc nút chấm, rê lên bưu thiếp thì slide vẫn chạy
   const pauseHandlers = { onMouseEnter: () => setHovering(true), onMouseLeave: () => setHovering(false) };
 
   return (
@@ -103,7 +101,7 @@ export default function Hero({ onPickDestination }) {
       onFocus={() => setHovering(true)}
       onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setHovering(false); }}
     >
-      {/* Các ảnh nền xếp chồng lên nhau; ảnh đang chọn hiện rõ, ảnh khác mờ đi */}
+      {/* ảnh nền xếp chồng, ảnh đang chọn hiện rõ còn lại mờ đi */}
       <div className="hero-slides" aria-hidden="true">
         {slides.map((item, index) => (
           <div
@@ -114,15 +112,14 @@ export default function Hero({ onPickDestination }) {
         ))}
       </div>
 
-      {/* Lớp phủ tối giúp chữ dễ đọc, thêm vệt sáng màu mint và lớp "hạt" như ảnh phim */}
+      {/* lớp tối cho chữ dễ đọc, thêm vệt sáng mint và lớp "hạt" kiểu ảnh phim */}
       <div className="hero-shade" />
       <div className="hero-aurora" aria-hidden="true" />
       <div className="hero-grain" aria-hidden="true" />
 
-      {/* Bưu thiếp 3D lơ lửng hai bên chữ */}
       <HeroPostcards onPick={onPickDestination} />
 
-      {/* key đổi theo slide nên nội dung được tạo lại, hiệu ứng chữ chạy lại mỗi lần đổi slide */}
+      {/* key theo slide để chữ được tạo lại và hiệu ứng chạy lại mỗi lần đổi */}
       <div className="container hero-content" key={activeSlide} aria-live={playing ? "off" : "polite"} {...pauseHandlers}>
         <p className="eyebrow hero-line">{slide.label}</p>
         <h1 className="hero-line">{slide.title}</h1>
@@ -132,14 +129,14 @@ export default function Hero({ onPickDestination }) {
           <a href="#tours" className="button button-primary">
             Khám phá tour <span aria-hidden="true">↗</span>
           </a>
-          {/* Lối vào quiz: dành cho khách chưa biết nên đi đâu */}
+          {/* cho khách chưa biết đi đâu */}
           <Link to="/quiz" className="button button-ghost">
             Chưa biết đi đâu? Làm quiz 1 phút
           </Link>
         </div>
       </div>
 
-      {/* Nút chấm cho từng slide; chấm đang chọn có thanh tiến độ */}
+      {/* chấm đang chọn có thanh tiến độ chạy bên trong */}
       <div className="slide-controls" aria-label="Chọn banner" {...pauseHandlers}>
         {slides.map((item, index) => (
           <button
@@ -165,7 +162,7 @@ export default function Hero({ onPickDestination }) {
             aria-pressed={paused}
             onClick={() => setPaused((value) => !value)}
           >
-            {/* Icon vẽ bằng CSS: hai vạch = tạm dừng, tam giác = tiếp tục */}
+            {/* icon vẽ bằng CSS: hai vạch là tạm dừng, tam giác là chạy tiếp */}
             <span className={paused ? "pause-icon is-play" : "pause-icon"} aria-hidden="true" />
           </button>
         )}

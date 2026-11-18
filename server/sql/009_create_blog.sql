@@ -1,7 +1,5 @@
--- Bước 9: bảng bài viết blog và 6 bài mẫu.
--- Chạy lại nhiều lần vẫn an toàn (IF NOT EXISTS, ON CONFLICT DO NOTHING).
--- Nội dung bài viết dùng cú pháp Markdown đơn giản: ## tiêu đề, **đậm**, *nghiêng*,
--- - danh sách, > trích dẫn, [chữ](link), ![mô tả ảnh](link ảnh).
+-- Bước 9: bảng blog và 6 bài mẫu. Chạy lại không sao (IF NOT EXISTS, ON CONFLICT DO NOTHING).
+-- Bài viết dùng Markdown đơn giản: ## tiêu đề, **đậm**, *nghiêng*, - danh sách, > trích dẫn, [chữ](link), ![ảnh](link).
 BEGIN;
 
 CREATE TABLE IF NOT EXISTS blog_posts (

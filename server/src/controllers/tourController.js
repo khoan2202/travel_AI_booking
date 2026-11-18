@@ -1,8 +1,8 @@
-// Trả danh sách tour cho trang chủ và trang danh sách tour.
+// Danh sách tour cho trang chủ.
 import pool from "../db/pool.js";
 
-// GET /api/tours: chỉ lấy tour đang bán (active) và còn ít nhất một lịch đi
-// trong tương lai còn chỗ. price_from là giá thấp nhất trong các lịch đó.
+// GET /api/tours: chỉ tour đang bán và còn ít nhất một lịch tương lai còn chỗ.
+// price_from là giá thấp nhất trong các lịch đó.
 export async function getTours(req, res, next) {
   try {
     const result = await pool.query(`

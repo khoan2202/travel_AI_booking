@@ -1,9 +1,7 @@
--- Bước 8 (không bắt buộc): thêm 13 điểm đến, 16 tour mới và lịch khởi hành trải dài 1 năm.
--- Chạy được trên database đang dùng (local hoặc Neon). Chạy lại nhiều lần cũng KHÔNG tạo trùng:
--- điểm đến/tour trùng slug và lịch trùng ngày sẽ được bỏ qua (ON CONFLICT DO NOTHING).
--- Ngày đi tính theo ngày chạy file (CURRENT_DATE + số ngày), nên luôn là ngày trong tương lai.
--- Ảnh của tour lấy theo tên điểm đến ở client/src/data/destinationImages.js (image_url để trống).
--- Tour và giá là dữ liệu mẫu cho đồ án, không phải sản phẩm thương mại thật.
+-- Bước 8 (không bắt buộc): thêm 13 điểm đến, 16 tour và lịch đi trải dài 1 năm.
+-- Chạy lại nhiều lần không bị trùng (ON CONFLICT DO NOTHING). Ngày đi tính từ ngày chạy file nên luôn ở tương lai.
+-- Ảnh tour lấy theo tên điểm đến trong client/src/data/destinationImages.js (image_url để trống).
+-- Tour và giá chỉ là dữ liệu mẫu.
 BEGIN;
 
 -- 1. Điểm đến mới

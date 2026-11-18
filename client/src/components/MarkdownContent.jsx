@@ -1,14 +1,14 @@
-// Hiển thị nội dung bài viết từ danh sách khối do utils/markdown.js tạo ra.
+// Vẽ bài viết từ các khối mà utils/markdown.js đã tách sẵn.
 import { Link } from "react-router";
 import { parseInline } from "../utils/markdown.js";
 
-// Hiển thị một dòng chữ có đậm, nghiêng, link.
+// một dòng có đậm, nghiêng, link
 function Inline({ text }) {
   return parseInline(text).map((part, index) => {
     if (part.type === "strong") return <strong key={index}>{part.text}</strong>;
     if (part.type === "em") return <em key={index}>{part.text}</em>;
     if (part.type === "link") {
-      // Link trong website dùng Link để không tải lại trang; link ngoài mở tab mới.
+      // link nội bộ dùng Link cho khỏi tải lại trang, link ngoài mở tab mới
       return part.href.startsWith("/")
         ? <Link key={index} to={part.href}>{part.text}</Link>
         : <a key={index} href={part.href} target="_blank" rel="noopener noreferrer nofollow">{part.text}</a>;

@@ -1,11 +1,11 @@
-// Trang "Tài khoản" (/account): thông tin người đang đăng nhập và các lối tắt.
+// Trang tài khoản: thông tin cá nhân và vài lối tắt.
 import { Link } from "react-router";
 import { useAuth } from "../context/AuthContext.js";
 import Header from "../components/Header.jsx";
 import Footer from "../components/Footer.jsx";
 
 export default function AccountPage() {
-  // Trang được ProtectedRoute bảo vệ nên chắc chắn đã có user.
+  // đã qua ProtectedRoute nên chắc chắn có user
   const { user } = useAuth();
   return (
     <><Header /><main className="container account-page">
@@ -15,7 +15,7 @@ export default function AccountPage() {
       <section className="account-card" aria-labelledby="profile-title">
         <div className="account-card-heading"><h2 id="profile-title">Thông tin cá nhân</h2><span className="role-badge">{user.role === "admin" ? "Quản trị viên" : "Thành viên"}</span></div>
         <dl className="profile-fields"><div><dt>Họ và tên</dt><dd>{user.name}</dd></div><div><dt>Email</dt><dd>{user.email}</dd></div></dl>
-        {/* Nút "Mở trang quản trị" chỉ hiện với admin */}
+        {/* chỉ admin mới thấy */}
         <div className="account-actions"><Link className="button button-primary" to="/#tours">Khám phá tour <span aria-hidden="true">↗</span></Link><Link className="button button-secondary" to="/my-bookings">Xem đơn đã đặt</Link>{user.role === "admin" && <Link className="button button-secondary" to="/admin">Mở trang quản trị</Link>}</div>
       </section>
     </main><Footer /></>
