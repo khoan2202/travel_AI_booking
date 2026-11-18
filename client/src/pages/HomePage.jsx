@@ -1,9 +1,10 @@
-// Trang chủ (/): banner, danh sách tour có bộ lọc nhanh, phần giới thiệu.
+// Trang chủ (/): banner, danh sách tour có bộ lọc nhanh, bài viết mới, phần giới thiệu.
 import { useEffect, useState } from "react";
 import Header from "../components/Header.jsx";
 import Hero from "../components/Hero.jsx";
 import TourCard from "../components/TourCard.jsx";
 import Footer from "../components/Footer.jsx";
+import HomeBlog from "../components/HomeBlog.jsx";
 import { getTours } from "../services/tourApi.js";
 import { normalizeText } from "../utils/format.js";
 import { imagesFor } from "../data/destinationImages.js";
@@ -194,6 +195,9 @@ export default function HomePage() {
               : <div className="state-box"><h3>{tours.length === 0 ? "Chưa có tour đang mở bán" : "Chưa tìm thấy tour phù hợp"}</h3><p>{tours.length === 0 ? "Hãy quay lại để xem những hành trình mới." : "Thử đổi điểm đến, khu vực hoặc ngân sách của bạn."}</p>{tours.length > 0 && <button type="button" className="button button-secondary" onClick={resetFilters}>Xóa bộ lọc</button>}</div>}
           </>}
         </section>
+
+        {/* Bài viết mới nhất từ blog */}
+        <HomeBlog />
 
         {/* Phần giới thiệu */}
         <section id="about" className="section container about-section">

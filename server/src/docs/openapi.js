@@ -1,5 +1,5 @@
 // server/src/docs/openapi.js
-// Tài liệu cho 29 API hiện có của Travel Mint.
+// Tài liệu cho các API hiện có của Travel Mint.
 // File này chỉ mô tả API, không thay đổi xử lý backend.
 
 // ======================================================
@@ -336,6 +336,7 @@ const openapi = {
     { name: "Recommendations", description: "Lọc tour và tư vấn AI" },
     { name: "Admin", description: "Quản trị; yêu cầu role admin" },
     { name: "Support", description: "Liên hệ và hỗ trợ" },
+    { name: "Blog", description: "Bài viết công khai" },
   ],
 
   components: {
@@ -696,6 +697,24 @@ const openapi = {
           }),
         },
         ["full_name", "phone", "message"],
+      ),
+
+      BlogPostInput: obj(
+        {
+          title: str({ minLength: 5, maxLength: 200 }),
+          slug: str({ maxLength: 220 }),
+          excerpt: str({ minLength: 20, maxLength: 400 }),
+          content: str({ minLength: 50, maxLength: 50000, description: "Nội dung dạng Markdown đơn giản." }),
+          cover_image: str({ nullable: true }),
+          category: enumString(["guide", "destination", "food", "tips"]),
+          tags: arr(str({ maxLength: 30 })),
+          destination_id: { ...id(), nullable: true },
+          author_name: str({ maxLength: 100 }),
+          status: enumString(["draft", "published", "archived"]),
+          featured: bool(),
+          published_at: { ...timestamp(), nullable: true, description: "Ngày tương lai nghĩa là hẹn giờ đăng." },
+        },
+        ["title", "slug", "excerpt", "content", "category", "tags", "status"],
       ),
 
       SupportResponse: messageDataResponse(
@@ -1157,6 +1176,171 @@ const openapi = {
           "mark_paid và refund_cancel cần reference dài 4–120 ký tự. " +
           "Đây là ghi nhận đối soát thủ công, không tự chuyển tiền qua ngân hàng.",
         errorCodes: [400, 401, 403, 404, 409, 413, 500, 503],
+      }),
+    },
+
+    // ==================================================
+    // ADMIN MỞ RỘNG: phân tích, blog, khách hàng, hỗ trợ, nhật ký
+    // ==================================================
+
+    "/admin/insights": {
+      get: adminOperation({
+        summary: "Số liệu phân tích cho Dashboard",
+        description: "Doanh thu 6 tháng, việc cần xử lý, tour sắp hết lịch, tour bán chạy, đơn mới nhất.",
+        output: dataResponse(obj({})),
+        errorCodes: [401, 403, 500],
+      }),
+    },
+    "/admin/bookings/export": {
+      get: adminOperation({
+        summary: "Lấy đơn theo bộ lọc để xuất CSV (tối đa 5000 đơn)",
+        parameters: [searchQuery, query("status", str(), "Trạng thái đơn."), query("payment", str(), "Trạng thái thanh toán.")],
+        output: dataResponse(arr(obj({}))),
+        errorCodes: [400, 401, 403, 500],
+      }),
+    },
+    "/admin/tours/{id}/status": {
+      post: adminOperation({
+        write: true,
+        summary: "Đổi nhanh trạng thái tour",
+        parameters: [pathId],
+        input: obj({ status: enumString(["draft", "active", "archived"]) }, ["status"]),
+        output: dataResponse(obj({ id: id(), status: str() })),
+        errorCodes: [400, 401, 403, 404, 500],
+      }),
+    },
+    "/admin/tours/{id}/duplicate": {
+      post: adminOperation({
+        write: true,
+        summary: "Nhân bản tour thành bản nháp",
+        parameters: [pathId],
+        output: dataResponse(ref("AdminTour")),
+        status: 201,
+        errorCodes: [400, 401, 403, 404, 500],
+      }),
+    },
+    "/admin/tours/{id}/departures/bulk": {
+      post: adminOperation({
+        write: true,
+        summary: "Tạo nhiều lịch khởi hành cách đều nhau",
+        description: "Ngày đã có lịch sẽ được bỏ qua.",
+        parameters: [pathId],
+        input: obj({ start_date: date(), every_days: int({ minimum: 1, maximum: 90 }), count: int({ minimum: 1, maximum: 24 }), price_per_person: int(), capacity: int() }, ["start_date", "every_days", "count", "price_per_person", "capacity"]),
+        output: dataResponse(obj({ created: int(), skipped: int() })),
+        status: 201,
+        errorCodes: [400, 401, 403, 404, 500],
+      }),
+    },
+    "/admin/posts": {
+      get: adminOperation({
+        summary: "Danh sách bài viết blog",
+        parameters: [pageQuery, searchQuery, query("status", enumString(["", "draft", "published", "archived"]), "Trạng thái bài.")],
+        output: dataResponse(obj({})),
+        errorCodes: [400, 401, 403, 500, 503],
+      }),
+      post: adminOperation({
+        write: true,
+        summary: "Tạo bài viết",
+        input: ref("BlogPostInput"),
+        output: dataResponse(obj({})),
+        status: 201,
+        errorCodes: [400, 401, 403, 409, 413, 500, 503],
+      }),
+    },
+    "/admin/posts/{id}": {
+      get: adminOperation({
+        summary: "Chi tiết bài viết để chỉnh sửa",
+        parameters: [pathId],
+        output: dataResponse(obj({})),
+        errorCodes: [400, 401, 403, 404, 500, 503],
+      }),
+    },
+    "/admin/posts/{id}/update": {
+      post: adminOperation({
+        write: true,
+        summary: "Cập nhật bài viết",
+        parameters: [pathId],
+        input: ref("BlogPostInput"),
+        output: dataResponse(obj({})),
+        errorCodes: [400, 401, 403, 404, 409, 413, 500, 503],
+      }),
+    },
+    "/admin/posts/{id}/delete": {
+      post: adminOperation({
+        write: true,
+        summary: "Xóa bài viết",
+        parameters: [pathId],
+        output: dataResponse(obj({ id: id(), title: str() })),
+        errorCodes: [400, 401, 403, 404, 500, 503],
+      }),
+    },
+    "/admin/users": {
+      get: adminOperation({
+        summary: "Danh sách tài khoản kèm số đơn và tiền đã trả",
+        parameters: [pageQuery, searchQuery, query("role", enumString(["", "user", "admin"]), "Lọc theo quyền.")],
+        output: dataResponse(obj({})),
+        errorCodes: [400, 401, 403, 500],
+      }),
+    },
+    "/admin/users/{id}/role": {
+      post: adminOperation({
+        write: true,
+        summary: "Đổi quyền tài khoản",
+        description: "Không thể tự đổi quyền của chính mình.",
+        parameters: [pathId],
+        input: obj({ role: enumString(["user", "admin"]) }, ["role"]),
+        output: dataResponse(obj({ id: id(), role: str() })),
+        errorCodes: [400, 401, 403, 404, 409, 500],
+      }),
+    },
+    "/admin/support": {
+      get: adminOperation({
+        summary: "Hộp thư yêu cầu hỗ trợ",
+        parameters: [pageQuery, searchQuery, query("status", enumString(["", "pending", "resolved"]), "Trạng thái yêu cầu.")],
+        output: dataResponse(obj({})),
+        errorCodes: [400, 401, 403, 500, 503],
+      }),
+    },
+    "/admin/support/{id}/status": {
+      post: adminOperation({
+        write: true,
+        summary: "Đánh dấu đã xử lý hoặc mở lại yêu cầu",
+        parameters: [pathId],
+        input: obj({ status: enumString(["pending", "resolved"]) }, ["status"]),
+        output: dataResponse(obj({ id: id(), status: str() })),
+        errorCodes: [400, 401, 403, 404, 500, 503],
+      }),
+    },
+    "/admin/activity": {
+      get: adminOperation({
+        summary: "Nhật ký thao tác của admin",
+        parameters: [pageQuery, query("type", str(), "Loại đối tượng: booking, tour, post, user...")],
+        output: dataResponse(obj({})),
+        errorCodes: [400, 401, 403, 500],
+      }),
+    },
+
+    // ==================================================
+    // BLOG — 2 API công khai
+    // ==================================================
+
+    "/blog": {
+      get: operation({
+        tag: "Blog",
+        summary: "Danh sách bài viết đã đăng",
+        parameters: [pageQuery, searchQuery, query("category", enumString(["guide", "destination", "food", "tips"]), "Chuyên mục.")],
+        output: dataResponse(obj({})),
+        errorCodes: [400, 500],
+      }),
+    },
+    "/blog/{slug}": {
+      get: operation({
+        tag: "Blog",
+        summary: "Chi tiết bài viết, bài liên quan và tour gợi ý",
+        description: "Mỗi lần gọi tính thêm 1 lượt xem.",
+        parameters: [{ name: "slug", in: "path", required: true, description: "Slug của bài viết.", schema: str() }],
+        output: dataResponse(obj({})),
+        errorCodes: [404, 500],
       }),
     },
 

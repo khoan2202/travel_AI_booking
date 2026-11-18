@@ -11,6 +11,7 @@ export default function Footer() {
           <Link to="/quiz">Quiz tìm chuyến đi</Link>
           <Link to="/compare">So sánh tour</Link>
           <Link to="/recommendations">Tư vấn AI</Link>
+          <Link to="/blog">Blog du lịch</Link>
           <Link to="/contact">Liên hệ</Link>
           <Link to="/credits">Nguồn ảnh</Link>
         </nav>

@@ -4,6 +4,7 @@
 import { Link, NavLink } from "react-router";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext.js";
+import ThemeToggle from "./ThemeToggle.jsx";
 
 export default function Header() {
   // menuOpen: menu đang mở trên điện thoại hay không.
@@ -63,6 +64,9 @@ export default function Header() {
           <NavLink to="/recommendations" onClick={closeMenu}>
             Tư vấn AI
           </NavLink>
+          <NavLink to="/blog" onClick={closeMenu}>
+            Blog
+          </NavLink>
           <NavLink to="/contact" onClick={closeMenu}>
             Liên hệ &amp; Hỗ trợ
           </NavLink>
@@ -102,6 +106,8 @@ export default function Header() {
             </Link>
           )}
         </nav>
+        {/* Nút sáng/tối nằm ngoài menu để trên điện thoại không cần mở menu vẫn bấm được */}
+        <ThemeToggle />
       </div>
       {error && (
         <p className="header-error" role="alert">
