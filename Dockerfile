@@ -6,7 +6,7 @@
 # Chạy thử cả hệ thống kèm PostgreSQL: xem docker-compose.yml (docker compose up --build)
 
 # ---- Giai đoạn 1: build giao diện React ----
-FROM node:24-alpine AS client-build
+FROM node:26-alpine AS client-build
 WORKDIR /app/client
 COPY client/package.json client/package-lock.json ./
 RUN npm ci
@@ -18,7 +18,7 @@ ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 RUN npm run build
 
 # ---- Giai đoạn 2: cài thư viện backend, bỏ thư viện chỉ dùng khi phát triển ----
-FROM node:24-alpine AS server-deps
+FROM node:26-alpine AS server-deps
 # Một thư viện của Swagger UI gửi thống kê ẩn danh khi cài đặt; tắt đi cho build không gọi ra ngoài.
 ENV SCARF_ANALYTICS=false
 WORKDIR /app/server
@@ -26,7 +26,7 @@ COPY server/package.json server/package-lock.json ./
 RUN npm ci --omit=dev
 
 # ---- Giai đoạn 3: image chạy thật, chỉ chứa những gì cần thiết ----
-FROM node:24-alpine
+FROM node:26-alpine
 # Mặc định là production: bắt buộc CLIENT_URL dùng https, DATABASE_SSL=true và cookie phiên "secure".
 # Chạy thử trên http://localhost thì ghi đè NODE_ENV=development (docker-compose.yml đã làm sẵn).
 ENV NODE_ENV=production \
