@@ -34,7 +34,7 @@ jobs:
       - run: npm run build
 
   server:
-    name: Backend (test với PostgreSQL thật)
+    name: Backend (lint, test với PostgreSQL thật)
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -68,7 +68,12 @@ jobs:
       - name: Cài thư viện
         working-directory: server
         run: npm ci
-      - name: Tạo bảng từ các file migration (001 → 009)
+      - name: Lint và kiểm tra định dạng code
+        working-directory: server
+        run: |
+          npm run lint
+          npm run format:check
+      - name: Tạo bảng từ các file migration (001 → 010)
         run: |
           for file in server/sql/0*.sql; do
             echo "-> $file"

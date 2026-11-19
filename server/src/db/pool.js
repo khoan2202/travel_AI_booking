@@ -3,9 +3,7 @@ import 'dotenv/config';
 import pg from 'pg';
 
 // production hoặc DATABASE_SSL=true thì bật SSL (Neon bắt buộc)
-const useSSL =
-  process.env.NODE_ENV === 'production' ||
-  process.env.DATABASE_SSL?.trim().toLowerCase() === 'true';
+const useSSL = process.env.NODE_ENV === 'production' || process.env.DATABASE_SSL?.trim().toLowerCase() === 'true';
 
 const pool = new pg.Pool({
   host: process.env.PGHOST,

@@ -11,16 +11,27 @@ export function readFilters(raw = {}) {
   check(budget === null || integer(budget, 1, 999999999999), 'Ngân sách phải là số nguyên dương (VND/người).');
   check(days === null || integer(days, 1, 60), 'Số ngày tối đa từ 1 đến 60.');
   check(integer(guests, 1, 20), 'Số khách từ 1 đến 20.');
-  const region = raw.region ?? '', interest = raw.interest ?? '';
-  check(typeof region === 'string' && region.length <= 50 && typeof interest === 'string' && interest.length <= 30, 'Khu vực hoặc sở thích chưa hợp lệ.');
-  return { budget: budget === null ? null : Number(budget), days: days === null ? null : Number(days), guests: Number(guests), region: region.trim(), interest: interest.trim() };
+  const region = raw.region ?? '',
+    interest = raw.interest ?? '';
+  check(
+    typeof region === 'string' && region.length <= 50 && typeof interest === 'string' && interest.length <= 30,
+    'Khu vực hoặc sở thích chưa hợp lệ.',
+  );
+  return {
+    budget: budget === null ? null : Number(budget),
+    days: days === null ? null : Number(days),
+    guests: Number(guests),
+    region: region.trim(),
+    interest: interest.trim(),
+  };
 }
 
 // tối đa 12 tour, mỗi tour kèm lịch rẻ nhất còn đủ chỗ.
 // JOIN LATERAL để mỗi tour chọn ra đúng 1 lịch
 export async function recommend(filters) {
   // lọc cứng ngay trong SQL nên AI không thể đưa tour nháp hay hết chỗ vào danh sách
-  const { rows } = await pool.query(`
+  const { rows } = await pool.query(
+    `
     SELECT t.id,t.title,t.description,t.duration_days,t.departure_location,t.image_url,t.tags,
       d.name AS destination,d.region,td.id AS departure_id,to_char(td.start_date,'YYYY-MM-DD') AS start_date,
       td.price_per_person::text AS price_from,(td.capacity-td.seats_booked) AS seats_left
@@ -34,7 +45,8 @@ export async function recommend(filters) {
     WHERE t.status='active' AND ($3::int IS NULL OR t.duration_days <= $3)
       AND ($4='' OR d.region=$4) AND ($5='' OR $5=ANY(t.tags))
     ORDER BY td.price_per_person,td.start_date,t.id LIMIT 12`,
-    [filters.guests, filters.budget, filters.days, filters.region, filters.interest]);
+    [filters.guests, filters.budget, filters.days, filters.region, filters.interest],
+  );
   // cắt mô tả còn 650 ký tự cho AI đỡ phải đọc dài
   return rows.map(({ description, ...tour }) => ({ ...tour, summary: description.slice(0, 650) }));
 }
@@ -42,8 +54,10 @@ export async function recommend(filters) {
 // khu vực và tag của các tour đang bán, cho ô chọn
 export async function recommendationOptions() {
   const [regions, interests] = await Promise.all([
-    pool.query("SELECT DISTINCT d.region FROM destinations d JOIN tours t ON t.destination_id=d.id WHERE t.status='active' ORDER BY d.region"),
+    pool.query(
+      "SELECT DISTINCT d.region FROM destinations d JOIN tours t ON t.destination_id=d.id WHERE t.status='active' ORDER BY d.region",
+    ),
     pool.query("SELECT DISTINCT unnest(tags) AS tag FROM tours WHERE status='active' ORDER BY tag"),
   ]);
-  return { regions: regions.rows.map(x => x.region), interests: interests.rows.map(x => x.tag) };
+  return { regions: regions.rows.map((x) => x.region), interests: interests.rows.map((x) => x.tag) };
 }

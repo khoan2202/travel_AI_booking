@@ -1,5 +1,5 @@
 // Danh sách tour cho trang chủ.
-import pool from "../db/pool.js";
+import pool from '../db/pool.js';
 
 // GET /api/tours: chỉ tour đang bán và còn ít nhất một lịch tương lai còn chỗ.
 // price_from là giá thấp nhất trong các lịch đó.
@@ -35,7 +35,7 @@ export async function getTours(req, res, next) {
       ORDER BY t.id DESC
     `);
     res.json({
-      message: "Lấy danh sách tour thành công",
+      message: 'Lấy danh sách tour thành công',
       total: result.rows.length,
       data: result.rows,
     });
