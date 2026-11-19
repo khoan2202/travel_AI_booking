@@ -15,8 +15,11 @@ export async function withTransaction(work) {
     await client.query('COMMIT');
     return result;
   } catch (error) {
-    try { await client.query('ROLLBACK'); }
-    catch (rollbackError) { releaseError = rollbackError; }
+    try {
+      await client.query('ROLLBACK');
+    } catch (rollbackError) {
+      releaseError = rollbackError;
+    }
     throw error;
   } finally {
     // rollback mà lỗi thì vứt luôn kết nối này, đừng trả lại pool

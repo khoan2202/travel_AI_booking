@@ -1,9 +1,9 @@
 // /api/support: nhận form từ trang Liên hệ.
-import { Router } from "express";
-import { rateLimit } from "express-rate-limit";
-import { requireAuth } from "../middleware/auth.js";
-import { requireCsrf } from "../middleware/csrf.js";
-import { createSupportRequest } from "../controllers/supportController.js";
+import { Router } from 'express';
+import { rateLimit } from 'express-rate-limit';
+import { requireAuth } from '../middleware/auth.js';
+import { requireCsrf } from '../middleware/csrf.js';
+import { createSupportRequest } from '../controllers/supportController.js';
 
 const router = Router();
 
@@ -11,15 +11,15 @@ const router = Router();
 const supportLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 10,
-  standardHeaders: "draft-8",
+  standardHeaders: 'draft-8',
   legacyHeaders: false,
   message: {
-    message: "Bạn đã gửi nhiều yêu cầu. Vui lòng thử lại sau 15 phút.",
+    message: 'Bạn đã gửi nhiều yêu cầu. Vui lòng thử lại sau 15 phút.',
   },
 });
 
 router.use((req, res, next) => {
-  res.set("Cache-Control", "no-store");
+  res.set('Cache-Control', 'no-store');
   next();
 });
 
@@ -32,12 +32,6 @@ function optionalAuth(req, res, next) {
   next();
 }
 
-router.post(
-  "/",
-  supportLimiter,
-  requireCsrf,
-  optionalAuth,
-  createSupportRequest,
-);
+router.post('/', supportLimiter, requireCsrf, optionalAuth, createSupportRequest);
 
 export default router;

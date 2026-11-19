@@ -57,7 +57,7 @@ Website đặt tour du lịch fullstack: khách xem, so sánh và đặt tour; a
 
 **Blog an toàn trước XSS.** Bộ đọc Markdown tự viết ([`markdown.js`](client/src/utils/markdown.js)) chuyển nội dung thành các khối React, không dùng `dangerouslySetInnerHTML`; link `javascript:` và `//` bị chặn. Có test cho các trường hợp tấn công thường gặp.
 
-**Migration chạy lại được nhiều lần.** Các file SQL `008`, `009` dùng `IF NOT EXISTS` / `ON CONFLICT DO NOTHING`; server không khởi động nếu thiếu bảng bắt buộc, còn các tính năng mới (blog, hỗ trợ) tự báo rõ khi database chưa chạy migration thay vì sập.
+**Migration chạy lại được nhiều lần.** Các file SQL `008`, `009`, `010` dùng `IF NOT EXISTS` / `ON CONFLICT DO NOTHING`; server không khởi động nếu thiếu bảng bắt buộc, còn các tính năng mới (blog, hỗ trợ) tự báo rõ khi database chưa chạy migration thay vì sập.
 
 ## 🛡️ Bảo mật
 
@@ -83,10 +83,10 @@ Website đặt tour du lịch fullstack: khách xem, so sánh và đặt tour; a
 |------|-----------|
 | Frontend | React 19, Vite, React Router, Context API, CSS thuần (không dùng thư viện UI) |
 | Backend | Node.js 24, Express 5, REST API, Swagger UI |
-| Database | PostgreSQL (Neon), 9 file migration SQL |
+| Database | PostgreSQL (Neon), 10 file migration SQL |
 | AI | Google Gemini API |
 | Kiểm thử | `node:test` (không cần thư viện ngoài), test tích hợp chạy trên PostgreSQL thật |
-| DevOps | Docker + Docker Compose, GitHub Actions (lint, test, build, khởi động thử bằng Docker), Dependabot |
+| DevOps | Docker + Docker Compose, GitHub Actions (lint + format, test, build, khởi động thử bằng Docker), Dependabot |
 | Deploy | Render (một service phục vụ cả frontend và `/api`) + Neon Postgres |
 
 ## 🗄️ Mô hình dữ liệu
@@ -144,7 +144,7 @@ travel_AI_booking/
 │       ├── utils/                    # Markdown, quiz, định dạng (kèm *.test.js)
 │       └── styles/                   # CSS theo từng khu vực, theme.css cho giao diện tối
 └── server/                           # Backend Express
-    ├── sql/                          # Migration 001 → 009 + script deploy
+    ├── sql/                          # Migration 001 → 010 + script deploy
     ├── scripts/make-admin.js         # cấp quyền admin cho một tài khoản
     ├── test/                         # Test đơn vị + test tích hợp trên PostgreSQL
     └── src/
@@ -165,7 +165,7 @@ travel_AI_booking/
 docker compose up --build
 ```
 
-Mở http://localhost:5000. Lần đầu, PostgreSQL tự chạy các file `server/sql/001 → 009` (tạo bảng, 22 tour mẫu, 6 bài blog). Cấu hình mặc định chỉ dành cho máy cá nhân; muốn đổi mật khẩu/khóa, sao chép `.env.example` thành `.env`.
+Mở http://localhost:5000. Lần đầu, PostgreSQL tự chạy các file `server/sql/001 → 010` (tạo bảng, 22 tour mẫu, 6 bài blog). Cấu hình mặc định chỉ dành cho máy cá nhân; muốn đổi mật khẩu/khóa, sao chép `.env.example` thành `.env`.
 
 ```bash
 # Tạo tài khoản admin: đăng ký trên website trước, rồi
@@ -180,7 +180,7 @@ docker compose down -v
 **Yêu cầu:** Node.js 24, PostgreSQL (cài trên máy hoặc dùng Neon miễn phí).
 
 ```bash
-# 1. Tạo database và chạy lần lượt các file migration (001 → 009)
+# 1. Tạo database và chạy lần lượt các file migration (001 → 010)
 createdb travel_ai_booking
 for f in server/sql/0*.sql; do psql -d travel_ai_booking -v ON_ERROR_STOP=1 -f "$f"; done
 # PowerShell: Get-ChildItem server/sql/0*.sql | ForEach-Object { psql -d travel_ai_booking -v ON_ERROR_STOP=1 -f $_.FullName }
@@ -206,6 +206,11 @@ Tạo tài khoản admin: đăng ký bình thường rồi chạy `npm run make-
 cd client
 npm run lint && npm test
 
+# Backend: lint + kiểm tra định dạng (ESLint, Prettier)
+cd server
+npm run lint && npm run format:check
+cd ..
+
 # Backend: cần một database RIÊNG có tên kết thúc bằng _test
 createdb travel_test
 for f in server/sql/0*.sql; do psql -d travel_test -v ON_ERROR_STOP=1 -f "$f"; done
@@ -226,9 +231,10 @@ Một service Node phục vụ cả giao diện đã build (`client/dist`) lẫn
 | `DATABASE_SSL=true` | Bật SSL tới database (Neon yêu cầu) |
 | `PGHOST` `PGPORT` `PGDATABASE` `PGUSER` `PGPASSWORD` | Kết nối PostgreSQL |
 | `SESSION_SECRET` | Khóa ký cookie, ít nhất 32 ký tự ngẫu nhiên |
+| `COOKIE_SAMESITE` | Không bắt buộc, mặc định `lax` (cùng domain). Chỉ đặt `none` khi tách frontend và backend sang hai domain khác nhau |
 | `GEMINI_API_KEY` | Không bắt buộc; bỏ trống thì AI dùng phương án dự phòng |
 
-Trước lần deploy đầu tiên, chạy lần lượt các file `server/sql/001 → 009` trên database. Mỗi lần thêm migration mới, chạy file đó trên database thật trước khi deploy code cần đến nó.
+Trước lần deploy đầu tiên, chạy lần lượt các file `server/sql/001 → 010` trên database. Mỗi lần thêm migration mới, chạy file đó trên database thật trước khi deploy code cần đến nó.
 
 ## ⚠️ Giới hạn đã biết
 
@@ -237,6 +243,15 @@ Trước lần deploy đầu tiên, chạy lần lượt các file `server/sql/0
 - Tour, giá và lịch khởi hành là **dữ liệu mẫu**.
 - Chưa có test giao diện end-to-end tự động (đã kiểm tra thủ công bằng trình duyệt).
 - Ảnh bìa blog chọn từ ảnh có sẵn hoặc dán link https, chưa hỗ trợ tải ảnh lên.
+
+## 🤝 Đóng góp
+
+Dự án bắt đầu như bài làm nhóm và hiện do mình duy trì.
+
+- **Phùng Khắc Khoan:** thiết kế và viết toàn bộ backend (đặt tour chống bán quá chỗ, xác thực, CSRF, thanh toán thủ công, nhật ký admin, trợ lý AI), database và migration, trang quản trị, blog, so sánh tour, quiz, banner 3D, giao diện sáng/tối, test, Docker, CI và deploy.
+- **Nguyễn Tấn Hùng (`hungdz`):** giai đoạn đầu, làm giao diện đăng nhập/đăng ký và trang chi tiết tour, trang liên hệ cùng API yêu cầu hỗ trợ, và tài liệu Swagger ban đầu. Phần Swagger sau đó được mình mở rộng và sửa lại.
+
+Lịch sử chi tiết xem ở tab Commits.
 
 ## 📄 Giấy phép
 

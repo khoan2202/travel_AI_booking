@@ -3,7 +3,7 @@
 #     docker compose up --build
 #
 # Sau đó mở http://localhost:5000
-# Lần đầu, database trống nên PostgreSQL tự chạy các file server/sql/001 → 009 (tạo bảng + dữ liệu mẫu).
+# Lần đầu, database trống nên PostgreSQL tự chạy các file server/sql/001 → 010 (tạo bảng + dữ liệu mẫu).
 #
 # Tạo tài khoản admin: đăng ký trên website rồi chạy
 #     docker compose exec app npm run make-admin -- email-cua-ban@example.com
