@@ -1,5 +1,4 @@
 -- Bước 7: bảng lưu yêu cầu hỗ trợ gửi từ trang Liên hệ.
--- Lưu ý: file deploy/001_FRESH_DATABASE_ONLY.sql chưa có bảng này, nên phải chạy thêm file này.
 BEGIN;
 
 CREATE TABLE support_requests (

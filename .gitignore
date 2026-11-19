@@ -4,3 +4,7 @@ dist/
 .env.*
 !.env.example
 *.log
+*.patch
+*.rej
+*.orig
+.claude/

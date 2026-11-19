@@ -248,8 +248,16 @@ Trước lần deploy đầu tiên, chạy lần lượt các file `server/sql/0
 
 Dự án bắt đầu như bài làm nhóm và hiện do mình duy trì.
 
-- **Phùng Khắc Khoan:** thiết kế và viết toàn bộ backend (đặt tour chống bán quá chỗ, xác thực, CSRF, thanh toán thủ công, nhật ký admin, trợ lý AI), database và migration, trang quản trị, blog, so sánh tour, quiz, banner 3D, giao diện sáng/tối, test, Docker, CI và deploy.
-- **Nguyễn Tấn Hùng (`hungdz`):** giai đoạn đầu, làm giao diện đăng nhập/đăng ký và trang chi tiết tour, trang liên hệ cùng API yêu cầu hỗ trợ, và tài liệu Swagger ban đầu. Phần Swagger sau đó được mình mở rộng và sửa lại.
+- **Phùng Khắc Khoan:** lên ý tưởng và chọn tính năng, thiết kế database và luồng đặt tour, phụ trách backend (đặt tour chống bán quá chỗ, xác thực, CSRF, thanh toán thủ công, nhật ký admin, trợ lý AI), trang quản trị, blog, so sánh tour, quiz, banner 3D, giao diện sáng/tối, test, Docker, CI và deploy.
+- **Nguyễn Tấn Hùng (`hungdz`):**
+  - Thiết kế lại giao diện trang đăng nhập/đăng ký, phần hero và ảnh tour trên trang chủ, bổ sung bộ ảnh cho giao diện.
+  - Làm lại giao diện trang chi tiết tour và form đặt tour.
+  - Làm trọn tính năng Liên hệ: bảng `support_requests` (migration `007`), API gửi yêu cầu hỗ trợ, trang Liên hệ ở frontend.
+  - Viết tài liệu API bằng Swagger cho toàn bộ endpoint lúc đó (sau này mình cập nhật thêm cho các API mới).
+  - Sửa cấu hình CORS và CSRF để frontend chạy được ở máy local.
+  - Thử deploy bằng Cloudflare Workers ở nhánh `dev` (chưa đưa vào bản chính).
+
+**Về việc dùng AI:** mình dùng Claude (Anthropic) làm trợ lý lập trình, ước chừng 60% lượng code được viết cùng AI (code khung, refactor, test, rà lỗi bảo mật). Mình quyết định cách làm, đọc lại và chỉnh từng thay đổi, chạy thử trên máy và deploy. Mình hiểu và giải thích được mọi phần trong dự án.
 
 Lịch sử chi tiết xem ở tab Commits.
 
