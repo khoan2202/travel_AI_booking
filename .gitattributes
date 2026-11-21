@@ -1,0 +1,15 @@
+# Git tự chuẩn hóa xuống dòng, tránh lỗi lệch dòng giữa Windows và Linux/Docker/CI.
+* text=auto
+
+# File chạy trong container hoặc do PostgreSQL đọc luôn dùng LF, kể cả khi clone trên Windows.
+*.sql text eol=lf
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.yml text eol=lf
+
+# File nhị phân: không sửa nội dung.
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.webp binary
+*.ico binary
