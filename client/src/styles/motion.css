@@ -1,0 +1,384 @@
+/* Hiệu ứng chuyển động cho cả web. Import gần cuối App.jsx để ghi đè style cũ khi cần.
+   Ai bật "giảm chuyển động" thì tắt hết (xem cuối file). */
+
+:root {
+  /* đường cong chung cho mọi hiệu ứng: ra nhanh, dừng êm */
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+  --ease-soft: cubic-bezier(.4, 0, .2, 1);
+  --mint-glow: rgb(0 255 195 / 45%);
+}
+
+::selection { background: var(--primary); color: #0f2f26; }
+
+/* Chuyển trang: nội dung chính trượt lên và hiện dần */
+/* dùng "backwards" để chạy xong là bỏ hẳn hiệu ứng, kẻo main thành khung neo cho phần tử position: fixed bên trong (như lightbox) */
+main { animation: page-in .65s var(--ease-out) backwards; }
+@keyframes page-in {
+  from { opacity: 0; translate: 0 14px; }
+  to { opacity: 1; translate: none; }
+}
+
+/* Hiện dần khi cuộn tới (class do MotionLayer.jsx gắn) */
+.reveal {
+  opacity: 0;
+  translate: 0 28px;
+  transition: opacity .8s var(--ease-out), translate .9s var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal.is-visible { opacity: 1; translate: none; }
+
+/* Ảnh phần giới thiệu: "mở màn" từ khung nhỏ ra full, kèm zoom nhẹ */
+.about-art img {
+  clip-path: inset(0 round 0);
+  transition: clip-path 1.3s var(--ease-out), scale 1.6s var(--ease-out);
+}
+.about-art.reveal { translate: none; }
+/* Ảnh đang phóng to (chờ hiệu ứng) không được làm trang rộng ra, nếu không điện thoại bị tràn ngang */
+.about-art { overflow: clip; }
+.about-art.reveal img { clip-path: inset(14% 10% 14% 10% round 10px); scale: 1.18; }
+.about-art.reveal.is-visible img { clip-path: inset(0 round 0); scale: 1; }
+
+/* Header: nền kính mờ khi cuộn, gạch chân chạy từ giữa ra */
+.site-header { transition: background-color .4s var(--ease-soft), box-shadow .4s var(--ease-soft); }
+.is-scrolled .site-header {
+  background: rgb(28 30 29 / 82%);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  box-shadow: 0 10px 30px -18px rgb(0 0 0 / 60%);
+}
+.brand { transition: letter-spacing .4s var(--ease-out); }
+.brand:hover { letter-spacing: -.2px; }
+.brand span { display: inline-block; transition: color .3s, translate .4s var(--ease-out); }
+.brand:hover span { translate: 2px 0; }
+
+.main-menu a { position: relative; border-bottom-color: transparent !important; transition: color .25s; }
+.main-menu a::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 3px;
+  background: var(--primary);
+  border-radius: 3px 3px 0 0;
+  scale: 0 1;
+  transition: scale .35s var(--ease-out);
+}
+.main-menu a:hover::after, .main-menu a:focus-visible::after, .main-menu a.active::after { scale: 1 1; }
+.main-menu a.active { color: var(--primary); }
+
+/* Menu điện thoại: thả xuống mềm mại thay vì hiện bật ra */
+@media (max-width: 640px) {
+  .main-menu.is-open { animation: menu-drop .4s var(--ease-out) both; box-shadow: 0 24px 40px -20px rgb(0 0 0 / 70%); }
+  .main-menu.is-open > * { animation: rise-in .45s var(--ease-out) both; }
+  .main-menu.is-open > :nth-child(2) { animation-delay: .04s; }
+  .main-menu.is-open > :nth-child(3) { animation-delay: .08s; }
+  .main-menu.is-open > :nth-child(4) { animation-delay: .12s; }
+  .main-menu.is-open > :nth-child(n + 5) { animation-delay: .16s; }
+  .main-menu a::after { right: auto; width: 40px; }
+}
+@keyframes menu-drop {
+  from { opacity: 0; clip-path: inset(0 0 100% 0); }
+  to { opacity: 1; clip-path: inset(0); }
+}
+@keyframes rise-in {
+  from { opacity: 0; translate: 0 12px; }
+  to { opacity: 1; translate: none; }
+}
+
+/* Nút bấm: nổi lên, phát sáng, vệt sáng lướt qua */
+.button {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: background-color .3s var(--ease-soft), border-color .3s, color .3s,
+    transform .35s var(--ease-out), box-shadow .35s var(--ease-out);
+}
+.button:hover { transform: translateY(-2px); }
+.button:active { transform: translateY(0) scale(.97); transition-duration: .1s; }
+.button:disabled, .button[disabled] { transform: none; box-shadow: none; }
+.button-primary:hover { box-shadow: 0 12px 26px -10px var(--mint-glow); }
+.button-secondary:hover { box-shadow: 0 10px 22px -14px rgb(20 70 55 / 45%); border-color: #9fc4b5; }
+.button-dark:hover { box-shadow: 0 12px 26px -12px rgb(0 0 0 / 50%); }
+/* Vệt sáng lướt chéo qua nút chính khi rê chuột */
+.button-primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 60%) 50%, transparent 70%);
+  translate: -120% 0;
+  transition: translate .8s var(--ease-out);
+}
+.button-primary:hover::after { translate: 120% 0; }
+/* Mũi tên trong nút nhích theo hướng của nó */
+.button > span[aria-hidden="true"] { display: inline-block; transition: translate .35s var(--ease-out); }
+.button:hover > span[aria-hidden="true"] { translate: 3px -3px; }
+
+/* Ô nhập liệu: viền và quầng sáng mint khi đang nhập */
+input, select, textarea { transition: border-color .25s, box-shadow .25s, background-color .25s; }
+.tour-filters input:focus, .tour-filters select:focus,
+.ai-filter input:focus, .ai-filter select:focus, .ai-chat-form textarea:focus,
+.admin-form input:focus, .admin-form select:focus, .admin-form textarea:focus,
+.booking-form input:focus, .booking-form textarea:focus,
+.admin-toolbar input:focus, .admin-toolbar select:focus {
+  border-color: #00b48a;
+  box-shadow: 0 0 0 4px rgb(0 255 195 / 16%);
+}
+
+/* Banner trang chủ */
+.hero { overflow: hidden; background: #0d2420; min-height: min(640px, 82vh); }
+.hero-slides { position: absolute; inset: 0; }
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  scale: 1.12;
+  transition: opacity 1.4s var(--ease-soft), scale 8s linear;
+  will-change: opacity, scale;
+}
+/* Ảnh đang hiện: rõ dần và zoom ra rất chậm */
+.hero-slide.is-active { opacity: 1; scale: 1; }
+
+/* Vệt sáng mint trôi chậm phía sau chữ */
+.hero-aurora {
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(40% 35% at 25% 70%, rgb(0 255 195 / 22%), transparent 70%),
+    radial-gradient(35% 30% at 80% 25%, rgb(120 200 255 / 16%), transparent 70%);
+  mix-blend-mode: screen;
+  animation: aurora 18s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes aurora {
+  from { translate: -4% 2%; rotate: 0deg; }
+  to { translate: 5% -3%; rotate: 8deg; }
+}
+/* Lớp "hạt" như ảnh phim, tạo cảm giác nghệ thuật */
+.hero-grain, .auth-modern-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .14;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Chữ trong banner lần lượt trượt lên khi đổi slide */
+.hero-content { z-index: 1; }
+.hero-line { animation: hero-line .9s var(--ease-out) both; }
+.hero-content > :nth-child(1) { animation-delay: .05s; }
+.hero-content > :nth-child(2) { animation-delay: .15s; }
+.hero-content > :nth-child(3) { animation-delay: .28s; }
+.hero-content > :nth-child(4) { animation-delay: .4s; }
+@keyframes hero-line {
+  from { opacity: 0; translate: 0 26px; filter: blur(6px); }
+  to { opacity: 1; translate: none; filter: blur(0); }
+}
+.hero h1 { text-shadow: 0 6px 30px rgb(0 0 0 / 25%); }
+@media (max-width: 640px) { .hero { min-height: 520px; } }
+
+/* Nút chấm: chấm đang chọn dài ra và có thanh tiến độ chạy */
+.slide-controls { z-index: 2; align-items: center; }
+.slide-controls .slide-dot span {
+  position: relative;
+  overflow: hidden;
+  transition: width .5s var(--ease-out), background-color .3s;
+}
+.slide-controls .slide-dot:hover span { background: rgb(255 255 255 / 85%); }
+.slide-controls .slide-dot[aria-pressed="true"] span { width: 40px; background: rgb(255 255 255 / 35%); }
+.slide-dot i {
+  position: absolute;
+  inset: 0;
+  background: var(--primary);
+  transform-origin: left;
+  animation: slide-progress var(--slide-ms, 6500ms) linear forwards;
+}
+.hero[data-playing="false"] .slide-dot i { animation-play-state: paused; }
+@keyframes slide-progress { from { scale: 0 1; } to { scale: 1 1; } }
+.slide-pause {
+  width: 44px; height: 44px;
+  border: 0;
+  background: transparent;
+  color: rgb(255 255 255 / 75%);
+  font-size: 10px;
+  letter-spacing: -1px;
+  transition: color .2s;
+}
+.slide-pause:hover { color: var(--primary); }
+.pause-icon {
+  display: block;
+  width: 10px;
+  height: 11px;
+  margin: auto;
+  border-inline: 3px solid currentColor;
+  transition: border-color .2s;
+}
+.pause-icon.is-play {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 6px 0 6px 10px;
+  border-color: transparent transparent transparent currentColor;
+}
+
+/* Tiêu đề mục: dòng kẻ nhỏ trước chữ kicker */
+.section-heading .section-kicker, .about-content .section-kicker,
+.tour-overview .section-kicker, .ai-chat .section-kicker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-heading .section-kicker::before, .about-content .section-kicker::before,
+.tour-overview .section-kicker::before, .ai-chat .section-kicker::before {
+  content: "";
+  width: 26px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #00795c, var(--primary));
+}
+
+/* Thẻ tour: nổi lên, ảnh zoom chậm, vệt sáng theo con trỏ */
+.tour-card, .suggestion-card {
+  position: relative;
+  transition: transform .5s var(--ease-out), box-shadow .5s var(--ease-out), border-color .4s;
+}
+.tour-card::before, .suggestion-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 30%), rgb(0 255 195 / 12%), transparent 60%);
+  transition: opacity .4s;
+}
+@media (hover: hover) {
+  .tour-card:hover, .suggestion-card:hover {
+    transform: translateY(-6px);
+    border-color: #bfe9da;
+    box-shadow: 0 26px 50px -26px rgb(20 80 60 / 35%);
+  }
+  .tour-card:hover::before, .suggestion-card:hover::before { opacity: 1; }
+}
+.tour-picture img, .suggestion-card .tour-picture img { transition: transform 1.2s var(--ease-out), filter .6s; }
+.tour-card:hover img, .suggestion-card:hover img { transform: scale(1.07); filter: saturate(1.12); }
+/* Dải tối mờ dưới ảnh giúp ảnh có chiều sâu */
+.tour-picture::after {
+  content: "";
+  position: absolute;
+  inset: 45% 0 0;
+  background: linear-gradient(transparent, rgb(8 30 24 / 28%));
+  opacity: .6;
+  transition: opacity .5s;
+  pointer-events: none;
+}
+.tour-card:hover .tour-picture::after { opacity: 1; }
+.duration-badge { z-index: 1; transition: translate .5s var(--ease-out); box-shadow: 0 6px 16px -8px rgb(0 0 0 / 40%); }
+.tour-card:hover .duration-badge { translate: 0 -2px; }
+.tour-content h3 a { background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size .45s var(--ease-out); }
+.tour-content h3 a:hover { background-size: 100% 1px; }
+.tour-tags span { transition: background-color .3s, color .3s; }
+.tour-card:hover .tour-tags span { background: #e2f6ee; color: #1f5a45; }
+
+/* Khung đang tải: thẻ "xương" có ánh sáng chạy qua */
+.skeleton-card { pointer-events: none; }
+.skeleton-card .skeleton-media { aspect-ratio: 1.65; }
+.skeleton-card .skeleton-line { height: 12px; border-radius: 6px; margin-top: 14px; }
+.skeleton-card .skeleton-line.is-title { height: 20px; width: 80%; margin-top: 4px; }
+.skeleton-card .skeleton-line.is-short { width: 45%; }
+.skeleton-media, .skeleton-line {
+  background: linear-gradient(100deg, #edf3f0 30%, #f8fbf9 50%, #edf3f0 70%) 0 0 / 300% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+@keyframes shimmer { from { background-position: 100% 0; } to { background-position: -50% 0; } }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* Các khối khác */
+/* Khung kêu gọi cuối trang: nền chuyển màu rất chậm */
+.travel-callout {
+  background: linear-gradient(120deg, #e3fbf2, #f2fffa, #dff6f6, #e9fbf3) 0 50% / 300% 300%;
+  animation: callout-flow 14s ease-in-out infinite alternate;
+}
+@keyframes callout-flow { from { background-position: 0 50%; } to { background-position: 100% 50%; } }
+
+/* Lựa chọn lịch khởi hành: viền chuyển màu và "nảy" nhẹ khi chọn */
+.departure-option { transition: border-color .25s, background-color .25s, box-shadow .3s, transform .3s var(--ease-out); }
+.departure-option:hover { transform: translateY(-1px); }
+.departure-option.is-selected { box-shadow: 0 10px 22px -16px rgb(0 120 90 / 55%); animation: pick .4s var(--ease-out); }
+@keyframes pick { 40% { transform: scale(1.015); } }
+.quote-summary strong { transition: color .3s; }
+
+/* Ô số liệu Dashboard, thẻ đơn, thẻ tài khoản: nổi nhẹ khi rê chuột */
+.admin-metrics > article, .booking-list-card, .account-card {
+  transition: transform .4s var(--ease-out), box-shadow .4s var(--ease-out), border-color .3s;
+}
+@media (hover: hover) {
+  .admin-metrics > article:hover, .booking-list-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 34px -24px rgb(20 80 60 / 40%);
+  }
+}
+
+/* Thông báo thành công / lỗi: trượt xuống nhẹ khi xuất hiện */
+.auth-error, .auth-success, .refresh-message, .contact-feedback, .header-error {
+  animation: notice-in .45s var(--ease-out) both;
+}
+@keyframes notice-in { from { opacity: 0; translate: 0 -6px; } to { opacity: 1; translate: none; } }
+
+/* Trang đăng nhập/đăng ký: chữ bên trái và form bên phải bay vào từ hai phía */
+.auth-modern-overlay::after { opacity: .1; }
+.auth-modern-story { animation: from-left 1s .1s var(--ease-out) both; }
+.auth-modern-card { animation: from-right 1s .2s var(--ease-out) both; }
+@keyframes from-left { from { opacity: 0; translate: -28px 0; } to { opacity: 1; translate: none; } }
+@keyframes from-right { from { opacity: 0; translate: 28px 0; } to { opacity: 1; translate: none; } }
+
+/* Tin nhắn chat AI xuất hiện lần lượt */
+.ai-message { animation: rise-in .5s var(--ease-out) both; }
+
+/* Nút lên đầu trang (có vòng tiến độ cuộn) */
+.to-top {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 30;
+  width: 52px;
+  height: 52px;
+  border: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--dark);
+  color: #fff;
+  box-shadow: 0 14px 30px -12px rgb(0 0 0 / 50%);
+  opacity: 0;
+  translate: 0 16px;
+  scale: .85;
+  pointer-events: none;
+  transition: opacity .35s, translate .45s var(--ease-out), scale .45s var(--ease-out), background-color .3s;
+}
+.to-top.is-shown { opacity: 1; translate: none; scale: 1; pointer-events: auto; }
+.to-top:hover { background: #0f3b31; }
+.to-top svg { position: absolute; inset: 2px; width: calc(100% - 4px); height: calc(100% - 4px); rotate: -90deg; }
+.to-top circle { fill: none; stroke-width: 2.5; }
+.to-top-track { stroke: rgb(255 255 255 / 14%); }
+.to-top-ring { stroke: var(--primary); stroke-linecap: round; transition: stroke-dashoffset .15s linear; }
+.to-top span { font-size: 18px; font-weight: 700; transition: translate .35s var(--ease-out); }
+.to-top:hover span { translate: 0 -3px; }
+@media (max-width: 640px) { .to-top { right: 14px; bottom: 14px; width: 46px; height: 46px; } }
+
+/* Tôn trọng cài đặt "giảm chuyển động" của người dùng */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+  }
+  .hero-slide { scale: 1; }
+  .hero-aurora { animation: none; }
+}

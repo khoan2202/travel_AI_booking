@@ -1,0 +1,166 @@
+/* CSS cho trang Blog (/blog) và trang đọc bài viết (/blog/:slug). */
+
+/* Khối "Bài viết mới" ở trang chủ */
+.home-blog-all { flex: none; padding-bottom: 5px; color: #00664c; font-size: 13px; font-weight: 700; }
+.home-blog-all span { display: inline-block; transition: translate .35s var(--ease-out, ease); }
+.home-blog-all:hover span { translate: 4px 0; }
+.home-blog-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 28px; }
+.home-blog-grid.is-single { grid-template-columns: minmax(0, 1fr); }
+/* Bài lớn: ảnh phủ kín thẻ, chữ nằm trên lớp tối phía dưới */
+.home-blog-lead { position: relative; display: flex; align-items: flex-end; min-height: 440px; overflow: hidden; border-radius: 6px; background: #10211c; color: #fff; isolation: isolate; }
+.home-blog-lead img { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease-out, ease); }
+.home-blog-lead::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, transparent 30%, rgb(6 22 18 / 88%)); }
+.home-blog-lead:hover img { transform: scale(1.05); }
+.home-blog-lead-text { padding: 28px; }
+.home-blog-lead-text p { font-size: 12px; color: #d5e6df; }
+.home-blog-lead-text p span { color: var(--primary); font-weight: 700; }
+.home-blog-lead h3 { margin-block: 10px; font-size: clamp(22px, 2.4vw, 30px); line-height: 1.3; letter-spacing: -.6px; font-weight: 700; }
+/* Mở rộng vùng bấm của link ra cả thẻ */
+.home-blog-lead h3 a::after, .home-blog-item h3 a::after { content: ""; position: absolute; inset: 0; }
+.home-blog-lead time { font-size: 12px; color: #d5e6df; }
+/* Hai bài nhỏ xếp dọc, ngăn bằng đường kẻ */
+.home-blog-side { display: grid; grid-template-rows: 1fr 1fr; }
+.home-blog-item { position: relative; display: grid; grid-template-columns: 148px minmax(0, 1fr); align-items: center; gap: 20px; padding-block: 20px; border-top: 1px solid var(--line); }
+.home-blog-item:first-child { padding-top: 0; border-top: 0; }
+.home-blog-item:last-child { padding-bottom: 0; }
+.home-blog-item img { width: 148px; height: 148px; object-fit: cover; border-radius: 4px; background: #dae8e1; transition: filter .5s; }
+.home-blog-item:hover img { filter: saturate(1.2); }
+.home-blog-item h3 { margin-top: 8px; font-size: 17px; line-height: 1.42; font-weight: 650; letter-spacing: -.2px; transition: color .25s; }
+.home-blog-item:hover h3 { color: #00664c; }
+.home-blog-excerpt { margin-top: 8px; color: var(--muted); font-size: 13px; line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+@media (max-width: 960px) {
+  .home-blog-grid { grid-template-columns: minmax(0, 1fr); }
+  .home-blog-lead { min-height: 360px; }
+}
+@media (max-width: 640px) {
+  .home-blog .section-heading { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .home-blog-item { grid-template-columns: 96px minmax(0, 1fr); gap: 14px; }
+  .home-blog-item img { width: 96px; height: 96px; }
+  .home-blog-excerpt { display: none; }
+}
+
+/* Đầu trang Blog */
+.blog-hero { padding-block: 64px 96px; color: #fff; background: radial-gradient(900px 340px at 82% -10%, rgb(0 255 195 / 16%), transparent 70%), #10211c; }
+.blog-hero .section-kicker { color: var(--primary); }
+.blog-hero h1 { max-width: 760px; font-size: clamp(36px, 5.4vw, 62px); line-height: 1.16; letter-spacing: -1.6px; font-weight: 700; }
+/* Times New Roman có đủ dấu tiếng Việt, tạo điểm nhấn kiểu tạp chí */
+.blog-hero h1 em { font-family: "Times New Roman", "Noto Serif", serif; font-weight: 500; color: var(--primary); }
+.blog-hero p:last-child { max-width: 560px; margin-top: 20px; color: #c6d8d1; font-size: 15px; line-height: 1.8; }
+
+/* Bài nổi bật */
+.blog-featured { display: grid; grid-template-columns: 1.25fr 1fr; margin-top: -56px; position: relative; background: #fff; border: 1px solid var(--line); box-shadow: 0 30px 60px -38px rgb(16 33 28 / 55%); }
+.blog-featured-photo { display: block; min-height: 380px; overflow: hidden; background: #dae8e1; }
+.blog-featured-photo img { width: 100%; height: 100%; object-fit: cover; transition: transform .9s var(--ease-out, ease); }
+.blog-featured:hover .blog-featured-photo img { transform: scale(1.04); }
+.blog-featured-text { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 16px; padding: 40px; }
+.blog-featured-text h2 { font-size: clamp(24px, 2.6vw, 32px); line-height: 1.3; }
+.blog-featured-text h2 a:hover { color: #00664c; }
+.blog-featured-text > p:not(.blog-meta, .blog-byline) { color: var(--muted); font-size: 14px; line-height: 1.85; }
+.blog-byline { color: var(--muted); font-size: 12px; }
+
+/* Chuyên mục và tìm kiếm */
+.blog-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-block: 44px 28px; }
+.blog-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.blog-chips button { display: inline-flex; align-items: center; gap: 7px; padding: 8px 16px; border: 1px solid #cedbd3; border-radius: 30px; background: #fff; color: #234e41; font-size: 13px; font-weight: 600; transition: background-color .2s, border-color .2s; }
+.blog-chips button:hover { border-color: #00795c; }
+.blog-chips button[aria-pressed="true"] { background: #10211c; border-color: #10211c; color: #fff; }
+.blog-chips small { font-size: 11px; font-weight: 500; opacity: .7; }
+.blog-search { display: flex; gap: 8px; flex: 0 1 320px; }
+.blog-search input { flex: 1; min-width: 0; padding: 10px 14px; border: 1px solid #cedbd3; border-radius: 4px; font-size: 14px; }
+
+/* Lưới bài viết */
+.blog-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px 28px; transition: opacity .2s; }
+.blog-grid.is-loading { opacity: .55; }
+.blog-card { display: flex; flex-direction: column; align-items: flex-start; }
+.blog-card-photo { display: block; width: 100%; aspect-ratio: 1.6; overflow: hidden; background: #dae8e1; margin-bottom: 18px; }
+.blog-card-photo img { width: 100%; height: 100%; object-fit: cover; transition: transform .7s var(--ease-out, ease); }
+.blog-card:hover .blog-card-photo img { transform: scale(1.05); }
+.blog-meta { color: var(--muted); font-size: 12px; }
+.blog-meta span { color: #00795c; font-weight: 700; }
+.blog-card h3 { margin-top: 10px; font-size: 19px; line-height: 1.42; font-weight: 650; letter-spacing: -.3px; }
+.blog-card h3 a { background: linear-gradient(#00ffc3, #00ffc3) 0 100% / 0 2px no-repeat; transition: background-size .4s var(--ease-out, ease); }
+.blog-card:hover h3 a { background-size: 100% 2px; }
+.blog-card-excerpt { margin-block: 10px 12px; color: var(--muted); font-size: 13px; line-height: 1.8; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.blog-card time { margin-top: auto; color: var(--muted); font-size: 12px; }
+.blog-skeleton { aspect-ratio: 1.1; background: linear-gradient(100deg, #eef3f0 30%, #f8faf9 50%, #eef3f0 70%) 0 0 / 220% 100%; animation: blog-shimmer 1.4s linear infinite; }
+@keyframes blog-shimmer { to { background-position: -220% 0; } }
+.blog-missing { padding-block: 70px; min-height: 55vh; }
+
+/* Trang đọc bài */
+.read-progress { position: fixed; inset: 0 0 auto; z-index: 30; height: 3px; pointer-events: none; }
+.read-progress span { display: block; height: 100%; background: var(--primary); transform: scaleX(0); transform-origin: left; }
+.post-hero { position: relative; display: flex; align-items: flex-end; min-height: min(62vh, 560px); color: #fff; overflow: clip; background: #10211c; }
+.post-hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.post-hero-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgb(10 25 21 / 25%) 20%, rgb(10 25 21 / 86%)); }
+.post-hero-text { position: relative; padding-block: 100px 44px; }
+.post-crumbs { font-size: 13px; color: #d5e6df; margin-bottom: 14px; }
+.post-crumbs a:hover { color: var(--primary); }
+.post-hero h1 { max-width: 860px; font-size: clamp(30px, 4.6vw, 52px); line-height: 1.2; letter-spacing: -1.2px; font-weight: 700; }
+.post-byline { margin-top: 18px; font-size: 13px; color: #d5e6df; }
+
+.post-layout { display: grid; grid-template-columns: 220px minmax(0, 720px); justify-content: center; gap: 56px; padding-block: 56px 20px; }
+.post-layout > .post-article:only-child { grid-column: 1 / -1; justify-self: center; width: min(720px, 100%); }
+.post-toc { position: sticky; top: 112px; align-self: start; font-size: 13px; }
+.post-toc p { font-size: 11px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: #00795c; margin-bottom: 12px; }
+.post-toc ol { margin: 0; padding: 0; list-style: none; border-left: 1px solid var(--line); }
+.post-toc a { display: block; padding: 7px 0 7px 14px; margin-left: -1px; border-left: 2px solid transparent; color: var(--muted); line-height: 1.5; transition: color .2s, border-color .2s; }
+.post-toc a:hover { color: #00664c; border-color: #00795c; }
+.post-lead { font-size: 19px; line-height: 1.7; color: #33423d; margin-bottom: 30px; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
+
+/* Nội dung bài viết (dùng chung cho trang đọc và khung xem trước của admin) */
+.post-body { font-size: 16px; line-height: 1.9; color: #2e3a36; overflow-wrap: anywhere; }
+.post-body > * + * { margin-top: 20px; }
+.post-body h2 { margin-top: 44px; font-size: 26px; line-height: 1.35; color: var(--dark); scroll-margin-top: 108px; }
+.post-body h3 { margin-top: 32px; font-size: 20px; line-height: 1.4; color: var(--dark); scroll-margin-top: 108px; }
+.post-body a { color: #00664c; text-decoration: underline; text-underline-offset: 3px; }
+.post-body a:hover { color: #00a07a; }
+.post-body ul, .post-body ol { padding-left: 22px; }
+.post-body li + li { margin-top: 8px; }
+.post-body li::marker { color: #00795c; font-weight: 700; }
+.post-body blockquote { margin-inline: 0; padding: 18px 22px; border-left: 4px solid var(--primary); background: #eefbf6; font-size: 15px; }
+.post-body figure { margin-inline: 0; margin-block: 30px; }
+.post-body figure img { width: 100%; border-radius: 4px; }
+.post-body figcaption { margin-top: 8px; font-size: 12px; color: var(--muted); text-align: center; }
+.post-body hr { border: 0; border-top: 1px solid var(--line); margin-block: 36px; }
+
+.post-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--line); }
+.post-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.post-tags span { padding: 5px 10px; background: #f0f5f2; color: #486757; border-radius: 3px; font-size: 12px; }
+.post-credit { margin-top: 16px; font-size: 12px; color: var(--muted); }
+.post-credit a { text-decoration: underline; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* Tour gợi ý cuối bài */
+.post-tours { margin-top: 56px; padding-block: 56px; background: #10211c; color: #fff; }
+.post-tours .section-kicker { color: var(--primary); }
+.post-tour-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: 26px; }
+.post-tour { display: block; background: #fff; color: var(--dark); transition: transform .35s var(--ease-out, ease); }
+.post-tour:hover { transform: translateY(-4px); }
+.post-tour-text { display: grid; gap: 6px; padding: 16px 18px 20px; }
+.post-tour-text small { font-size: 11px; color: #44725e; }
+.post-tour-text strong { font-size: 15px; line-height: 1.45; font-weight: 650; }
+.post-tour-text em { font-style: normal; font-size: 13px; font-weight: 700; color: #006d51; }
+.post-related { padding-top: 60px; }
+.post-related h2 { margin-bottom: 26px; }
+
+@media (max-width: 960px) {
+  .blog-featured { grid-template-columns: 1fr; }
+  .blog-featured-photo { min-height: 0; aspect-ratio: 1.7; }
+  .blog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .post-layout { grid-template-columns: minmax(0, 720px); gap: 28px; }
+  .post-toc { position: static; padding: 18px 20px; background: #f6f9f7; }
+  .post-tour-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  .blog-hero { padding-block: 44px 84px; }
+  .blog-featured-text { padding: 24px 20px; }
+  .blog-search { flex-basis: 100%; }
+  .blog-grid { grid-template-columns: minmax(0, 1fr); }
+  .post-hero { min-height: 420px; }
+  .post-lead { font-size: 17px; }
+  .post-body h2 { font-size: 23px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .blog-skeleton { animation: none; }
+  .blog-featured:hover .blog-featured-photo img, .blog-card:hover .blog-card-photo img { transform: none; }
+}
