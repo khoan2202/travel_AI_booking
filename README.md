@@ -26,22 +26,6 @@ Khách tìm, so sánh và đặt tour · Admin quản lý toàn bộ hệ thốn
 
 ---
 
-## 📑 Mục lục
-
-- [Giao diện](#-giao-diện)
-- [Tính năng](#-tính-năng)
-- [Kiến trúc](#️-kiến-trúc)
-- [Điểm nhấn kỹ thuật](#-điểm-nhấn-kỹ-thuật)
-- [Bảo mật](#️-bảo-mật)
-- [Trợ lý AI](#-trợ-lý-ai)
-- [Công nghệ](#-công-nghệ)
-- [REST API](#-rest-api)
-- [Chạy trên máy](#-chạy-trên-máy)
-- [Deploy](#️-deploy)
-- [Tác giả](#-tác-giả)
-
----
-
 ## 📸 Giao diện
 
 <table>
