@@ -19,7 +19,7 @@ import blogRoutes from './routes/blogRoutes.js';
 import swaggerUi from 'swagger-ui-express';
 import openapi from './docs/openapi.js';
 
-// Tách khỏi server.js để test tự dựng app được.
+// Tách khỏi server.js để Vercel (api/index.js) dùng lại được.
 export function createApp() {
   const app = express();
   // giấu "X-Powered-By" cho đỡ lộ đang dùng Express
@@ -116,8 +116,13 @@ export function createApp() {
 
   // /api/... nào không khớp thì 404
   app.use('/api', (req, res) => res.status(404).json({ message: 'Đường dẫn API không tồn tại' }));
-  // production: server phục vụ luôn bản build của React, cùng một domain
-  if (production || process.env.SERVE_CLIENT === 'true') {
+  // production: server phục vụ luôn bản build của React, cùng một domain.
+  // Trên Vercel (có biến VERCEL) thì không: Vercel tự phục vụ client/dist, Express chỉ lo /api.
+  // SERVE_CLIENT=true/false ghi đè mặc định này.
+  const serveClient = process.env.SERVE_CLIENT
+    ? process.env.SERVE_CLIENT === 'true'
+    : production && !process.env.VERCEL;
+  if (serveClient) {
     const clientDist = fileURLToPath(new URL('../../client/dist/', import.meta.url));
     if (!existsSync(path.join(clientDist, 'index.html')))
       throw new Error('Run npm run build in client before serving the website.');

@@ -1,7 +1,8 @@
 // Hàm gọi API dùng chung của cả frontend, kèm đăng nhập/đăng ký.
-// Địa chỉ backend lấy từ VITE_API_BASE_URL, không có thì localhost:5000.
+// Địa chỉ backend lấy từ VITE_API_BASE_URL. Không đặt thì: lúc chạy dev gọi localhost:5000,
+// bản build gọi "/api" cùng domain (Vercel và Render đều phục vụ API ở đó).
 const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api"
+  import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? "http://localhost:5000/api" : "/api")
 ).replace(/\/+$/, "");
 
 // request(): lo timeout, cookie, CSRF, đổi lỗi thành câu tiếng Việt. Trả về phần "data" của JSON.

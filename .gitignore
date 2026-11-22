@@ -7,4 +7,5 @@ dist/
 *.patch
 *.rej
 *.orig
-.claude/
+.claude/.vercel
+GIAI_THICH_BAO_MAT.md

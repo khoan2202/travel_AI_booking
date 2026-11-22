@@ -5,12 +5,20 @@ import pg from 'pg';
 // production hoặc DATABASE_SSL=true thì bật SSL (Neon bắt buộc)
 const useSSL = process.env.NODE_ENV === 'production' || process.env.DATABASE_SSL?.trim().toLowerCase() === 'true';
 
+// Hai cách khai báo kết nối: các biến PGHOST, PGUSER... (ưu tiên), hoặc một DATABASE_URL
+// (tích hợp Neon trên Vercel tự tạo biến này).
+const connection = process.env.PGHOST
+  ? {
+      host: process.env.PGHOST,
+      port: Number(process.env.PGPORT || 5432),
+      database: process.env.PGDATABASE,
+      user: process.env.PGUSER,
+      password: process.env.PGPASSWORD,
+    }
+  : { connectionString: process.env.DATABASE_URL };
+
 const pool = new pg.Pool({
-  host: process.env.PGHOST,
-  port: Number(process.env.PGPORT || 5432),
-  database: process.env.PGDATABASE,
-  user: process.env.PGUSER,
-  password: process.env.PGPASSWORD,
+  ...connection,
 
   // true = có kiểm tra chứng chỉ của DB
   ssl: useSSL ? { rejectUnauthorized: true } : false,

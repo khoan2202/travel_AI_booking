@@ -1,10 +1,9 @@
-# Git tự chuẩn hóa xuống dòng, tránh lỗi lệch dòng giữa Windows và Linux/Docker/CI.
+# Git tự chuẩn hóa xuống dòng, tránh lỗi lệch dòng giữa Windows và Linux (Vercel).
 * text=auto
 
-# File chạy trong container hoặc do PostgreSQL đọc luôn dùng LF, kể cả khi clone trên Windows.
+# File SQL và cấu hình luôn dùng LF, kể cả khi clone trên Windows.
 *.sql text eol=lf
 *.sh text eol=lf
-Dockerfile text eol=lf
 *.yml text eol=lf
 
 # File nhị phân: không sửa nội dung.

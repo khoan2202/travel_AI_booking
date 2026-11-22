@@ -1,0 +1,9 @@
+{
+  "name": "travel-mint",
+  "private": true,
+  "description": "Travel Mint: website đặt tour du lịch tích hợp AI. Mã nguồn nằm trong client/ (React) và server/ (Express); file này chỉ để Vercel biết dùng Node 24 và chạy api/index.js dạng ES module.",
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  }
+}
