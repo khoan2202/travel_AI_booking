@@ -1,6 +1,5 @@
 # 🌴 Travel Mint — Website đặt tour du lịch tích hợp AI
 
-[![CI](https://github.com/khoan2202/travel_AI_booking/actions/workflows/ci.yml/badge.svg)](https://github.com/khoan2202/travel_AI_booking/actions/workflows/ci.yml)
 ![Node](https://img.shields.io/badge/node-24-3c873a)
 ![React](https://img.shields.io/badge/react-19-61dafb)
 ![PostgreSQL](https://img.shields.io/badge/postgresql-17-336791)
@@ -12,7 +11,7 @@ Website đặt tour du lịch fullstack: khách xem, so sánh và đặt tour; a
 
 <img width="2858" height="1442" alt="image" src="https://github.com/user-attachments/assets/1344d668-5cca-4fee-8d5e-c8aad8584e36" />
 
-> **Tóm tắt bằng tiếng Anh (for reviewers):** a full-stack tour booking app built with React 19, Express 5 and PostgreSQL. It focuses on correctness under concurrency (row-level locking prevents overselling seats, idempotent booking requests), a security-minded backend (session auth, CSRF, rate limiting, audit log), an admin back office, a Markdown blog, and a Gemini-powered assistant with a deterministic fallback. It ships with Docker, a CI pipeline and 68 automated tests.
+> **Tóm tắt bằng tiếng Anh (for reviewers):** a full-stack tour booking app built with React 19, Express 5 and PostgreSQL. It focuses on correctness under concurrency (row-level locking prevents overselling seats, idempotent booking requests), a security-minded backend (session auth, CSRF, rate limiting, audit log), an admin back office, a Markdown blog, and a Gemini-powered assistant with a deterministic fallback. Deployed on Vercel with a Neon Postgres database.
 
 ---
 
@@ -47,7 +46,7 @@ Website đặt tour du lịch fullstack: khách xem, so sánh và đặt tour; a
 
 ## 🧠 Điểm nhấn kỹ thuật
 
-**Không bán quá số chỗ, kể cả khi nhiều người đặt cùng lúc.** Đặt tour chạy trong một transaction, khóa dòng lịch khởi hành bằng `SELECT ... FOR UPDATE` rồi mới kiểm tra và trừ chỗ; `CHECK (seats_booked <= capacity)` ở database là lớp bảo vệ cuối cùng. Có test cho 12 người đặt cùng lúc 5 chỗ cuối: đúng 5 người được chỗ ([`bookingService.js`](server/src/services/bookingService.js), [`booking.test.js`](server/test/booking.test.js)).
+**Không bán quá số chỗ, kể cả khi nhiều người đặt cùng lúc.** Đặt tour chạy trong một transaction, khóa dòng lịch khởi hành bằng `SELECT ... FOR UPDATE` rồi mới kiểm tra và trừ chỗ; `CHECK (seats_booked <= capacity)` ở database là lớp bảo vệ cuối cùng. Xem [`bookingService.js`](server/src/services/bookingService.js).
 
 **Bấm hai lần hoặc rớt mạng không tạo đơn trùng.** Mỗi lần đặt có một `request_key` (UUID) do trình duyệt tạo và lưu tạm; gửi lại cùng mã thì server trả lại đơn cũ. Mã này chỉ được tái sử dụng khi nội dung y hệt.
 
@@ -55,7 +54,7 @@ Website đặt tour du lịch fullstack: khách xem, so sánh và đặt tour; a
 
 **Thao tác tiền bạc có dấu vết.** Ghi nhận thanh toán / hoàn tiền yêu cầu tick xác nhận, ghi chú và mã đối soát; mỗi thao tác của admin đều vào nhật ký (`admin_audit_logs`). Mỗi đơn chỉ có tối đa một lần thanh toán và một lần hoàn tiền (ràng buộc `UNIQUE` trong database).
 
-**Blog an toàn trước XSS.** Bộ đọc Markdown tự viết ([`markdown.js`](client/src/utils/markdown.js)) chuyển nội dung thành các khối React, không dùng `dangerouslySetInnerHTML`; link `javascript:` và `//` bị chặn. Có test cho các trường hợp tấn công thường gặp.
+**Blog an toàn trước XSS.** Bộ đọc Markdown tự viết ([`markdown.js`](client/src/utils/markdown.js)) chuyển nội dung thành các khối React, không dùng `dangerouslySetInnerHTML`; link `javascript:` và `//` bị chặn.
 
 **Migration chạy lại được nhiều lần.** Các file SQL `008`, `009`, `010` dùng `IF NOT EXISTS` / `ON CONFLICT DO NOTHING`; server không khởi động nếu thiếu bảng bắt buộc, còn các tính năng mới (blog, hỗ trợ) tự báo rõ khi database chưa chạy migration thay vì sập.
 
@@ -67,7 +66,6 @@ Website đặt tour du lịch fullstack: khách xem, so sánh và đặt tour; a
 - **Rate limiting** riêng cho đăng nhập, đăng ký, đặt tour, hỗ trợ và gọi AI
 - Header bảo mật; trên production có thêm HSTS và **Content-Security-Policy** chặn script ngoài
 - Giới hạn kích thước request, phân quyền `user` / `admin` ở cả frontend và backend
-- CI chạy `npm audit` cho backend để chặn thư viện có lỗ hổng mức cao; Dependabot tự đề xuất bản vá
 
 ## 🤖 Trợ lý AI
 
@@ -75,7 +73,7 @@ Website đặt tour du lịch fullstack: khách xem, so sánh và đặt tour; a
 - Ép kết quả trả về dạng JSON (câu trả lời + tối đa 3 tour kèm lý do)
 - **Giảm thiểu prompt injection:** coi câu hỏi và lịch sử là dữ liệu không đáng tin trong prompt, và quan trọng hơn là kiểm tra chặt đầu ra: tour AI chọn phải có trong danh sách đã gửi, không trùng, lý do hợp lệ; giá và số chỗ luôn lấy lại từ database
 - Giới hạn 10 giây cho mỗi lần gọi, giới hạn tần suất theo IP và theo tài khoản để tránh tốn quota
-- **Phương án dự phòng:** khi AI lỗi, quá giờ, trả sai định dạng hoặc chưa có API key, hệ thống tự gợi ý tour từ database, người dùng không thấy lỗi. Phần này có test với "Gemini giả" ([`unit.test.js`](server/test/unit.test.js))
+- **Phương án dự phòng:** khi AI lỗi, quá giờ, trả sai định dạng hoặc chưa có API key, hệ thống tự gợi ý tour từ database, người dùng không thấy lỗi. ([`consultationService.js`](server/src/services/consultationService.js))
 
 ## 🧰 Công nghệ
 
@@ -85,9 +83,8 @@ Website đặt tour du lịch fullstack: khách xem, so sánh và đặt tour; a
 | Backend | Node.js 24, Express 5, REST API, Swagger UI |
 | Database | PostgreSQL (Neon), 10 file migration SQL |
 | AI | Google Gemini API |
-| Kiểm thử | `node:test` (không cần thư viện ngoài), test tích hợp chạy trên PostgreSQL thật |
-| DevOps | Docker + Docker Compose, GitHub Actions (lint + format, test, build, khởi động thử bằng Docker), Dependabot |
-| Deploy | Render (một service phục vụ cả frontend và `/api`) + Neon Postgres |
+| Công cụ | Git/GitHub, ESLint |
+| Deploy | Vercel (giao diện tĩnh + Express chạy dạng Serverless Function) + Neon Postgres |
 
 ## 🗄️ Mô hình dữ liệu
 
@@ -131,8 +128,7 @@ Ngoài ra có bảng `user_sessions` (phiên đăng nhập, dùng `connect-pg-si
 
 ```
 travel_AI_booking/
-├── Dockerfile · docker-compose.yml   # chạy cả hệ thống bằng một lệnh
-├── .github/workflows/ci.yml          # CI: lint, test, build, thử khởi động bằng Docker
+├── api/index.js · vercel.json       # deploy lên Vercel (Express chạy dạng Serverless Function)
 ├── docs/screenshots/                 # ảnh dùng trong README
 ├── client/                           # Frontend React
 │   └── src/
@@ -141,12 +137,11 @@ travel_AI_booking/
 │       ├── context/                  # AuthContext, CompareContext
 │       ├── hooks/                    # useLoad (tải dữ liệu, tự hủy yêu cầu cũ)
 │       ├── services/                 # Gọi API (tourApi, bookingApi, adminApi...)
-│       ├── utils/                    # Markdown, quiz, định dạng (kèm *.test.js)
+│       ├── utils/                    # Markdown, quiz, định dạng
 │       └── styles/                   # CSS theo từng khu vực, theme.css cho giao diện tối
 └── server/                           # Backend Express
-    ├── sql/                          # Migration 001 → 010 + script deploy
+    ├── sql/                          # Migration 001 → 010
     ├── scripts/make-admin.js         # cấp quyền admin cho một tài khoản
-    ├── test/                         # Test đơn vị + test tích hợp trên PostgreSQL
     └── src/
         ├── routes/                   # 11 nhóm route
         ├── controllers/              # Xử lý request
@@ -156,26 +151,6 @@ travel_AI_booking/
 ```
 
 ## 🚀 Chạy trên máy
-
-### Cách 1: Docker (nhanh nhất)
-
-**Yêu cầu:** Docker Desktop. Không cần cài Node hay PostgreSQL.
-
-```bash
-docker compose up --build
-```
-
-Mở http://localhost:5000. Lần đầu, PostgreSQL tự chạy các file `server/sql/001 → 010` (tạo bảng, 22 tour mẫu, 6 bài blog). Cấu hình mặc định chỉ dành cho máy cá nhân; muốn đổi mật khẩu/khóa, sao chép `.env.example` thành `.env`.
-
-```bash
-# Tạo tài khoản admin: đăng ký trên website trước, rồi
-docker compose exec app npm run make-admin -- email-cua-ban@example.com
-
-# Xóa sạch dữ liệu để chạy lại từ đầu
-docker compose down -v
-```
-
-### Cách 2: Chạy trực tiếp
 
 **Yêu cầu:** Node.js 24, PostgreSQL (cài trên máy hoặc dùng Neon miễn phí).
 
@@ -199,37 +174,28 @@ npm run dev               # http://localhost:5173
 
 Tạo tài khoản admin: đăng ký bình thường rồi chạy `npm run make-admin -- email-cua-ban@example.com` trong thư mục `server`.
 
-## 🧪 Kiểm thử
+## 🧹 Kiểm tra code
 
 ```bash
-# Frontend: lint + test (bộ đọc Markdown, chấm điểm quiz, định dạng...)
-cd client
-npm run lint && npm test
-
-# Backend: lint + kiểm tra định dạng (ESLint, Prettier)
-cd server
-npm run lint && npm run format:check
-cd ..
-
-# Backend: cần một database RIÊNG có tên kết thúc bằng _test
-createdb travel_test
-for f in server/sql/0*.sql; do psql -d travel_test -v ON_ERROR_STOP=1 -f "$f"; done
-cd server
-PGDATABASE=travel_test npm test        # PowerShell: $env:PGDATABASE='travel_test'; npm test
+cd client && npm run lint     # ESLint cho frontend
+cd server && npm run lint     # ESLint cho backend
 ```
-
-Test backend tạo và xóa dữ liệu của chính nó nên **từ chối chạy** trên database không có đuôi `_test`, tránh xóa nhầm dữ liệu thật. Bộ test gồm: đăng ký/đăng nhập/phiên/CSRF/phân quyền, đặt tour (hết chỗ, đổi giá, gửi lại, **đặt đồng thời**, hủy, hoàn tiền), blog (bài nháp, hẹn giờ, ẩn/hiện), API admin, và logic dự phòng của trợ lý AI.
 
 ## ☁️ Deploy
 
-Một service Node phục vụ cả giao diện đã build (`client/dist`) lẫn `/api` trên cùng một domain, nên không cần cấu hình CORS giữa hai nơi. Có thể deploy bằng `Dockerfile` hoặc build trực tiếp (`npm run build` trong `client`, `npm start` trong `server`).
+Giao diện và `/api` luôn nằm trên **cùng một domain**, nên cookie đăng nhập dùng `SameSite=Lax` và không cần cấu hình CORS giữa hai nơi.
+
+**Vercel (bản demo đang dùng).** Import repo vào Vercel, giữ *Root Directory* là thư mục gốc; [`vercel.json`](vercel.json) đã khai báo sẵn cách cài, build và định tuyến. Vercel phục vụ `client/dist`, còn mọi request `/api/*` và `/api-docs` chạy qua app Express trong [`api/index.js`](api/index.js) (một Serverless Function). Header bảo mật (CSP, HSTS...) cho trang tĩnh cũng khai báo trong `vercel.json`.
+
+**Nơi khác (Render, VPS...).** Một tiến trình Node phục vụ cả `client/dist` lẫn `/api`: `npm run build` trong `client` rồi `npm start` trong `server`.
 
 | Biến môi trường | Ý nghĩa |
 |---|---|
 | `NODE_ENV=production` | Bật chế độ production (cookie `secure`, HSTS, CSP). Bắt buộc `CLIENT_URL` là https và `DATABASE_SSL=true` |
-| `CLIENT_URL` | Địa chỉ website, ví dụ `https://travel.trizportal.com` (dùng cho CORS và CSRF) |
+| `CLIENT_URL` | Địa chỉ website, ví dụ `https://ten-du-an.vercel.app` (dùng cho CORS và CSRF) |
 | `DATABASE_SSL=true` | Bật SSL tới database (Neon yêu cầu) |
-| `PGHOST` `PGPORT` `PGDATABASE` `PGUSER` `PGPASSWORD` | Kết nối PostgreSQL |
+| `DATABASE_URL` | Chuỗi kết nối PostgreSQL (tích hợp Neon trên Vercel tự tạo). Dùng khi không đặt `PGHOST` |
+| `PGHOST` `PGPORT` `PGDATABASE` `PGUSER` `PGPASSWORD` | Cách khai báo kết nối thứ hai, được ưu tiên nếu có `PGHOST` |
 | `SESSION_SECRET` | Khóa ký cookie, ít nhất 32 ký tự ngẫu nhiên |
 | `COOKIE_SAMESITE` | Không bắt buộc, mặc định `lax` (cùng domain). Chỉ đặt `none` khi tách frontend và backend sang hai domain khác nhau |
 | `GEMINI_API_KEY` | Không bắt buộc; bỏ trống thì AI dùng phương án dự phòng |
@@ -241,23 +207,24 @@ Trước lần deploy đầu tiên, chạy lần lượt các file `server/sql/0
 - **Thanh toán là ghi sổ thủ công:** khách chưa trả tiền trực tuyến; admin xác nhận sau khi kiểm tra chuyển khoản. Chưa tích hợp cổng thanh toán.
 - Chưa gửi email xác nhận đơn; hỗ trợ khách qua form liên hệ và trang quản trị.
 - Tour, giá và lịch khởi hành là **dữ liệu mẫu**.
-- Chưa có test giao diện end-to-end tự động (đã kiểm tra thủ công bằng trình duyệt).
+- Chưa có kiểm thử tự động; các luồng chính được kiểm tra thủ công trên trình duyệt.
+- Trên Vercel, giới hạn tần suất (rate limit) đếm trong bộ nhớ của từng instance serverless nên lỏng hơn khi chạy một server; muốn chặt cần chuyển bộ đếm sang Redis/PostgreSQL.
 - Ảnh bìa blog chọn từ ảnh có sẵn hoặc dán link https, chưa hỗ trợ tải ảnh lên.
 
 ## 🤝 Đóng góp
 
 Dự án bắt đầu như bài làm nhóm và hiện do mình duy trì.
 
-- **Phùng Khắc Khoan:** lên ý tưởng và chọn tính năng, thiết kế database và luồng đặt tour, phụ trách backend (đặt tour chống bán quá chỗ, xác thực, CSRF, thanh toán thủ công, nhật ký admin, trợ lý AI), trang quản trị, blog, so sánh tour, quiz, banner 3D, giao diện sáng/tối, test, Docker, CI và deploy.
+- **Phùng Khắc Khoan:** lên ý tưởng và chọn tính năng, thiết kế database và luồng đặt tour, phụ trách backend (đặt tour chống bán quá chỗ, xác thực, CSRF, thanh toán thủ công, nhật ký admin, trợ lý AI), trang quản trị, blog, so sánh tour, quiz, banner 3D, giao diện sáng/tối và deploy.
 - **Nguyễn Tấn Hùng (`hungdz`):**
   - Thiết kế lại giao diện trang đăng nhập/đăng ký, phần hero và ảnh tour trên trang chủ, bổ sung bộ ảnh cho giao diện.
   - Làm lại giao diện trang chi tiết tour và form đặt tour.
   - Làm trọn tính năng Liên hệ: bảng `support_requests` (migration `007`), API gửi yêu cầu hỗ trợ, trang Liên hệ ở frontend.
   - Viết tài liệu API bằng Swagger cho toàn bộ endpoint lúc đó (sau này mình cập nhật thêm cho các API mới).
   - Sửa cấu hình CORS và CSRF để frontend chạy được ở máy local.
-  - Thử deploy bằng Cloudflare Workers ở nhánh `dev` (chưa đưa vào bản chính).
+  - Thử nghiệm deploy bằng Cloudflare Workers (bản thử, không đưa vào bản chính).
 
-**Về việc dùng AI:** mình dùng Claude (Anthropic) làm trợ lý lập trình, ước chừng 60% lượng code được viết cùng AI (code khung, refactor, test, rà lỗi bảo mật). Mình quyết định cách làm, đọc lại và chỉnh từng thay đổi, chạy thử trên máy và deploy. Mình hiểu và giải thích được mọi phần trong dự án.
+**Về việc dùng AI:** mình dùng Claude (Anthropic) làm trợ lý lập trình, ước chừng 60% lượng code được viết cùng AI (code khung, refactor, rà lỗi bảo mật). Mình quyết định cách làm, đọc lại và chỉnh từng thay đổi, chạy thử trên máy và deploy. Mình hiểu và giải thích được mọi phần trong dự án.
 
 Lịch sử chi tiết xem ở tab Commits.
 
