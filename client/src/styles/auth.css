@@ -119,58 +119,6 @@
   line-height: 1.8;
 }
 
-/* button phía trái */
-.auth-modern-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  margin-top: 30px;
-}
-
-.auth-modern-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 145px;
-  padding: 13px 22px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 800;
-  text-decoration: none;
-  transition:
-    transform 0.2s ease,
-    background 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.auth-modern-button:hover {
-  transform: translateY(-2px);
-}
-
-.auth-modern-button-outline {
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.75);
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.auth-modern-button-outline:hover {
-  color: #fff;
-  border-color: #fff;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.auth-modern-button-primary {
-  color: #10221d;
-  background: var(--primary);
-  border: 1px solid var(--primary);
-}
-
-.auth-modern-button-primary:hover {
-  color: #10221d;
-  box-shadow: 0 10px 26px rgba(0, 255, 195, 0.18);
-}
-
 /*  AUTH - GLASS CARD BÊN PHẢI */
 
 .auth-modern-card {
@@ -471,10 +419,6 @@
   margin-top: 16px;
 }
 
-.admin-return {
-  margin-top: 30px;
-}
-
 /* TABLET - HEADER */
 
 @media (max-width: 1040px) and (min-width: 641px) {
@@ -482,7 +426,6 @@
     gap: 12px;
   }
 
-  .navbar,
   .main-menu a {
     font-size: 12px !important;
   }
@@ -560,15 +503,6 @@
 
   .auth-modern-description {
     font-size: 14px;
-  }
-
-  .auth-modern-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .auth-modern-button {
-    width: 100%;
   }
 
   .auth-modern-card {

@@ -172,7 +172,7 @@ export const destinationImages = {
 };
 
 // điểm đến nào chưa có ảnh riêng thì dùng ảnh này
-export const FALLBACK_IMAGE = { src: "/images/coast.svg" };
+const FALLBACK_IMAGE = { src: "/images/coast.svg" };
 
 // ảnh bìa và bộ ảnh theo tên điểm đến, không có thì ảnh minh họa
 export function imagesFor(destination) {

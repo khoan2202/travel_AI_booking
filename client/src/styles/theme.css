@@ -99,7 +99,7 @@
   .tour-picture, .gallery-thumb { background: var(--surface-2); }
   .tour-destination { color: #8fcdb5; }
   .tour-tags span { background: var(--surface-3); color: #bfd3ca; }
-  .tour-price-row strong, .tour-summary summary { color: var(--accent); }
+  .tour-price-row strong { color: var(--accent); }
   .state-box { border-color: var(--line-strong); }
   .error-box { border-color: #6b3a32; background: #2a1815; }
   .about-art span { background: var(--surface); color: var(--dark); }
