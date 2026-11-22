@@ -135,6 +135,9 @@ export default function HomePage() {
             </div>
           </section>
         )}
+
+        <HomeBlog />
+
         {/* id="tours" để link /#tours cuộn tới đây */}
         <section id="tours" className="section container">
           <div className="section-heading">
@@ -187,8 +190,6 @@ export default function HomePage() {
               : <div className="state-box"><h3>{tours.length === 0 ? "Chưa có tour đang mở bán" : "Chưa tìm thấy tour phù hợp"}</h3><p>{tours.length === 0 ? "Hãy quay lại để xem những hành trình mới." : "Thử đổi điểm đến, khu vực hoặc ngân sách của bạn."}</p>{tours.length > 0 && <button type="button" className="button button-secondary" onClick={resetFilters}>Xóa bộ lọc</button>}</div>}
           </>}
         </section>
-
-        <HomeBlog />
 
         <section id="about" className="section container about-section">
           <div className="about-art"><img src="/images/about/about.jpg" alt="Minh họa cảnh quan vịnh và những dãy núi xanh" loading="lazy" width="800" height="500" /><span>ĐI. KHÁM PHÁ. GHI NHỚ.</span></div>
