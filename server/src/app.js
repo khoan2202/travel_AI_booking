@@ -40,6 +40,11 @@ export function createApp() {
 
   // các origin được gọi API
   const allowedOrigins = new Set([app.locals.clientOrigin, 'http://localhost:5173', 'http://127.0.0.1:5173']);
+  // Trên Vercel: tự nhận domain chính của project và link riêng của bản deploy đang chạy,
+  // để mở bằng link nào của Vercel cũng đăng nhập được (Vercel tự cấp hai biến này).
+  for (const host of [process.env.VERCEL_PROJECT_PRODUCTION_URL, process.env.VERCEL_URL]) {
+    if (host) allowedOrigins.add(`https://${host}`);
+  }
 
   app.locals.allowedOrigins = allowedOrigins;
 
