@@ -40,8 +40,8 @@ export function dataFallback(
       .map((t) => ({ ...t, reason: 'Khớp bộ lọc và còn đủ chỗ tại thời điểm tra cứu.' })),
   };
 }
-// Lỗi kiểu gì cũng rơi về dataFallback, khách không thấy lỗi. fetchImpl để test thay fetch.
-export async function consult({ message, history, filters, catalog }, fetchImpl = fetch) {
+// Lỗi kiểu gì cũng rơi về dataFallback, khách không thấy lỗi.
+export async function consult({ message, history, filters, catalog }) {
   // không có tour hoặc chưa có API key thì khỏi gọi AI
   if (!catalog.length) return dataFallback(catalog);
   const key = process.env.GEMINI_API_KEY;
@@ -50,7 +50,7 @@ export async function consult({ message, history, filters, catalog }, fetchImpl 
   const model = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
   if (!/^gemini-[a-zA-Z0-9.-]+$/.test(model)) return dataFallback(catalog);
   try {
-    const response = await fetchImpl(
+    const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
       {
         method: 'POST',
