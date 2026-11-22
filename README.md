@@ -2,89 +2,73 @@
 
 ![Node](https://img.shields.io/badge/node-24-3c873a)
 ![React](https://img.shields.io/badge/react-19-61dafb)
-![PostgreSQL](https://img.shields.io/badge/postgresql-17-336791)
-![License](https://img.shields.io/badge/license-MIT-blue)
+![Express](https://img.shields.io/badge/express-5-555555)
+![PostgreSQL](https://img.shields.io/badge/postgresql-Neon-336791)
+![Vercel](https://img.shields.io/badge/deploy-Vercel-000000)
 
-Website đặt tour du lịch fullstack: khách xem, so sánh và đặt tour; admin quản lý tour, đơn đặt, người dùng và blog; trợ lý AI (Google Gemini) gợi ý tour phù hợp với nhu cầu.
+Website đặt tour du lịch fullstack: khách xem, lọc và đặt tour; admin quản lý tour, đơn đặt, blog và yêu cầu hỗ trợ; trợ lý AI (Google Gemini) gợi ý tour phù hợp với nhu cầu.
 
-🔗 **Demo:** https://travel.trizportal.com/  ·  📘 **Tài liệu API (Swagger):** `https://travel.trizportal.com/api-docs`
+🔗 **Demo:** https://travel.trizportal.com  ·  📘 **Tài liệu API (Swagger):** https://travel.trizportal.com/api-docs
 
-<img width="2858" height="1442" alt="image" src="https://github.com/user-attachments/assets/1344d668-5cca-4fee-8d5e-c8aad8584e36" />
+<img width="2858" height="1442" alt="Trang chủ Travel Mint" src="https://github.com/user-attachments/assets/1344d668-5cca-4fee-8d5e-c8aad8584e36" />
 
-> **Tóm tắt bằng tiếng Anh (for reviewers):** a full-stack tour booking app built with React 19, Express 5 and PostgreSQL. It focuses on correctness under concurrency (row-level locking prevents overselling seats, idempotent booking requests), a security-minded backend (session auth, CSRF, rate limiting, audit log), an admin back office, a Markdown blog, and a Gemini-powered assistant with a deterministic fallback. Deployed on Vercel with a Neon Postgres database.
+> **English summary:** a full-stack tour booking web app built with React 19, Express 5 and PostgreSQL. Highlights: seat booking that never oversells under concurrent requests (row-level locking), session authentication with bcrypt, CSRF tokens and per-route rate limiting, an admin dashboard, a Markdown blog, and a Google Gemini tour advisor with structured JSON output and an automatic database fallback. Deployed on Vercel with a Neon Postgres database.
 
 ---
 
-## 📸 Giao diện
+## ✨ Tính năng
+
+**Khách hàng**
+- Xem danh sách tour, lọc theo khu vực, ngân sách, số ngày; xem chi tiết và lịch khởi hành còn chỗ
+- Đăng ký, đăng nhập, đặt tour, xem và hủy đơn của mình
+- Trợ lý AI tư vấn tour, quiz tìm chuyến đi, so sánh tối đa 3 tour
+- Đọc blog du lịch, gửi yêu cầu hỗ trợ
+- Giao diện sáng/tối, dùng tốt trên điện thoại
+
+**Quản trị (admin)**
+- Dashboard: doanh thu 6 tháng, việc cần xử lý, tour bán chạy
+- Quản lý tour và lịch khởi hành, đơn đặt (xác nhận thanh toán, hoàn tiền, xuất CSV), người dùng
+- Soạn bài blog bằng Markdown, xử lý yêu cầu hỗ trợ, xem nhật ký thao tác của admin
 
 | | |
 |---|---|
-| ![Trang chủ giao diện sáng](docs/screenshots/home-light.jpg) | ![Trang chủ giao diện tối](docs/screenshots/home-dark.jpg) |
-| **Trang chủ** với banner bưu thiếp 3D, nghiêng theo chuột | **Giao diện tối**, nhớ lựa chọn của khách |
-| ![Blog du lịch](docs/screenshots/blog.jpg) | ![So sánh tour](docs/screenshots/compare.jpg) |
-| **Blog** viết bằng Markdown | **So sánh** tối đa 3 tour cạnh nhau |
-| ![Trình soạn bài](docs/screenshots/admin-editor.jpg) | ![Dashboard quản trị](docs/screenshots/admin-dashboard.jpg) |
-| **Trình soạn bài** có xem trước trực tiếp, hẹn giờ đăng | **Dashboard** quản trị (dữ liệu mẫu) |
-
----
-
-## ✨ Tính năng chính
-
-**Khách hàng**
-- Xem danh sách tour, lọc theo khu vực / ngân sách / số ngày, xem chi tiết và lịch khởi hành còn chỗ
-- **So sánh tối đa 3 tour** cạnh nhau (link so sánh có thể gửi cho bạn bè)
-- **Quiz tìm chuyến đi** (chấm điểm ngay trên trình duyệt) và **trợ lý AI tư vấn tour** dựa trên catalog thật
-- Đăng ký / đăng nhập, đặt tour, xem và hủy đơn của mình
-- Đọc blog du lịch, gửi yêu cầu hỗ trợ
-- Giao diện sáng / tối, dùng được trên điện thoại
-
-**Quản trị (admin)**
-- Dashboard: doanh thu 6 tháng, việc cần xử lý, tour bán chạy, tour sắp hết lịch khởi hành
-- Quản lý tour (nhân bản, đổi trạng thái nhanh, tạo nhiều lịch khởi hành một lần), đơn đặt (xác nhận thanh toán, hoàn tiền, xuất CSV), người dùng và phân quyền
-- Xử lý yêu cầu hỗ trợ, soạn bài blog (Markdown, hẹn giờ đăng)
-- Nhật ký hoạt động: ghi lại mọi thao tác của admin
-
-## 🧠 Điểm nhấn kỹ thuật
-
-**Không bán quá số chỗ, kể cả khi nhiều người đặt cùng lúc.** Đặt tour chạy trong một transaction, khóa dòng lịch khởi hành bằng `SELECT ... FOR UPDATE` rồi mới kiểm tra và trừ chỗ; `CHECK (seats_booked <= capacity)` ở database là lớp bảo vệ cuối cùng. Xem [`bookingService.js`](server/src/services/bookingService.js).
-
-**Bấm hai lần hoặc rớt mạng không tạo đơn trùng.** Mỗi lần đặt có một `request_key` (UUID) do trình duyệt tạo và lưu tạm; gửi lại cùng mã thì server trả lại đơn cũ. Mã này chỉ được tái sử dụng khi nội dung y hệt.
-
-**Không tin dữ liệu từ trình duyệt.** Giá và tổng tiền luôn lấy từ database; khách chỉ gửi giá họ đã thấy để server phát hiện giá vừa đổi. Quyền (`role`) đọc lại từ database ở mỗi request, không lấy từ phiên.
-
-**Thao tác tiền bạc có dấu vết.** Ghi nhận thanh toán / hoàn tiền yêu cầu tick xác nhận, ghi chú và mã đối soát; mỗi thao tác của admin đều vào nhật ký (`admin_audit_logs`). Mỗi đơn chỉ có tối đa một lần thanh toán và một lần hoàn tiền (ràng buộc `UNIQUE` trong database).
-
-**Blog an toàn trước XSS.** Bộ đọc Markdown tự viết ([`markdown.js`](client/src/utils/markdown.js)) chuyển nội dung thành các khối React, không dùng `dangerouslySetInnerHTML`; link `javascript:` và `//` bị chặn.
-
-**Migration chạy lại được nhiều lần.** Các file SQL `008`, `009`, `010` dùng `IF NOT EXISTS` / `ON CONFLICT DO NOTHING`; server không khởi động nếu thiếu bảng bắt buộc, còn các tính năng mới (blog, hỗ trợ) tự báo rõ khi database chưa chạy migration thay vì sập.
-
-## 🛡️ Bảo mật
-
-- Đăng nhập bằng session, mật khẩu băm bằng **bcrypt**, session lưu trong PostgreSQL; cấp lại mã phiên sau khi đăng nhập (chống session fixation)
-- Đăng nhập luôn chạy so sánh mật khẩu kể cả khi email không tồn tại, để không dò được email nào đã đăng ký qua thời gian phản hồi
-- **CSRF token** cho mọi request thay đổi dữ liệu, kiểm tra thêm `Origin`; origin lạ bị từ chối 403
-- **Rate limiting** riêng cho đăng nhập, đăng ký, đặt tour, hỗ trợ và gọi AI
-- Header bảo mật; trên production có thêm HSTS và **Content-Security-Policy** chặn script ngoài
-- Giới hạn kích thước request, phân quyền `user` / `admin` ở cả frontend và backend
-
-## 🤖 Trợ lý AI
-
-- Gọi Google Gemini với system prompt chỉ cho phép tư vấn tour **có trong database**, không bịa giá hay chính sách
-- Ép kết quả trả về dạng JSON (câu trả lời + tối đa 3 tour kèm lý do)
-- **Giảm thiểu prompt injection:** coi câu hỏi và lịch sử là dữ liệu không đáng tin trong prompt, và quan trọng hơn là kiểm tra chặt đầu ra: tour AI chọn phải có trong danh sách đã gửi, không trùng, lý do hợp lệ; giá và số chỗ luôn lấy lại từ database
-- Giới hạn 10 giây cho mỗi lần gọi, giới hạn tần suất theo IP và theo tài khoản để tránh tốn quota
-- **Phương án dự phòng:** khi AI lỗi, quá giờ, trả sai định dạng hoặc chưa có API key, hệ thống tự gợi ý tour từ database, người dùng không thấy lỗi. ([`consultationService.js`](server/src/services/consultationService.js))
+| ![Trang chủ](docs/screenshots/home-light.jpg) | ![Giao diện tối](docs/screenshots/home-dark.jpg) |
+| **Trang chủ** | **Giao diện tối** |
+| ![Blog](docs/screenshots/blog.jpg) | ![So sánh tour](docs/screenshots/compare.jpg) |
+| **Blog** viết bằng Markdown | **So sánh** tour cạnh nhau |
+| ![Soạn bài](docs/screenshots/admin-editor.jpg) | ![Dashboard](docs/screenshots/admin-dashboard.jpg) |
+| **Trình soạn bài** của admin | **Dashboard** quản trị (dữ liệu mẫu) |
 
 ## 🧰 Công nghệ
 
 | Tầng | Công nghệ |
 |------|-----------|
-| Frontend | React 19, Vite, React Router, Context API, CSS thuần (không dùng thư viện UI) |
-| Backend | Node.js 24, Express 5, REST API, Swagger UI |
-| Database | PostgreSQL (Neon), 10 file migration SQL |
+| Frontend | React 19, Vite, React Router, Context API, CSS thuần |
+| Backend | Node.js 24, Express 5, REST API (11 nhóm route), Swagger/OpenAPI |
+| Database | PostgreSQL trên Neon, 10 file migration SQL |
 | AI | Google Gemini API |
+| Deploy | Vercel: giao diện tĩnh + Express chạy dạng Serverless Function |
 | Công cụ | Git/GitHub, ESLint |
-| Deploy | Vercel (giao diện tĩnh + Express chạy dạng Serverless Function) + Neon Postgres |
+
+## 🧠 Điểm nhấn kỹ thuật
+
+**Không bán quá số chỗ khi nhiều người đặt cùng lúc.** Đặt tour chạy trong một transaction, khóa dòng lịch khởi hành bằng `SELECT ... FOR UPDATE` rồi mới kiểm tra và trừ chỗ; ràng buộc `CHECK (seats_booked <= capacity)` trong database là lớp bảo vệ cuối ([`bookingService.js`](server/src/services/bookingService.js)).
+
+**Bấm hai lần không tạo đơn trùng.** Mỗi lần đặt kèm một `request_key` (UUID); gửi lại cùng mã thì server trả về đơn cũ thay vì tạo đơn mới.
+
+**Không tin dữ liệu từ trình duyệt.** Giá và tổng tiền luôn lấy từ database; quyền `user`/`admin` được đọc lại từ database ở mỗi request.
+
+**Bảo mật**
+- Đăng nhập bằng session lưu trong PostgreSQL, mật khẩu băm bằng **bcrypt**, đổi mã phiên sau khi đăng nhập
+- **CSRF token** cho mọi request ghi dữ liệu, kèm kiểm tra `Origin`
+- **Rate limiting** riêng cho đăng nhập, đăng ký, đặt tour, form hỗ trợ và trợ lý AI
+- Header bảo mật (CSP, HSTS, X-Frame-Options...), giới hạn kích thước request
+- Blog chống XSS: Markdown được chuyển thành phần tử React, không dùng `dangerouslySetInnerHTML`
+
+**Trợ lý AI** ([`consultationService.js`](server/src/services/consultationService.js))
+- Khóa Gemini chỉ nằm ở server; Gemini buộc trả về JSON theo schema (câu trả lời + tối đa 3 tour kèm lý do)
+- Chống prompt injection: kiểm tra đầu ra, tour AI chọn phải có trong danh sách đã gửi; giá và số chỗ luôn lấy lại từ database
+- Mỗi lần gọi tối đa 10 giây; AI lỗi, quá giờ hoặc chưa có API key thì tự gợi ý tour từ database
 
 ## 🗄️ Mô hình dữ liệu
 
@@ -95,17 +79,9 @@ erDiagram
     users ||--o{ bookings : "đặt"
     tour_departures ||--o{ bookings : "được đặt"
     bookings ||--o{ booking_payment_events : "thanh toán / hoàn tiền"
-    users ||--o{ booking_payment_events : "admin ghi nhận"
     users ||--o{ admin_audit_logs : "thao tác"
     users ||--o{ support_requests : "gửi"
-    bookings |o--o{ support_requests : "liên quan"
-    destinations |o--o{ blog_posts : "gắn với"
     users |o--o{ blog_posts : "viết"
-    users {
-        int id PK
-        string email UK
-        string role "user hoac admin"
-    }
     tour_departures {
         int id PK
         date start_date
@@ -118,121 +94,94 @@ erDiagram
         uuid request_key "chong dat trung"
         numeric unit_price "chup gia luc dat"
         string status "confirmed hoac cancelled"
-        string payment_status "unpaid, paid hoac refunded"
     }
 ```
 
-Ngoài ra có bảng `user_sessions` (phiên đăng nhập, dùng `connect-pg-simple`).
+Ngoài ra có bảng `user_sessions` lưu phiên đăng nhập.
 
 ## 🗂️ Cấu trúc thư mục
 
 ```
 travel_AI_booking/
-├── api/index.js · vercel.json       # deploy lên Vercel (Express chạy dạng Serverless Function)
-├── docs/screenshots/                 # ảnh dùng trong README
-├── client/                           # Frontend React
+├── api/index.js        # điểm vào của backend trên Vercel
+├── vercel.json         # cấu hình build, định tuyến, header bảo mật cho Vercel
+├── client/             # Frontend React (Vite)
 │   └── src/
-│       ├── pages/                    # 24 trang (khách + admin)
-│       ├── components/               # Header, TourCard, CompareTray, RevenueChart...
-│       ├── context/                  # AuthContext, CompareContext
-│       ├── hooks/                    # useLoad (tải dữ liệu, tự hủy yêu cầu cũ)
-│       ├── services/                 # Gọi API (tourApi, bookingApi, adminApi...)
-│       ├── utils/                    # Markdown, quiz, định dạng
-│       └── styles/                   # CSS theo từng khu vực, theme.css cho giao diện tối
-└── server/                           # Backend Express
-    ├── sql/                          # Migration 001 → 010
-    ├── scripts/make-admin.js         # cấp quyền admin cho một tài khoản
+│       ├── pages/      # các trang của khách và admin
+│       ├── components/ # Header, TourCard, Hero, RevenueChart...
+│       ├── services/   # hàm gọi API
+│       ├── context/    # đăng nhập, so sánh tour
+│       └── styles/     # CSS theo từng khu vực
+└── server/             # Backend Express
+    ├── sql/            # migration 001 → 010 (tạo bảng + dữ liệu mẫu)
+    ├── scripts/        # make-admin.js: cấp quyền admin
     └── src/
-        ├── routes/                   # 11 nhóm route
-        ├── controllers/              # Xử lý request
-        ├── services/                 # Logic đặt tour, gợi ý, gọi AI
-        ├── middleware/               # auth, csrf, security
-        └── docs/openapi.js           # Tài liệu Swagger
+        ├── routes/     # 11 nhóm API
+        ├── controllers/
+        ├── services/   # đặt tour, gợi ý, gọi Gemini
+        ├── middleware/ # auth, csrf, security headers
+        └── docs/       # tài liệu Swagger
 ```
 
 ## 🚀 Chạy trên máy
 
-**Yêu cầu:** Node.js 24, PostgreSQL (cài trên máy hoặc dùng Neon miễn phí).
+**Cần có:** Node.js 24 và PostgreSQL.
 
 ```bash
-# 1. Tạo database và chạy lần lượt các file migration (001 → 010)
-createdb travel_ai_booking
-for f in server/sql/0*.sql; do psql -d travel_ai_booking -v ON_ERROR_STOP=1 -f "$f"; done
-# PowerShell: Get-ChildItem server/sql/0*.sql | ForEach-Object { psql -d travel_ai_booking -v ON_ERROR_STOP=1 -f $_.FullName }
+# 1. Tạo database rồi chạy lần lượt các file server/sql/001 → 010 (bằng pgAdmin hoặc psql)
 
 # 2. Backend
 cd server
-cp .env.example .env      # điền thông tin PostgreSQL và SESSION_SECRET (GEMINI_API_KEY không bắt buộc)
+cp .env.example .env    # điền thông tin PostgreSQL và SESSION_SECRET
 npm install
-npm run dev               # http://localhost:5000
+npm run dev             # http://localhost:5000  ·  Swagger: http://localhost:5000/api-docs
 
 # 3. Frontend (mở terminal khác)
 cd client
 npm install
-npm run dev               # http://localhost:5173
+npm run dev             # http://localhost:5173
 ```
 
-Tạo tài khoản admin: đăng ký bình thường rồi chạy `npm run make-admin -- email-cua-ban@example.com` trong thư mục `server`.
+Tạo tài khoản admin: đăng ký trên website, rồi chạy `npm run make-admin -- email-cua-ban@example.com` trong thư mục `server`.
 
-## 🧹 Kiểm tra code
+## ☁️ Deploy lên Vercel
 
-```bash
-cd client && npm run lint     # ESLint cho frontend
-cd server && npm run lint     # ESLint cho backend
-```
+1. Chạy các file `server/sql/001 → 010` trên database Neon.
+2. Import repo vào Vercel, giữ nguyên *Root Directory*; [`vercel.json`](vercel.json) đã khai báo sẵn cách cài, build và định tuyến.
+3. Thêm biến môi trường:
 
-## ☁️ Deploy
-
-Giao diện và `/api` luôn nằm trên **cùng một domain**, nên cookie đăng nhập dùng `SameSite=Lax` và không cần cấu hình CORS giữa hai nơi.
-
-**Vercel (bản demo đang dùng).** Import repo vào Vercel, giữ *Root Directory* là thư mục gốc; [`vercel.json`](vercel.json) đã khai báo sẵn cách cài, build và định tuyến. Vercel phục vụ `client/dist`, còn mọi request `/api/*` và `/api-docs` chạy qua app Express trong [`api/index.js`](api/index.js) (một Serverless Function). Header bảo mật (CSP, HSTS...) cho trang tĩnh cũng khai báo trong `vercel.json`.
-
-**Nơi khác (Render, VPS...).** Một tiến trình Node phục vụ cả `client/dist` lẫn `/api`: `npm run build` trong `client` rồi `npm start` trong `server`.
-
-| Biến môi trường | Ý nghĩa |
+| Biến | Giá trị |
 |---|---|
-| `NODE_ENV=production` | Bật chế độ production (cookie `secure`, HSTS, CSP). Bắt buộc `CLIENT_URL` là https và `DATABASE_SSL=true` |
-| `CLIENT_URL` | Địa chỉ website, ví dụ `https://ten-du-an.vercel.app` (dùng cho CORS và CSRF) |
-| `DATABASE_SSL=true` | Bật SSL tới database (Neon yêu cầu) |
-| `DATABASE_URL` | Chuỗi kết nối PostgreSQL (tích hợp Neon trên Vercel tự tạo). Dùng khi không đặt `PGHOST` |
-| `PGHOST` `PGPORT` `PGDATABASE` `PGUSER` `PGPASSWORD` | Cách khai báo kết nối thứ hai, được ưu tiên nếu có `PGHOST` |
-| `SESSION_SECRET` | Khóa ký cookie, ít nhất 32 ký tự ngẫu nhiên |
-| `COOKIE_SAMESITE` | Không bắt buộc, mặc định `lax` (cùng domain). Chỉ đặt `none` khi tách frontend và backend sang hai domain khác nhau |
-| `GEMINI_API_KEY` | Không bắt buộc; bỏ trống thì AI dùng phương án dự phòng |
+| `DATABASE_URL` | Chuỗi kết nối Neon |
+| `SESSION_SECRET` | Chuỗi ngẫu nhiên, ít nhất 32 ký tự |
+| `CLIENT_URL` | Địa chỉ website, ví dụ `https://ten-du-an.vercel.app` |
+| `NODE_ENV` | `production` |
+| `DATABASE_SSL` | `true` |
+| `GEMINI_API_KEY` | Không bắt buộc; bỏ trống thì trợ lý dùng gợi ý từ database |
 
-Trước lần deploy đầu tiên, chạy lần lượt các file `server/sql/001 → 010` trên database. Mỗi lần thêm migration mới, chạy file đó trên database thật trước khi deploy code cần đến nó.
+Vercel phục vụ giao diện đã build, còn `/api/*` và `/api-docs` chạy qua app Express trong [`api/index.js`](api/index.js). Giao diện và API cùng một domain nên không cần cấu hình CORS.
 
 ## ⚠️ Giới hạn đã biết
 
-- **Thanh toán là ghi sổ thủ công:** khách chưa trả tiền trực tuyến; admin xác nhận sau khi kiểm tra chuyển khoản. Chưa tích hợp cổng thanh toán.
-- Chưa gửi email xác nhận đơn; hỗ trợ khách qua form liên hệ và trang quản trị.
-- Tour, giá và lịch khởi hành là **dữ liệu mẫu**.
+- Thanh toán là ghi sổ thủ công: admin xác nhận sau khi kiểm tra chuyển khoản, chưa có cổng thanh toán.
+- Chưa gửi email xác nhận đơn.
+- Tour, giá và lịch khởi hành là dữ liệu mẫu.
 - Chưa có kiểm thử tự động; các luồng chính được kiểm tra thủ công trên trình duyệt.
-- Trên Vercel, giới hạn tần suất (rate limit) đếm trong bộ nhớ của từng instance serverless nên lỏng hơn khi chạy một server; muốn chặt cần chuyển bộ đếm sang Redis/PostgreSQL.
-- Ảnh bìa blog chọn từ ảnh có sẵn hoặc dán link https, chưa hỗ trợ tải ảnh lên.
+- Trên Vercel, rate limit đếm riêng trong từng instance nên lỏng hơn khi chạy một server; muốn chặt cần lưu bộ đếm vào Redis.
 
 ## 🤝 Đóng góp
 
 Dự án bắt đầu như bài làm nhóm và hiện do mình duy trì.
 
-- **Phùng Khắc Khoan:** lên ý tưởng và chọn tính năng, thiết kế database và luồng đặt tour, phụ trách backend (đặt tour chống bán quá chỗ, xác thực, CSRF, thanh toán thủ công, nhật ký admin, trợ lý AI), trang quản trị, blog, so sánh tour, quiz, banner 3D, giao diện sáng/tối và deploy.
-- **Nguyễn Tấn Hùng (`hungdz`):**
-  - Thiết kế lại giao diện trang đăng nhập/đăng ký, phần hero và ảnh tour trên trang chủ, bổ sung bộ ảnh cho giao diện.
-  - Làm lại giao diện trang chi tiết tour và form đặt tour.
-  - Làm trọn tính năng Liên hệ: bảng `support_requests` (migration `007`), API gửi yêu cầu hỗ trợ, trang Liên hệ ở frontend.
-  - Viết tài liệu API bằng Swagger cho toàn bộ endpoint lúc đó (sau này mình cập nhật thêm cho các API mới).
-  - Sửa cấu hình CORS và CSRF để frontend chạy được ở máy local.
-  - Thử nghiệm deploy bằng Cloudflare Workers (bản thử, không đưa vào bản chính).
+- **Phùng Khắc Khoan:** ý tưởng và tính năng, thiết kế database và luồng đặt tour, backend (đặt tour, xác thực, bảo mật, thanh toán thủ công, nhật ký admin, trợ lý AI), trang quản trị, blog, so sánh tour, quiz, giao diện sáng/tối và deploy.
+- **Nguyễn Tấn Hùng (`hungdz`):** thiết kế lại giao diện đăng nhập/đăng ký, phần hero và trang chi tiết tour, form đặt tour; làm tính năng Liên hệ (bảng `support_requests`, API và trang Liên hệ); viết tài liệu Swagger ban đầu; sửa cấu hình CORS và CSRF cho môi trường local.
 
-**Về việc dùng AI:** mình dùng Claude (Anthropic) làm trợ lý lập trình, ước chừng 60% lượng code được viết cùng AI (code khung, refactor, rà lỗi bảo mật). Mình quyết định cách làm, đọc lại và chỉnh từng thay đổi, chạy thử trên máy và deploy. Mình hiểu và giải thích được mọi phần trong dự án.
-
-Lịch sử chi tiết xem ở tab Commits.
+**Về việc dùng AI:** mình dùng Claude (Anthropic) làm trợ lý lập trình, ước chừng 60% lượng code được viết cùng AI (code khung, refactor, rà lỗi bảo mật). Mình quyết định cách làm, đọc lại và chỉnh từng thay đổi, chạy thử trên máy và deploy.
 
 ## 📄 Giấy phép
 
-Mã nguồn theo giấy phép [MIT](LICENSE). Ảnh điểm đến lấy từ Wikimedia Commons (CC BY, CC BY-SA, CC0, Public domain); tác giả và giấy phép từng ảnh được ghi tại trang `/credits` của website.
+Mã nguồn theo giấy phép [MIT](LICENSE). Ảnh điểm đến lấy từ Wikimedia Commons; tác giả và giấy phép từng ảnh được ghi tại trang `/credits` của website.
 
 ## 👤 Tác giả
 
-**Phùng Khắc Khoan** — sinh viên Hệ thống Thông tin, Trường ĐH Công nghệ Thông tin (UIT – ĐHQG-HCM)
-GitHub: [@khoan2202](https://github.com/khoan2202)
+**Phùng Khắc Khoan**, sinh viên Hệ thống Thông tin, Trường ĐH Công nghệ Thông tin (UIT – ĐHQG-HCM) · GitHub: [@khoan2202](https://github.com/khoan2202)
