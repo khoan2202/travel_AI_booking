@@ -28,8 +28,8 @@ Khách tìm, so sánh và đặt tour · Admin quản lý toàn bộ hệ thốn
 
 ## 📑 Mục lục
 
-- [Tính năng](#-tính-năng)
 - [Giao diện](#-giao-diện)
+- [Tính năng](#-tính-năng)
 - [Kiến trúc](#️-kiến-trúc)
 - [Điểm nhấn kỹ thuật](#-điểm-nhấn-kỹ-thuật)
 - [Bảo mật](#️-bảo-mật)
@@ -39,21 +39,6 @@ Khách tìm, so sánh và đặt tour · Admin quản lý toàn bộ hệ thốn
 - [Chạy trên máy](#-chạy-trên-máy)
 - [Deploy](#️-deploy)
 - [Tác giả](#-tác-giả)
-
----
-
-## ✨ Tính năng
-
-| 🧳 Khách hàng | 🛠️ Quản trị viên |
-|---|---|
-| Tìm và lọc tour theo khu vực, ngân sách, số ngày | **Dashboard**: doanh thu 6 tháng, tour bán chạy, việc cần xử lý |
-| Xem chi tiết tour, thư viện ảnh, lịch khởi hành còn chỗ | Quản lý tour: thêm, sửa, nhân bản, đổi trạng thái nhanh |
-| **Đặt tour**, xem lại và tự hủy đơn | Tạo hàng loạt lịch khởi hành |
-| **Trợ lý AI** gợi ý tour bằng ngôn ngữ tự nhiên | Quản lý đơn: ghi nhận thanh toán, hoàn tiền, **xuất CSV** |
-| **So sánh** tối đa 3 tour, chia sẻ bằng link | Quản lý người dùng và phân quyền admin |
-| Quiz tìm điểm đến hợp gu | Soạn blog **Markdown**: xem trước trực tiếp, lưu nháp, hẹn giờ đăng |
-| Blog du lịch theo điểm đến | Hộp thư yêu cầu hỗ trợ, cập nhật trạng thái xử lý |
-| Gửi yêu cầu hỗ trợ, giao diện sáng/tối, responsive | **Nhật ký hoạt động**: ai làm gì, lúc nào |
 
 ---
 
@@ -73,6 +58,21 @@ Khách tìm, so sánh và đặt tour · Admin quản lý toàn bộ hệ thốn
     <td><img src="docs/screenshots/admin-editor.jpg" alt="Trình soạn bài"/><p align="center"><b>Trình soạn bài</b> có xem trước trực tiếp</p></td>
   </tr>
 </table>
+
+---
+
+## ✨ Tính năng
+
+| 🧳 Khách hàng | 🛠️ Quản trị viên |
+|---|---|
+| Tìm và lọc tour theo khu vực, ngân sách, số ngày | **Dashboard**: doanh thu 6 tháng, tour bán chạy, việc cần xử lý |
+| Xem chi tiết tour, thư viện ảnh, lịch khởi hành còn chỗ | Quản lý tour: thêm, sửa, nhân bản, đổi trạng thái nhanh |
+| **Đặt tour**, xem lại và tự hủy đơn | Tạo hàng loạt lịch khởi hành |
+| **Trợ lý AI** gợi ý tour bằng ngôn ngữ tự nhiên | Quản lý đơn: ghi nhận thanh toán, hoàn tiền, **xuất CSV** |
+| **So sánh** tối đa 3 tour, chia sẻ bằng link | Quản lý người dùng và phân quyền admin |
+| Quiz tìm điểm đến hợp gu | Soạn blog **Markdown**: xem trước trực tiếp, lưu nháp, hẹn giờ đăng |
+| Blog du lịch theo điểm đến | Hộp thư yêu cầu hỗ trợ, cập nhật trạng thái xử lý |
+| Gửi yêu cầu hỗ trợ, giao diện sáng/tối, responsive | **Nhật ký hoạt động**: ai làm gì, lúc nào |
 
 ---
 
@@ -337,7 +337,11 @@ travel_AI_booking/
 
 ## 👤 Tác giả
 
-**Phùng Khắc Khoan** · Sinh viên Hệ thống Thông tin, Trường ĐH Công nghệ Thông tin (UIT – ĐHQG-HCM) · GitHub [@khoan2202](https://github.com/khoan2202)
+**Phùng Khắc Khoan**
+
+Sinh viên Hệ thống Thông tin, Trường ĐH Công nghệ Thông tin (UIT – ĐHQG-HCM)
+
+[![GitHub](https://img.shields.io/badge/GitHub-khoan2202-181717?logo=github&logoColor=white)](https://github.com/khoan2202)
 
 **Về việc dùng AI:** mình dùng Claude (Anthropic) làm trợ lý lập trình hỗ trợ phần code (code khung, refactor, rà lỗi bảo mật). Mình quyết định cách làm, đọc lại và chỉnh từng thay đổi, chạy thử trên máy và deploy.
 
